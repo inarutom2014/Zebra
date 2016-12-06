@@ -1,7 +1,7 @@
 /**
  *    > Author:            UncP
  *    > Mail:         770778010@qq.com
- *    > Github:    https://www.github.com/UncP/Swan
+ *    > Github:    https://www.github.com/UncP/Bunny
  *    > Created Time:  2016-12-05 23:59:51
 **/
 
@@ -15,7 +15,7 @@
 
 namespace Swan {
 
-inline Vector UniformSphere(const Point2<double> &u) {
+static inline Vector UniformSphere(const Point2<double> &u) {
 	double z = 1 - 2 * u.x_;
 	double r = std::sqrt(std::max(0.0, 1 - z * z));
 	double phi = 2 * PI * u.y_;
@@ -25,10 +25,11 @@ inline Vector UniformSphere(const Point2<double> &u) {
 class Light
 {
 	public:
+		Light() { }
 
 		virtual Spectrum SampleLi(const Point &position, Vector &wi, double &pdf) const = 0;
 
-		virtual Spectrum SampleLe(Ray &ray, Vector &normal, const Point2<double> &u,
+		virtual Spectrum SampleLe(Vector &wi, const Point2<double> &u,
 			double &pdf_pos, double &pdf_dir) const = 0;
 
 		virtual ~Light() { }
@@ -37,8 +38,8 @@ class Light
 class DirectionalLight : public Light
 {
 	public:
-		DirectionalLight(const Point position, const Vector &direction, const Spectrum &intensity)
-		:position_(position), direction_(-Normalize(direction)), intensity_(intensity) { }
+		DirectionalLight(const Vector &direction, const Spectrum &intensity)
+		:direction_(-Normalize(direction)), intensity_(intensity) { }
 
 		Spectrum SampleLi(const Point &position, Vector &wi, double &pdf) const override {
 			wi  = direction_;
@@ -46,17 +47,15 @@ class DirectionalLight : public Light
 			return intensity_;
 		}
 
-		Spectrum SampleLe(Ray &ray, Vector &normal, const Point2<double> &u,
+		Spectrum SampleLe(Vector &wi, const Point2<double> &u,
 			double &pdf_pos, double &pdf_dir) const override {
-			ray     = Ray(position_, direction_);
-			normal  = direction_;
+			wi = direction_;
 			pdf_pos = 1.0;
 			pdf_dir = 1.0;
 			return intensity_;
 		}
 
 	private:
-		// const Point    position_;
 		const Vector   direction_;
 		const Spectrum intensity_;
 };
@@ -73,10 +72,9 @@ class PointLight : public Light
 			return intensity_;
 		}
 
-		Spectrum SampleLe(Ray &ray, Vector &normal, const Point2<double> &u,
+		Spectrum SampleLe(Vector &wi, const Point2<double> &u,
 			double &pdf_pos, double &pdf_dir) const override {
-			ray = Ray(position_, UniformSphere(u));
-			normal = ray.Direction();
+			wi = UniformSphere(u);
 			pdf_pos = 1.0;
 			pdf_dir = INV_PI * 0.25;
 			return intensity_;
@@ -95,7 +93,7 @@ class AreaLight : public Light
 		Spectrum SampleLi(const Point &position, Vector &wi, double &pdf) const override {
 			return Spectrum();
 		}
-		Spectrum SampleLe(Ray &ray, Vector &normal, const Point2<double> &u,
+		Spectrum SampleLe(Vector &wi, const Point2<double> &u,
 			double &pdf_pos, double &pdf_dir) const override {
 			return Spectrum();
 		}

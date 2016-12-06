@@ -1,7 +1,7 @@
 /**
  *    > Author:            UncP
  *    > Mail:         770778010@qq.com
- *    > Github:    https://www.github.com/UncP/Swan
+ *    > Github:    https://www.github.com/UncP/Bunny
  *    > Created Time:  2016-12-06 09:53:07
 **/
 
@@ -12,7 +12,9 @@
 #include <vector>
 #include <memory>
 #include <string>
+#include <algorithm>
 
+#include "bsdf.hpp"
 #include "object.hpp"
 #include "light.hpp"
 #include "parameter.hpp"
@@ -35,8 +37,8 @@ class Parser
 					continue;
 				parameter_ = Parameter(str, line_);
 				std::string s(parameter_.FindString());
-				if (s == "Object") objects_.push_back(std::make_shared<Object>(FindObject()));
-				else if (s == "Light") lights_.push_back(std::make_shared<Light>(FindLight()));
+				if (s == "Object") objects_.push_back(FindObject());
+				else if (s == "Light") lights_.push_back(FindLight());
 				else {
 					std::cerr << "line: " << line_ << ": syntax error :(\n";
 					exit(-1);
@@ -47,7 +49,7 @@ class Parser
 		Object* FindObject() {
 			std::string s(parameter_.FindString());
 			const BSDF *bsdf = nullptr;
-			if (s == "Diffuse") bsdf = NewDiffuseDSDF(parameter_);
+			if (s == "Diffuse") bsdf = NewDiffuseBSDF(parameter_);
 			else if (s == "Reflect") bsdf = NewReflectBSDF(parameter_);
 			else {
 				std::cerr << "line: " << line_ << ": syntax error :(\n";
@@ -66,11 +68,20 @@ class Parser
 			exit(-1);
 		}
 
+		~Parser() {
+			std::for_each(lights_.begin(), lights_.end(), [](Light *light) {
+				delete light;
+			});
+			std::for_each(objects_.begin(), objects_.end(), [](Object *object) {
+				delete object;
+			});
+		}
+
 	private:
 		int       line_;
 		Parameter parameter_;
-		std::vector<std::shared_ptr<Light>>  lights_;
-		std::vector<std::shared_ptr<Object>> objects_;
+		std::vector<Light *>  lights_;
+		std::vector<Object *> objects_;
 };
 
 } // namespace Swan

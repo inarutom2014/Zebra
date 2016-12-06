@@ -1,7 +1,7 @@
 /**
  *    > Author:            UncP
  *    > Mail:         770778010@qq.com
- *    > Github:    https://www.github.com/UncP/Swan
+ *    > Github:    https://www.github.com/UncP/Bunny
  *    > Created Time:  2016-12-05 14:50:32
 **/
 
@@ -14,18 +14,19 @@
 #include "constant.hpp"
 #include "vector.hpp"
 #include "point.hpp"
+#include "parameter.hpp"
 
 namespace Swan {
 
 static std::default_random_engine generator(time(0));
 static std::uniform_real_distribution<double> distribution(0, 1);
 
-inline double CosTheta(const Vector &wi)
+static inline double CosTheta(const Vector &wi)
 {
 	return wi.z_;
 }
 
-inline Vector CosineWeightedHemisphere()
+static inline Vector CosineWeightedHemisphere()
 {
 	double u1 = distribution(generator);
 	double u2 = distribution(generator);
@@ -115,6 +116,25 @@ class RefractBSDF : public BSDF
   	const Spectrum transmittance_;
 		const double   ior_;
 };
+
+BSDF* NewDiffuseBSDF(Parameter &param)
+{
+	Spectrum spectrum = param.FindVector();
+	return new DiffuseBSDF(spectrum);
+}
+
+BSDF* NewReflectBSDF(Parameter &param)
+{
+	Spectrum spectrum = param.FindVector();
+	return new ReflectBSDF(spectrum);
+}
+
+BSDF* NewRefractBSDF(Parameter &param)
+{
+	Spectrum spectrum = param.FindVector();
+	double ior        = param.FindDouble();
+	return new RefractBSDF(spectrum, ior);
+}
 
 } // namespace Swan
 
