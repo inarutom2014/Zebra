@@ -1,0 +1,4 @@
+*.o
+vector_test
+matrix_test
+kernal_test
