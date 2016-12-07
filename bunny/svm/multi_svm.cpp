@@ -9,58 +9,57 @@
 #include <fstream>
 #include <sstream>
 
-#include "svm.hpp"
+#include "multi_svm.hpp"
 
 namespace Bunny {
 
-SVM::SVM(const char *train, const char *test, float rate, float reg, size_t batch)
-:train_dir_(train), test_dir_(test), rate_(rate), reg_(reg), batch_(batch), b_(0) { }
+MultiSVM::MultiSVM(const char *train, const char *test, float rate, float reg, size_t iter,
+                   size_t batch)
+:train_dir_(train), test_dir_(test), rate_(rate), reg_(reg), max_iter_(iter), batch_(batch) { }
 
-std::string SVM::ToString() const
+std::string MultiSVM::ToString() const
 {
 	std::ostringstream os;
-	os << "SVM info:\n";
-	os << "data:   \033[31m" << x_.ToString() << "\033[0m";
-	os << "label:  \033[32m" << y_.size() << std::endl << "\033[0m";
+	os << "MultiSVM info:\n";
+	os << "train data:   \033[31m" << x_.ToString() << "\033[0m";
+	os << "train label:  \033[32m" << y_.size() << std::endl << "\033[0m";
 	os << "weight: \033[34m" << w_.ToString() << "\033[0m";
-	if (loss_.size()) {
-		for (size_t i = 0; i != loss_.size(); ++i)
-			os << loss_[i] << " ";
-	}
+	os << rate_ << " " << reg_ << " " << max_iter_ << " " << batch_ << std::endl;
+	os << "test data:    \033[31m" << x_test_.ToString() << "\033[0m";
+	os << "test label:   \033[32m" << y_test_.size() << std::endl << "\033[0m";
+	os << "error rate: \033[31m" <<  err_rate_ << "\033[0m %\n";
+
 	return std::move(os.str());
 }
 
-void LoadModel(const char *dir_name, Matrix<uint8_t> &x, Vector<uint8_t> &y)
+void LoadModel(const char *dir_name, Matrix<uint8_t> &x, Vector<uint8_t> &y, size_t total)
 {
 	DIR *dir = opendir(dir_name);
 	assert(dir);
 	struct dirent *dirp = nullptr;
 	std::string file(dir_name);
 	file += '/';
-	// size_t c = 0;
-	for (size_t c = 0; (dirp = readdir(dir)) && c != 10; ++c) {
+	for (size_t c = 0; (dirp = readdir(dir)) && c != total; ++c) {
 		if (dirp->d_name[0] == '.') { --c; continue; }
-		// std::cout << dirp->d_name << std::endl;
 		std::ifstream in(file + dirp->d_name);
 		assert(in.is_open());
 		y.Push(dirp->d_name[0] - '0');
-		Vector<uint8_t> tmp(1024);
+		Vector<uint8_t> tmp(1025);
 		for (size_t i = 0; !in.eof(); ) {
 			std::string str;
 			in >> str;
-			// std::cout << str << std::endl;
 			for (auto e : str)
 				tmp.Assign(i++, e - '0');
+			tmp.Assign(i, 1);
 		}
 		x.Push(tmp);
 		in.close();
 	}
-	// std::cout << c << std::endl;
 	closedir(dir);
 	assert(x.Shape().first == y.size());
 }
 
-float SVM::ComputerLoss(const Vector<size_t> &index)
+float MultiSVM::ComputerLoss(const Vector<size_t> &index)
 {
 	float loss = 0;
 	auto pair = w_.Shape();
@@ -85,26 +84,22 @@ float SVM::ComputerLoss(const Vector<size_t> &index)
 			}
 		}
 	}
-	std::cout << "fuck\n";
-	loss /= pair.first;
-	dw_  /= pair.first;
+	loss /= batch_;
+	dw_  /= batch_;
 	loss += 0.5 * reg_ * (w_ * w_).Sum();
-	dw_ += reg_;
 	return loss;
 }
 
-void SVM::Train()
+void MultiSVM::Train()
 {
-	LoadModel(train_dir_, x_, y_);
+	LoadModel(train_dir_, x_, y_, 1000);
 	auto pair = x_.Shape();
 	assert(pair.first == y_.size());
-	w_    = Matrix<float>(10, pair.second);
-	w_.Randomize();
+	w_ = Matrix<float>(10, pair.second);
+	w_.Randomize(0.1);
+	loss_ = Vector<float>(max_iter_);
 
-	size_t max_iter = 1;
-	loss_ = Vector<float>(max_iter);
-
-	for (size_t i = 0; i != max_iter; ++i) {
+	for (size_t i = 0; i != max_iter_; ++i) {
 		Vector<size_t> index(batch_);
 		index.Randomize(batch_, pair.first);
 		loss_.Assign(i, ComputerLoss(index));
@@ -112,17 +107,18 @@ void SVM::Train()
 	}
 }
 
-void SVM::Predict()
+void MultiSVM::Predict()
 {
-	LoadModel(test_dir_, x_test_, y_test_);
+	LoadModel(test_dir_, x_test_, y_test_, 1000);
 	auto shape = x_test_.Shape();
 	int error = 0;
 	for (size_t i = 0; i != shape.first; ++i) {
 		auto y_predict = w_.Dot(x_test_[i]);
-		if (y_predict.ArgMax() != y_test_[i])
+		auto pred = y_predict.ArgMax();
+		if (pred != y_test_[i])
 			++error;
 	}
-	std::cerr << "error rate: \033[31m" << (float)error / shape.first << "\033[0m\n";
+	err_rate_ = (((float)error / shape.first) * 100);
 }
 
 } // namespace Bunny

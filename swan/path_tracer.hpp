@@ -12,6 +12,8 @@
 #include "point.hpp"
 #include "bsdf.hpp"
 #include "light.hpp"
+#include "isect.hpp"
+#include "scene.hpp"
 #include "integrator.hpp"
 #include "parser.hpp"
 
@@ -23,8 +25,21 @@ class PathTracer : public Integrator
 		PathTracer(int samples, const Point2<int> &pixel_bound, int max_depth)
 		:Integrator(samples, pixel_bound), max_depth_(max_depth) { }
 
-		void Trace() const override {
+		Spectrum Li(const Ray &ray, ) const override {
+			Spectrum L, weight(1);
+			for (int bounce = 0; ; ++bounce) {
+				Isect isect;
+				if (!scene_.Intersect(ray, isect) || bounce > max_depth_) break;
 
+
+
+				if (bounce > 3) {
+					double p = std::max(weight.x_, std::max(weight.y_, weight.z_));
+					if (distribution(generator) < p) break;
+					weight /= 1 - p;
+				}
+			}
+			return L;
 		}
 
 	private:

@@ -5,8 +5,8 @@
  *    > Created Time:  2016-11-30 18:10:16
 **/
 
-#ifndef _SVM_HPP_
-#define _SVM_HPP_
+#ifndef _MULTI_SVM_HPP_
+#define _MULTI_SVM_HPP_
 
 #include <string>
 
@@ -15,10 +15,11 @@
 
 namespace Bunny {
 
-class SVM
+class MultiSVM
 {
 	public:
-		SVM(const char *train, const char *test, float rate, float rag, size_t batch);
+		MultiSVM(const char *train, const char *test, float rate, float rag, size_t iter,
+			size_t batch);
 
 		void Train();
 
@@ -34,6 +35,7 @@ class SVM
 
 		float           rate_;
 		float           reg_;
+		size_t          max_iter_;
 		size_t          batch_;
 
 		Matrix<uint8_t> x_;
@@ -46,9 +48,10 @@ class SVM
 
 		Matrix<float>  w_;
 		Matrix<float>  dw_;
-		float          b_;
+
+		float          err_rate_ = 0.0;
 };
 
 } // namespace Bunny
 
-#endif /* _SVM_HPP_ */
+#endif /* _MULTI_SVM_HPP_ */

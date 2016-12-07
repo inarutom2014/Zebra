@@ -8,20 +8,30 @@
 #ifndef _SCENE_HPP_
 #define _SCENE_HPP_
 
+#include <vector>
+
+#include "object.hpp"
+#include "light.hpp"
+#include "isect.hpp"
+#include "ray.hpp"
+
 namespace Swan {
 
 class Scene
 {
 	public:
-		Scene(const std::vector<Object> &objects, const std::vector<Light> &lights)
+		Scene() { }
+
+		Scene(const std::vector<Object *> &objects, const std::vector<Light *> &lights)
 		:objects_(objects), lights_(lights) { }
 
-		const std::vector<Object *>& Object() const {
-			return objects_;
-		}
-
-		const std::vector<Light *>& Light() const {
-			return lights_;
+		bool Intersect(const Ray &ray, Isect &isect) const {
+			bool flag = false;
+			for (auto e : objects_) {
+				if (e->Intersect(ray, isect))
+					flag = true;
+			}
+			return flag;
 		}
 
 	private:

@@ -85,23 +85,6 @@ class PointLight : public Light
 		const Spectrum intensity_;
 };
 
-class AreaLight : public Light
-{
-	public:
-		AreaLight() { }
-
-		Spectrum SampleLi(const Point &position, Vector &wi, double &pdf) const override {
-			return Spectrum();
-		}
-		Spectrum SampleLe(Vector &wi, const Point2<double> &u,
-			double &pdf_pos, double &pdf_dir) const override {
-			return Spectrum();
-		}
-
-	private:
-
-};
-
 Light* NewPointLight(Parameter &param)
 {
 	Point  position  = param.FindPosition();

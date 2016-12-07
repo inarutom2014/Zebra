@@ -15,6 +15,7 @@
 #include <iostream>
 #include <sstream>
 #include <random>
+#include <ctime>
 
 #include "vector.hpp"
 
@@ -274,13 +275,13 @@ class Matrix
 		}
 
 		void Push(const Vector<U> &vec) { data_.push_back(vec); }
-		void Randomize(double scale = 0.001, time_t seed = 1234) {
-			std::default_random_engine generator(seed);
+		void Randomize(double scale = 0.001) {
+			std::default_random_engine generator(time(0));
 			std::normal_distribution<double> distribution(0, 1);
 			auto pair = Shape();
 			for (size_t i = 0; i != pair.first; ++i)
 				for (size_t j = 0; j != pair.second; ++j)
-					data_[i][j] = distribution(generator) * scale;
+					data_[i][j] = static_cast<U>(distribution(generator) * scale);
 		}
 
 		std::string ToString() const {

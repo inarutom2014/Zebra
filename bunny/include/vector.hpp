@@ -206,10 +206,18 @@ class Vector
 
 		void Randomize(size_t size, size_t up) {
 			assert(this->size() == size);
-			std::default_random_engine generator(time(0));
-			std::uniform_int_distribution<size_t> distribution(0, up-1);
+			static std::default_random_engine generator(time(0));
+			static std::uniform_int_distribution<size_t> distribution(0, up-1);
 			for (size_t i = 0; i != size; ++i)
 				data_[i] = distribution(generator);
+		}
+
+		void Randomize(double scale) {
+			assert(size());
+			std::default_random_engine generator(time(0));
+			std::normal_distribution<double> distribution(0, 1);
+			for (size_t i = 0, size = this->size(); i != size; ++i)
+				data_[i] = static_cast<U>(distribution(generator) * scale);
 		}
 
 		size_t ArgMax() const {
