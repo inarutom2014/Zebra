@@ -44,7 +44,7 @@ class MultiSVM
 		Matrix<uint8_t> x_test_;
 		Vector<uint8_t> y_test_;
 
-		Vector<float>  loss_;
+		float loss_;
 
 		Matrix<float>  w_;
 		Matrix<float>  dw_;

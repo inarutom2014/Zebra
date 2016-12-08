@@ -25,6 +25,7 @@ std::string MultiSVM::ToString() const
 	os << "train label:  \033[32m" << y_.size() << std::endl << "\033[0m";
 	os << "weight: \033[34m" << w_.ToString() << "\033[0m";
 	os << rate_ << " " << reg_ << " " << max_iter_ << " " << batch_ << std::endl;
+	os << "loss: \033[31m" << loss_ << "\033[0m\n";
 	os << "test data:    \033[31m" << x_test_.ToString() << "\033[0m";
 	os << "test label:   \033[32m" << y_test_.size() << std::endl << "\033[0m";
 	os << "error rate: \033[31m" <<  err_rate_ << "\033[0m %\n";
@@ -97,12 +98,11 @@ void MultiSVM::Train()
 	assert(pair.first == y_.size());
 	w_ = Matrix<float>(10, pair.second);
 	w_.Randomize(0.1);
-	loss_ = Vector<float>(max_iter_);
 
 	for (size_t i = 0; i != max_iter_; ++i) {
 		Vector<size_t> index(batch_);
 		index.Randomize(batch_, pair.first);
-		loss_.Assign(i, ComputerLoss(index));
+		loss_ = ComputerLoss(index);
 		w_ -= dw_ * rate_;
 	}
 }
