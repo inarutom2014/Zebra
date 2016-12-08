@@ -6,7 +6,7 @@
 **/
 
 #include "unit.hpp"
-#include "../src/include/matrix.hpp"
+#include "../bunny/include/matrix.hpp"
 
 using namespace Bunny;
 

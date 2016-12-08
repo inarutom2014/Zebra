@@ -6,8 +6,8 @@
 **/
 
 #include "unit.hpp"
-#include "../src/include/kernal.hpp"
-#include "../src/include/matrix.hpp"
+#include "../bunny/include/kernal.hpp"
+#include "../bunny/include/matrix.hpp"
 
 using namespace Bunny;
 

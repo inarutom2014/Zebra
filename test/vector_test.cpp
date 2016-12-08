@@ -8,7 +8,7 @@
 #include <iostream>
 
 #include "unit.hpp"
-#include "../src/include/vector.hpp"
+#include "../bunny/include/vector.hpp"
 
 using namespace Bunny;
 

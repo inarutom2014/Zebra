@@ -8,24 +8,29 @@
 #include <iostream>
 
 #include "unit.hpp"
-#include "../src/svm/svm.hpp"
+#include "../bunny/svm/multi_svm.hpp"
 
 using namespace Bunny;
 
-TEST(SVMLoadModelTest)
-{
-	SVM svm("../data/test", "../data/train", 1e-3, 1e-5, 10);
-	std::cout << svm.ToString();
-}
+float rate;
+float reg;
+size_t iter;
+size_t batch ;
 
 TEST(SVMTrainTest)
 {
-	SVM svm("../data/test", "../data/train", 1e-3, 1e-5, 10);
+	MultiSVM svm("../data/test", "../data/training", rate, reg, iter, batch);
 	svm.Train();
+	svm.Predict();
 	std::cout << svm.ToString();
 }
 
-int main()
+int main(int argc, char **argv)
 {
+	if (argc < 5) return 0;
+	rate = (float)atof(argv[1]);
+	reg = (float)atof(argv[2]);
+	iter = atoi(argv[3]);
+	batch = atoi(argv[4]);
 	return RUN_ALL_TESTS();
 }
