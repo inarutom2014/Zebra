@@ -18,10 +18,6 @@ class Ray
 	public:
 		Ray(const Point &origin, const Vector &direction):origin_(origin), direction_(direction) { }
 
-		void SetOrigin(const Point &origin) { origin_ = origin; }
-
-		void SetDirection(const Vector &direction) { direction_ = direction; }
-
 		const Point& Origin() const { return origin_; }
 
 		const Vector& Direction() const { return direction_; }

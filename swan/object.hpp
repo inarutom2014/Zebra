@@ -23,7 +23,7 @@ class Object
 
 		virtual bool Intersect(const Ray &ray, Isect &isect) const = 0;
 
-		virtual bool ShadowHit(const Ray &ray, double distance) const = 0;
+		virtual bool IntersectP(const Ray &ray, double distance) const = 0;
 
 		virtual ~Object() { }
 
@@ -58,7 +58,7 @@ class Sphere : public Object
 			return false;
 		}
 
-		bool ShadowHit(const Ray &ray, double distance) const override {
+		bool IntersectP(const Ray &ray, double distance) const override {
 			Vector l = position_ - ray.Origin();
 			double s = Dot(l, ray.Direction());
 			double l2 = l.Length2();

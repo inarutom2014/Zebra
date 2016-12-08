@@ -8,6 +8,7 @@
 #ifndef _LIGHT_HPP_
 #define _LIGHT_HPP_
 
+#include "constant.hpp"
 #include "point.hpp"
 #include "vector.hpp"
 #include "ray.hpp"
@@ -27,10 +28,11 @@ class Light
 	public:
 		Light() { }
 
-		virtual Spectrum SampleLi(const Point &position, Vector &wi, double &pdf) const = 0;
+		virtual Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf)
+      const = 0;
 
 		virtual Spectrum SampleLe(Vector &wi, const Point2<double> &u,
-			double &pdf_pos, double &pdf_dir) const = 0;
+      double &pdf_pos, double &pdf_dir) const = 0;
 
 		virtual ~Light() { }
 };
@@ -41,14 +43,15 @@ class DirectionalLight : public Light
 		DirectionalLight(const Vector &direction, const Spectrum &intensity)
 		:direction_(-Normalize(direction)), intensity_(intensity) { }
 
-		Spectrum SampleLi(const Point &position, Vector &wi, double &pdf) const override {
+		Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf) const {
 			wi  = direction_;
+			dis = kInfinity;
 			pdf = 1.0;
 			return intensity_;
 		}
 
 		Spectrum SampleLe(Vector &wi, const Point2<double> &u,
-			double &pdf_pos, double &pdf_dir) const override {
+			double &pdf_pos, double &pdf_dir) const {
 			wi = direction_;
 			pdf_pos = 1.0;
 			pdf_dir = 1.0;
@@ -66,14 +69,16 @@ class PointLight : public Light
 		PointLight(const Point &position, const Spectrum &intensity)
 		:position_(position), intensity_(intensity) { }
 
-		Spectrum SampleLi(const Point &position, Vector &wi, double &pdf) const override {
-			wi  = Normalize(position_ - position);
+		Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf) const {
+			Vector dir(position_ - position);
+			dis = dir.Length();
+			wi  = dir / dis;
 			pdf = 1.0;
 			return intensity_;
 		}
 
 		Spectrum SampleLe(Vector &wi, const Point2<double> &u,
-			double &pdf_pos, double &pdf_dir) const override {
+			double &pdf_pos, double &pdf_dir) const {
 			wi = UniformSphere(u);
 			pdf_pos = 1.0;
 			pdf_dir = INV_PI * 0.25;

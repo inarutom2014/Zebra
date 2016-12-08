@@ -23,6 +23,8 @@ class Isect
 
 		double Distance() const { return distance_; }
 
+		Point Position() const { return position_; }
+
 		Vector Normal() const { return normal_; }
 
 		const BSDF* Bsdf() const { return bsdf_; }

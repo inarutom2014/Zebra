@@ -51,6 +51,16 @@ class Vector3
 		}
 
 		template <typename U>
+		Vector3<T> operator*(const Vector3<U> &u) const {
+			return Vector3<T>(x_ * u, y_ * u, z_ * u);
+		}
+		template <typename U>
+		Vector3<T> operator*=(const Vector3<U> &u) {
+			x_ *= u.x_, y_ *= u.y_, z_ *= u.z_;
+			return *this;
+		}
+
+		template <typename U>
 		Vector3<T> operator*(const U u) const {
 			return Vector3<T>(x_ * u, y_ * u, z_ * u);
 		}

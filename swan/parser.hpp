@@ -17,6 +17,7 @@
 #include "bsdf.hpp"
 #include "object.hpp"
 #include "light.hpp"
+#include "scene.hpp"
 #include "parameter.hpp"
 
 namespace Swan {
@@ -66,6 +67,10 @@ class Parser
 			else if (s == "Directional") return NewDirectionalLight(parameter_);
 			std::cerr << "line: " << line_ << ": syntax error :(\n";
 			exit(-1);
+		}
+
+		Scene GetScene() const {
+			return Scene(objects_, lights_);
 		}
 
 		~Parser() {

@@ -27,12 +27,21 @@ class Scene
 
 		bool Intersect(const Ray &ray, Isect &isect) const {
 			bool flag = false;
-			for (auto e : objects_) {
+			for (auto e : objects_)
 				if (e->Intersect(ray, isect))
 					flag = true;
-			}
 			return flag;
 		}
+
+		bool IntersectP(const Ray &ray, double distance) const {
+			for (auto e : objects_)
+				if (e->IntersectP(ray, distance))
+					return true;
+			return false;
+		}
+
+		const std::vector<Object *>& Objects() const { return objects_; }
+		const std::vector<Light *>& Lights() const { return lights_; }
 
 	private:
 		const std::vector<Object *> objects_;

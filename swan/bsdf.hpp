@@ -47,9 +47,9 @@ static inline Vector CosineWeightedHemisphere()
 class BSDF
 {
 	public:
-		virtual Spectrum F(const Vector &wo, const Vector &wi) = 0;
+		virtual Spectrum F(const Vector &wo, const Vector &wi) const = 0;
 
-		virtual Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) = 0;
+		virtual Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const = 0;
 
 		virtual bool IsDelta() const { return false; }
 
@@ -61,11 +61,11 @@ class DiffuseBSDF : public BSDF
 	public:
 		DiffuseBSDF(const Spectrum &albedo):albedo_(albedo) { }
 
-		virtual Spectrum F(const Vector &wo, const Vector &wi) override {
+		virtual Spectrum F(const Vector &wo, const Vector &wi) const override {
 			return albedo_ * INV_PI;
 		}
 
-		virtual Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) override {
+		virtual Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
 			wi  = CosineWeightedHemisphere();
 			pdf = CosTheta(wi) * INV_PI;
 			return F(wo, wi);
@@ -80,11 +80,11 @@ class ReflectBSDF : public BSDF
 	public:
 		ReflectBSDF(const Spectrum &reflectance):reflectance_(reflectance) { }
 
-		Spectrum F(const Vector &wo, const Vector &wi) override {
+		Spectrum F(const Vector &wo, const Vector &wi) const override {
 			return Spectrum();
 		}
 
-		Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) override {
+		Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
 			wi = Vector(-wo.x_, -wo.y_, wo.z_);
 			pdf = 1.0;
 			return reflectance_ * (1.0 / CosTheta(wo));
@@ -96,26 +96,26 @@ class ReflectBSDF : public BSDF
 		const Spectrum reflectance_;
 };
 
-class RefractBSDF : public BSDF
-{
-	public:
-		RefractBSDF(const Spectrum &transmittance, double ior)
-		:transmittance_(transmittance), ior_(ior) { }
+// class RefractBSDF : public BSDF
+// {
+// 	public:
+// 		RefractBSDF(const Spectrum &transmittance, double ior)
+// 		:transmittance_(transmittance), ior_(ior) { }
 
-		virtual Spectrum F(const Vector &wo, const Vector &wi) override {
-			return Spectrum();
-		}
+// 		virtual Spectrum F(const Vector &wo, const Vector &wi) override {
+// 			return Spectrum();
+// 		}
 
-		virtual Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) override {
-			return Spectrum();
-		}
+// 		virtual Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) override {
+// 			return Spectrum();
+// 		}
 
-		bool IsDelta() const override { return true; }
+// 		bool IsDelta() const override { return true; }
 
-	private:
-  	const Spectrum transmittance_;
-		const double   ior_;
-};
+// 	private:
+//   	const Spectrum transmittance_;
+// 		const double   ior_;
+// };
 
 BSDF* NewDiffuseBSDF(Parameter &param)
 {
@@ -127,13 +127,6 @@ BSDF* NewReflectBSDF(Parameter &param)
 {
 	Spectrum spectrum = param.FindVector();
 	return new ReflectBSDF(spectrum);
-}
-
-BSDF* NewRefractBSDF(Parameter &param)
-{
-	Spectrum spectrum = param.FindVector();
-	double ior        = param.FindDouble();
-	return new RefractBSDF(spectrum, ior);
 }
 
 } // namespace Swan
