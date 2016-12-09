@@ -52,7 +52,7 @@ class Vector3
 
 		template <typename U>
 		Vector3<T> operator*(const Vector3<U> &u) const {
-			return Vector3<T>(x_ * u, y_ * u, z_ * u);
+			return Vector3<T>(x_ * u.x_, y_ * u.y_, z_ * u.z_);
 		}
 		template <typename U>
 		Vector3<T> operator*=(const Vector3<U> &u) {
@@ -106,12 +106,6 @@ class Vector3
 		}
 };
 
-template <typename T, typename U>
-inline Vector3<T> operator*(const U u, const Vector3<T> &v)
-{
-	return v * u;
-}
-
 template <typename T>
 inline T Dot(const Vector3<T> &lhs, const Vector3<T> &rhs)
 {
@@ -133,12 +127,6 @@ inline Vector3<T> Normalize(const Vector3<T> &v)
 {
 	double len = v.Length();
 	return v / len;
-}
-
-template <typename T>
-inline Vector3<T> Mult(const Vector3<T> &a, const Vector3<T> &b)
-{
-	return Vector3<T>(a.x_ * b.x_, a.y_ * b.y_, a.z_ * b.z_);
 }
 
 typedef Vector3<double> Vector;

@@ -1,5 +1,5 @@
-Swan:constant.hpp vector.hpp point.hpp ray.hpp isect.hpp bsdf.hpp object.hpp
-	g++ -std=c++14 -Wall -o Swan swan.cpp
+Swan:swan.cpp
+	g++ -std=c++14 -Wall -fopenmp -O3 swan.cpp -o Swan
 
 tag:
 	ctags -R --sort=yes -f .tags -h .hpp

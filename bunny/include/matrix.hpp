@@ -275,7 +275,7 @@ class Matrix
 		}
 
 		void Push(const Vector<U> &vec) { data_.push_back(vec); }
-		void Randomize(double scale = 0.001) {
+		void Randomize(double scale) {
 			std::default_random_engine generator(time(0));
 			std::normal_distribution<double> distribution(0, 1);
 			auto pair = Shape();

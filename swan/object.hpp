@@ -48,17 +48,17 @@ class Sphere : public Object
 			if (q2 > r2)
 				return false;
 			double q = std::sqrt(r2 - q2);
-			double dis = l2 > r2 ? (s - q) : (s + q);
+			double d = l2 > r2 ? (s - q) : (s + q);
 
-			if (dis < isect.Distance()) {
-				Point hitPos(ray.Origin() + ray.Direction() * dis);
-				isect.Update(dis, hitPos, Normalize(hitPos - position_), bsdf_);
+			if (d < isect.Distance()) {
+				Point p(ray.Origin() + ray.Direction() * d);
+				isect.Update(d, p, Normalize(p - position_), bsdf_);
 				return true;
 			}
 			return false;
 		}
 
-		bool IntersectP(const Ray &ray, double distance) const override {
+		bool IntersectP(const Ray &ray, double D) const override {
 			Vector l = position_ - ray.Origin();
 			double s = Dot(l, ray.Direction());
 			double l2 = l.Length2();
@@ -69,9 +69,9 @@ class Sphere : public Object
 			if (q2 > r2)
 				return false;
 			double q = std::sqrt(r2 - q2);
-			double dis = l2 > r2 ? (s - q) : (s + q);
+			double d = l2 > r2 ? (s - q) : (s + q);
 
-			if (dis < distance) return true;
+			if (d < D) return true;
 			return false;
 		}
 
@@ -82,8 +82,8 @@ class Sphere : public Object
 
 Object* NewSphere(Parameter &param, const BSDF *bsdf)
 {
-	double radius  = param.FindDouble();
 	Point position = param.FindPosition();
+	double radius  = param.FindDouble();
 	return new Sphere(radius, position, bsdf);
 }
 

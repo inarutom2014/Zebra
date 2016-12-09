@@ -70,6 +70,7 @@ class Parser
 		}
 
 		Scene GetScene() const {
+			assert(objects_.size() && lights_.size());
 			return Scene(objects_, lights_);
 		}
 

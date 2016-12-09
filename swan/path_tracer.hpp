@@ -21,8 +21,8 @@ namespace Swan {
 class PathTracer : public Integrator
 {
 	public:
-		PathTracer(int samples, const Point2<int> &pixel_bound, const Scene &scene, int max_depth)
-		:Integrator(samples, pixel_bound, scene), max_depth_(max_depth) { }
+		PathTracer(int samples, const Scene &scene, int max_depth)
+		:Integrator(samples, scene), max_depth_(max_depth) { }
 
 		Spectrum Li(Ray ray) const override {
 			Spectrum L(0), weight(1);
@@ -42,15 +42,15 @@ class PathTracer : public Integrator
 
 				if (!isect.Bsdf()->IsDelta())
 					for (auto e : scene_.Lights()) {
-						Vector dir_to_light;
+						Vector dir;
 						double distance, pdf;
-						Spectrum l = e->SampleLi(isect.Position(), dir_to_light, distance, pdf);
-						Vector wi = Vector(Dot(dir_to_light, u), Dot(dir_to_light, v), Dot(dir_to_light, w));
+						Spectrum l = e->SampleLi(isect.Position(), dir, distance, pdf);
+						Vector wi = Vector(Dot(dir, u), Dot(dir, v), Dot(dir, w));
 						Spectrum f = isect.Bsdf()->F(wo, wi);
 
-						Ray shadow_ray(isect.Position() + 1e-4 * dir_to_light, dir_to_light);
+						Ray shadow_ray(isect.Position() + dir * 1e-4, dir);
 						if (!scene_.IntersectP(shadow_ray, distance))
-							L += Mult(weight, Mult(f, l)) * (CosTheta(wi) * (1.0 / pdf));
+							L += weight * f * l * (CosTheta(wi) * (1.0 / pdf));
 					}
 
 				double pdf;
@@ -61,9 +61,10 @@ class PathTracer : public Integrator
 					if (distribution(generator) < p) break;
 					weight *= 1.0 / (1 - p);
 				}
-				weight = Mult(weight, f * (CosTheta(wi) * (1.0 / pdf)));
+				weight *= f * (CosTheta(wi) * (1.0 / pdf));
 
-				ray = Ray(isect.Position(), Normalize(u * wi.x_ + v * wi.y_ + w * wi.z_));
+				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
+				ray = Ray(isect.Position() + dir * 1e-4, dir);
 			}
 			return L;
 		}

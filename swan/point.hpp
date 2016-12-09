@@ -207,18 +207,6 @@ class Point3
 		}
 };
 
-template <typename T>
-inline T proj(const Point3<T> &p, const Vector3<T> &v)
-{
-	return p.x_ * v.x_ + p.y_ * v.y_ + p.z_ * v.z_;
-}
-
-template <typename U, typename T>
-Point3<T> operator*(const U u, const Point3<T> &p)
-{
-	return p * u;
-}
-
 typedef Point3<double> Point;
 typedef Point3<double> Position;
 

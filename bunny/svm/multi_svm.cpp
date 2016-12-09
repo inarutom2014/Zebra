@@ -103,6 +103,7 @@ void MultiSVM::Train()
 		Vector<size_t> index(batch_);
 		index.Randomize(batch_, pair.first);
 		loss_ = ComputerLoss(index);
+		// std::cout << loss_ << std::endl;
 		w_ -= dw_ * rate_;
 	}
 }
