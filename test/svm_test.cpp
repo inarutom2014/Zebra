@@ -1,16 +1,16 @@
 /**
  *    > Author:            UncP
  *    > Mail:         770778010@qq.com
- *    > Github:    https://www.github.com/UncP/Bunny
+ *    > Github:    https://www.github.com/UncP/Elephant
  *    > Created Time:  2016-12-04 15:16:36
 **/
 
 #include <iostream>
 
 #include "unit.hpp"
-#include "../bunny/svm/multi_svm.hpp"
+#include "../elephant/svm/multi_svm.hpp"
 
-using namespace Bunny;
+using namespace Elephant;
 
 float rate;
 float reg;

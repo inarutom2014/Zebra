@@ -1,16 +1,16 @@
 /**
  *    > Author:            UncP
  *    > Mail:         770778010@qq.com
- *    > Github:    https://www.github.com/UncP/Bunny
+ *    > Github:    https://www.github.com/UncP/Elephant
  *    > Created Time:  2016-12-03 09:01:48
 **/
 
 #include <iostream>
 
 #include "unit.hpp"
-#include "../bunny/include/vector.hpp"
+#include "../elephant/include/vector.hpp"
 
-using namespace Bunny;
+using namespace Elephant;
 
 TEST(VectorDot)
 {

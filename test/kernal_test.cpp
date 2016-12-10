@@ -1,15 +1,15 @@
 /**
  *    > Author:            UncP
  *    > Mail:         770778010@qq.com
- *    > Github:    https://www.github.com/UncP/Bunny
+ *    > Github:    https://www.github.com/UncP/Elephant
  *    > Created Time:  2016-12-03 17:23:12
 **/
 
 #include "unit.hpp"
-#include "../bunny/include/kernal.hpp"
-#include "../bunny/include/matrix.hpp"
+#include "../elephant/include/kernal.hpp"
+#include "../elephant/include/matrix.hpp"
 
-using namespace Bunny;
+using namespace Elephant;
 
 TEST(LinearKernal)
 {
