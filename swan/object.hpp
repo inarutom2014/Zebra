@@ -37,9 +37,9 @@ class Sphere : public Object
 		Sphere(double radius, const Point &position, const BSDF *bsdf)
 		:Object(bsdf), radius_(radius), position_(position) { }
 
-		bool Intersect(const Ray &ray, Isect &isect) const override {
-			Vector l = position_ - ray.Origin();
-			double s = Dot(l, ray.Direction());
+		bool Intersect(const Ray &r, Isect &i) const override {
+			Vector l = position_ - r.Origin();
+			double s = Dot(l, r.Direction());
 			double l2 = l.Length2();
 			double r2 = radius_ * radius_;
 			if (s < 0 && l2 > r2)
@@ -50,17 +50,17 @@ class Sphere : public Object
 			double q = std::sqrt(r2 - q2);
 			double d = l2 > r2 ? (s - q) : (s + q);
 
-			if (d < isect.Distance()) {
-				Point p(ray.Origin() + ray.Direction() * d);
-				isect.Update(d, p, Normalize(p - position_), bsdf_);
+			if (d < i.Distance()) {
+				Point p(r.Origin() + r.Direction() * d);
+				i.Update(d, p, Normalize(p - position_), bsdf_);
 				return true;
 			}
 			return false;
 		}
 
-		bool IntersectP(const Ray &ray, double D) const override {
-			Vector l = position_ - ray.Origin();
-			double s = Dot(l, ray.Direction());
+		bool IntersectP(const Ray &r, double D) const override {
+			Vector l = position_ - r.Origin();
+			double s = Dot(l, r.Direction());
 			double l2 = l.Length2();
 			double r2 = radius_ * radius_;
 			if (s < 0 && l2 > r2)
@@ -80,11 +80,57 @@ class Sphere : public Object
 		const Point  position_;
 };
 
+class Plane : public Object
+{
+	public:
+		Plane(const Point &position, const Vector &normal, const BSDF *bsdf)
+		:Object(bsdf), position_(position), normal_(Normalize(normal)) { }
+
+		bool Intersect(const Ray &r, Isect &i) const override {
+			double a = Dot(normal_, r.Direction());
+			if (a > 0) return false;
+
+			double b = -Dot(r.Origin() - position_, normal_);
+
+			double d = b / a;
+
+			if (d > 0 && d < i.Distance()) {
+				Point p(r.Origin() + r.Direction() * d);
+				i.Update(d, p, normal_, bsdf_);
+				return true;
+			}
+			return false;
+		}
+
+		bool IntersectP(const Ray &r, double D) const override {
+			double a = Dot(normal_, r.Direction());
+			if (a > 0) return false;
+
+			double b = -Dot(r.Origin() - position_, normal_);
+
+			double d = b / a;
+
+			if (d > 0 && d < D) return true;
+			return false;
+		}
+
+	private:
+		Point  position_;
+		Vector normal_;
+};
+
 Object* NewSphere(Parameter &param, const BSDF *bsdf)
 {
 	Point position = param.FindPosition();
 	double radius  = param.FindDouble();
 	return new Sphere(radius, position, bsdf);
+}
+
+Object* NewPlane(Parameter &param, const BSDF *bsdf)
+{
+	Point position = param.FindPosition();
+	Vector normal = param.FindVector();
+	return new Plane(position, normal, bsdf);
 }
 
 } // namespace Swan

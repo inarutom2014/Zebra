@@ -5,4 +5,4 @@ tag:
 	ctags -R --sort=yes -f .tags -h .hpp
 
 clean:
-	rm .tags Swan
+	rm Swan

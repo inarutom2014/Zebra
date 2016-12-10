@@ -44,6 +44,7 @@ class Parser
 					std::cerr << "line: " << line_ << ": syntax error :(\n";
 					exit(-1);
 				}
+				assert(parameter_.eof());
 			}
 		}
 
@@ -52,13 +53,20 @@ class Parser
 			const BSDF *bsdf = nullptr;
 			if (s == "Diffuse") bsdf = NewDiffuseBSDF(parameter_);
 			else if (s == "Reflect") bsdf = NewReflectBSDF(parameter_);
+			else if (s == "Refract") bsdf = NewRefractBSDF(parameter_);
 			else {
 				std::cerr << "line: " << line_ << ": syntax error :(\n";
 				exit(-1);
 			}
 			std::string o(parameter_.FindString());
-			assert(o == "Sphere");
-			return NewSphere(parameter_, bsdf);
+			if (o == "Sphere")
+				return NewSphere(parameter_, bsdf);
+			else if (o == "Plane")
+				return NewPlane(parameter_, bsdf);
+			else {
+				std::cerr << "line: " << line_ << ": syntax error :(\n";
+				exit(-1);
+			}
 		}
 
 		Light* FindLight() {

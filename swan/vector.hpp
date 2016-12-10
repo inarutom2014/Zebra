@@ -99,6 +99,10 @@ class Vector3
 		double Length2() const { return x_ * x_ + y_ * y_ + z_ * z_; }
 		double Length () const { return std::sqrt(Length2()); }
 
+		bool IsZero() const {
+			return x_ == 0 && y_ == 0 && z_ == 0;
+		}
+
 		friend std::ostream& operator<<(std::ostream &os, const Vector3<T> &v) {
 			return os << std::setw(8) << v.x_ << " "
 								<< std::setw(8) << v.y_ << " "

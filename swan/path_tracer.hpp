@@ -37,8 +37,8 @@ class PathTracer : public Integrator
 					u = Normalize(Cross(Vector(1, 0, 0), w));
 				v = Cross(w, u);
 
-				const Vector &d = ray.Direction();
-				Vector wo = Vector(Dot(d, u), Dot(d, v), Dot(d, w));
+				const Vector d = -ray.Direction();
+				const Vector wo = Vector(Dot(d, u), Dot(d, v), Dot(d, w));
 
 				if (!isect.Bsdf()->IsDelta())
 					for (auto e : scene_.Lights()) {
@@ -56,12 +56,14 @@ class PathTracer : public Integrator
 				double pdf;
 				Vector wi;
 				Spectrum f = isect.Bsdf()->SampleF(wo, wi, pdf);
+				if (f.IsZero() || pdf == 0) break;
+				weight *= f * (CosTheta(wi) * (1.0 / pdf));
+
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
 					if (distribution(generator) < p) break;
 					weight *= 1.0 / (1 - p);
 				}
-				weight *= f * (CosTheta(wi) * (1.0 / pdf));
 
 				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
 				ray = Ray(isect.Position() + dir * 1e-4, dir);

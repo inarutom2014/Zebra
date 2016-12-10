@@ -21,6 +21,10 @@ class Parameter
 
 		Parameter(const std::string &str, int line):str_(std::istringstream(str)), line_(line) { }
 
+		bool eof() const {
+			return str_.eof();
+		}
+
 		int FindInteger() {
 			int res;
 			str_ >> res;
@@ -55,7 +59,7 @@ class Parameter
 		Vector FindVector() {
 			std::string s;
 			str_ >> s;
-			assert(s == "Spectrum" || s == "Direction" || s == "Intensity");
+			assert(s == "Spectrum" || s == "Direction" || s == "Intensity" || s == "Normal");
 			Vector res;
 			str_ >> res.x_ >> res.y_ >> res.z_;
 			check();
