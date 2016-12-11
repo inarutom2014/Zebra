@@ -146,27 +146,22 @@ class RefractBSDF : public BSDF
 			double sini = std::max(0.0, 1 - cosi * cosi);
 			double sint = eta * eta * sini;
 
-			double re = 1, cost;
-			if (sint < 1) {
-				cost = std::sqrt(1 - sint);
+			if (sint >= 1) return Spectrum(0);
 
-				double term1 = etai * cost;
-				double term2 = etat * cosi;
-				double term3 = etai * cosi;
-				double term4 = etat * cost;
+			double cost = std::sqrt(1 - sint);
 
-				double parl = (term2 - term1) / (term2 + term1);
-				double perp = (term3 - term4) / (term3 + term4);
-				re = (parl * parl + perp * perp) * 0.5;
+			double term1 = etai * cost;
+			double term2 = etat * cosi;
+			double term3 = etai * cosi;
+			double term4 = etat * cost;
 
-				wi = Normalize(wo * eta + Vector(0,0,1) * ((eta * cosi - cost) * (entering ? -1 : 1)));
-				pdf = 1 - re;
-				return r_ * (1 - re) / AbsCosTheta(wi);
-			} else {
-				wi = Vector(-wo.x_, -wo.y_, wo.z_);
-				pdf = re;
-				return r_ * re / AbsCosTheta(wi);
-			}
+			double parl = (term2 - term1) / (term2 + term1);
+			double perp = (term3 - term4) / (term3 + term4);
+			double re = (parl * parl + perp * perp) * 0.5;
+
+			wi = wo * eta + Vector(0,0,1) * ((eta * cosi - cost) * (entering ? 1 : -1));
+			pdf = 1 - re;
+			return r_ * (1 - re) / AbsCosTheta(wi);
 		}
 
 		bool IsDelta() const override { return true; }

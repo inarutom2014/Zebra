@@ -8,8 +8,8 @@
 ###目标
 * 以更准确优雅的方式实现 [Giraffe](https://www.github.com/UncP/Giraffe) 的部分功能
 * 对高级图形学内容进行尝试
-* 进行必要的调整来配合 [Bunny](https://www.github.com/UncP/Bunny) 进行图形学与机器学习相结合的实践
+* 进行必要的调整来配合 [Elephant](https://www.github.com/UncP/Elephant) 进行图形学与机器学习相结合的实践
 
 ###如果你感兴趣
-`g++ -std=c++11 -fopenmp swan.cpp -o Zebra`  
+`g++ -std=c++11 -fopenmp zebra.cpp -o Zebra`  
 `./Zebra 4 (4代表采样数,可以为任意大于0的值)`

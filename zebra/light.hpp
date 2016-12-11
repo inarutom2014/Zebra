@@ -26,7 +26,7 @@ static inline Vector UniformSphere(const Point2<double> &u) {
 class Light
 {
 	public:
-		Light() { }
+		Light(const Spectrum &intensity):intensity_(intensity) { }
 
 		virtual Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf)
       const = 0;
@@ -35,13 +35,15 @@ class Light
       double &pdf_pos, double &pdf_dir) const = 0;
 
 		virtual ~Light() { }
+	protected:
+		const Spectrum intensity_;
 };
 
 class DirectionalLight : public Light
 {
 	public:
 		DirectionalLight(const Vector &direction, const Spectrum &intensity)
-		:direction_(-Normalize(direction)), intensity_(intensity) { }
+		:Light(intensity), direction_(-Normalize(direction)) { }
 
 		Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf) const {
 			wi  = direction_;
@@ -60,14 +62,13 @@ class DirectionalLight : public Light
 
 	private:
 		const Vector   direction_;
-		const Spectrum intensity_;
 };
 
 class PointLight : public Light
 {
 	public:
 		PointLight(const Point &position, const Spectrum &intensity)
-		:position_(position), intensity_(intensity) { }
+		:Light(intensity), position_(position) { }
 
 		Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf) const {
 			Vector dir(position_ - position);
@@ -87,7 +88,6 @@ class PointLight : public Light
 
 	private:
 		const Point    position_;
-		const Spectrum intensity_;
 };
 
 Light* NewPointLight(Parameter &param)

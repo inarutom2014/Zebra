@@ -61,8 +61,8 @@ class PathTracer : public Integrator
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
-					if (distribution(generator) < p) break;
-					weight *= 1.0 / (1 - p);
+					if (distribution(generator) > p) break;
+					weight *= 1.0 / p;
 				}
 
 				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
