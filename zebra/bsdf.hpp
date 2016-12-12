@@ -84,6 +84,8 @@ class BSDF
 
 		virtual bool IsDelta() const { return false; }
 
+		virtual double Pdf() const { return 0.0; }
+
 		virtual ~BSDF() { }
 
 	protected:
@@ -95,15 +97,17 @@ class DiffuseBSDF : public BSDF
 	public:
 		DiffuseBSDF(const Spectrum &r):BSDF(r) { }
 
-		virtual Spectrum F(const Vector &wo, const Vector &wi) const override {
+		Spectrum F(const Vector &wo, const Vector &wi) const override {
 			return r_ * INV_PI;
 		}
 
-		virtual Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
+		Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
 			wi  = CosineWeightedHemisphere();
 			pdf = CosTheta(wi) * INV_PI;
 			return F(wo, wi);
 		}
+
+		double Pdf(const Vector &wo, const Vector &wi) const { return AbsCosTheta(wi) * INV_PI; }
 };
 
 class ReflectBSDF : public BSDF
@@ -130,11 +134,11 @@ class RefractBSDF : public BSDF
 		RefractBSDF(const Spectrum &r, double etai, double etat)
 		:BSDF(r), etai_(etai), etat_(etat) { }
 
-		virtual Spectrum F(const Vector &wo, const Vector &wi) const override {
+		Spectrum F(const Vector &wo, const Vector &wi) const override {
 			return Spectrum();
 		}
 
-		virtual Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
+		Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
 			bool entering = CosTheta(wo) < 0;
 			double etai = entering ? etai_ : etat_;
 			double etat = entering ? etat_ : etai_;
@@ -159,7 +163,7 @@ class RefractBSDF : public BSDF
 			double perp = (term3 - term4) / (term3 + term4);
 			double re = (parl * parl + perp * perp) * 0.5;
 
-			wi = wo * eta + Vector(0,0,1) * ((eta * cosi - cost) * (entering ? 1 : -1));
+			wi = wo * eta + Vector(0, 0, 1) * ((eta * cosi - cost) * (entering ? 1 : -1));
 			pdf = 1 - re;
 			return r_ * (1 - re) / AbsCosTheta(wi);
 		}

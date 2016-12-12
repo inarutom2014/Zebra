@@ -37,10 +37,10 @@ class PathTracer : public Integrator
 					u = Normalize(Cross(Vector(1, 0, 0), w));
 				v = Cross(w, u);
 
-				const Vector d = -ray.Direction();
-				const Vector wo = Vector(Dot(d, u), Dot(d, v), Dot(d, w));
+				Vector tmp = -ray.Direction();
+				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
 
-				if (!isect.Bsdf()->IsDelta())
+				if (!isect.Bsdf()->IsDelta()) {
 					for (auto e : scene_.Lights()) {
 						Vector dir;
 						double distance, pdf;
@@ -52,6 +52,7 @@ class PathTracer : public Integrator
 						if (!scene_.IntersectP(shadow_ray, distance))
 							L += weight * f * l * (CosTheta(wi) * (1.0 / pdf));
 					}
+				}
 
 				double pdf;
 				Vector wi;
@@ -61,8 +62,8 @@ class PathTracer : public Integrator
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
-					if (distribution(generator) > p) break;
-					weight *= 1.0 / p;
+					if (distribution(generator) < p) break;
+					weight *= 1.0 / (1 - p);
 				}
 
 				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;

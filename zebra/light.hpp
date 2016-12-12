@@ -16,7 +16,8 @@
 
 namespace Zebra {
 
-static inline Vector UniformSphere(const Point2<double> &u) {
+static inline Vector UniformSphere(const Point2<double> &u)
+{
 	double z = 1 - 2 * u.x_;
 	double r = std::sqrt(std::max(0.0, 1 - z * z));
 	double phi = 2 * PI * u.y_;
@@ -35,6 +36,7 @@ class Light
       double &pdf_pos, double &pdf_dir) const = 0;
 
 		virtual ~Light() { }
+
 	protected:
 		const Spectrum intensity_;
 };
@@ -61,7 +63,7 @@ class DirectionalLight : public Light
 		}
 
 	private:
-		const Vector   direction_;
+		const Vector direction_;
 };
 
 class PointLight : public Light
@@ -87,7 +89,7 @@ class PointLight : public Light
 		}
 
 	private:
-		const Point    position_;
+		const Point position_;
 };
 
 Light* NewPointLight(Parameter &param)

@@ -43,7 +43,7 @@ class Parameter
 			std::string s;
 			str_ >> s;
 			check();
-			return std::move(s);
+			return s;
 		}
 
 		Point FindPosition() {
