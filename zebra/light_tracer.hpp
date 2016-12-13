@@ -53,15 +53,23 @@ class LightTracer : public Integrator
 				v = Cross(w, u);
 
 				const Vector tmp = -ray.Direction();
-				const Vector wi = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
+				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
 
 				if (!isect.Bsdf()->IsDelta()) {
 					Vector d = camera_.DirectionToCamera(isect.Position());
-					const Vector wo = Vector(Dot(d, u), Dot(d, v), Dot(d, w));
-					Spectrum f = isect.Bsdf()->F(wo, wi);
-					f *= l * CosTheta(wi);
 					Point2<int> raster = camera_.WorldToRaster(d / d.z_);
-					if (camera_.RasterIsValid(raster))
+					if (!camera_.RasterIsValid(raster)) break;
+					double distance = d.Length();
+					d /= d.Length();
+					double cosi = Dot(Vector(0, 0, -1), -d);
+					Vector wi;
+					double pdf, pdf_dir;
+					Spectrum f = isect.Bsdf()->SampleF(wo, wi, pdf);
+					pdf_dir = (distance * distance) /
+						(camera_.resolution_.x_ * camera_.resolution_.y_ * cosi * cosi * cosi);
+					f *= l * (1.0 / (samples_ * pdf_dir * pdf));
+					Ray ray(isect.Position() + d * 1e-4, d);
+					if (!scene_.IntersectP(ray, distance))
 						pixels_[camera_.RasterToIndex(raster)] += f;
 				}
 
@@ -83,7 +91,6 @@ class LightTracer : public Integrator
 		}
 
 	private:
-
 		int max_depth_;
 };
 

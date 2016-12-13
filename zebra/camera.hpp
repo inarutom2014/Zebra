@@ -10,6 +10,7 @@
 
 #include "vector.hpp"
 #include "point.hpp"
+#include "bsdf.hpp"
 
 namespace Zebra {
 
