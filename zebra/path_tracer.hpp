@@ -13,7 +13,6 @@
 #include "bsdf.hpp"
 #include "light.hpp"
 #include "isect.hpp"
-#include "scene.hpp"
 #include "integrator.hpp"
 
 namespace Zebra {
@@ -24,7 +23,30 @@ class PathTracer : public Integrator
 		PathTracer(int samples, const Scene &scene, int max_depth)
 		:Integrator(samples, scene), max_depth_(max_depth) { }
 
-		Spectrum Li(Ray ray) const override {
+		std::string Render() override {
+			auto beg = std::chrono::high_resolution_clock::now();
+			int X = camera_.resolution_.x_, Y = camera_.resolution_.y_;
+			Spectrum L;
+			#pragma omp parallel for schedule(dynamic, 1) private(L)
+			for (int x = 0; x < X; ++x) {
+				std::cout << "\rprogress: " << (100 * x / (X - 1)) << " %";
+				for (int y = 0; y < Y; ++y, L = Spectrum()) {
+					for (int n = 0; n < samples_; ++n) {
+						double dx = distribution(generator) - 0.5;
+						double dy = distribution(generator) - 0.5;
+						Ray ray(Point(), camera_.RasterToWorld(Point2<double>(dx + x, dy + y)));
+						L += Li(ray);
+					}
+					pixels_[camera_.RasterToIndex(Point2<int>(x, y))] = L / samples_;
+				}
+			}
+			auto end = std::chrono::high_resolution_clock::now();
+			auto t = std::chrono::duration<double, std::ratio<1>>(end - beg).count();
+			std::cerr << "\ntime:  " << t << "  s\n";
+			return WriteImage();
+		}
+
+		Spectrum Li(Ray ray) {
 			Spectrum L(0), weight(1);
 			for (int bounce = 0; ; ++bounce) {
 				Isect isect;
@@ -37,7 +59,7 @@ class PathTracer : public Integrator
 					u = Normalize(Cross(Vector(1, 0, 0), w));
 				v = Cross(w, u);
 
-				Vector tmp = -ray.Direction();
+				const Vector tmp = -ray.Direction();
 				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
 
 				if (!isect.Bsdf()->IsDelta()) {

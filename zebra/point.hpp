@@ -26,73 +26,6 @@ class Point2
 		Point2():x_(0), y_(0) { }
 		explicit Point2(const T &t):x_(t), y_(t) { }
 		Point2(const T &x, const T &y):x_(x), y_(y) { }
-		Point2(const Point2<T> &p):x_(p.x_), y_(p.y_) { }
-		Point2<T>& operator=(const Point2<T> &p) {
-			x_ = p.x_;
-			y_ = p.y_;
-			return *this;
-		}
-
-		bool operator==(const Point2<T> &p) { return x_ == p.x_ && y_ == p.y_; }
-		bool operator!=(const Point2<T> &p) { return !operator==(p); }
-
-		Point2<T> operator+(const Point2<T> &p) const {
-			return Point2<T>(x_ + p.x_, y_ + p.y_);
-		}
-		Point2<T>& operator+=(const Point2<T> &p) {
-			x_ += p.x_;
-			y_ += p.y_;
-			return *this;
-		}
-		Point2<T> operator-(const Point2<T> &p) const {
-			return Point2<T>(x_ - p.x_, y_ - p.y_);
-		}
-		Point2<T>& operator-=(const Point2<T> &p) {
-			x_ -= p.x_;
-			y_ -= p.y_;
-			return *this;
-		}
-
-		template <typename U>
-		Point2<T> operator*(const U u) const {
-			return Point2<T>(x_ * u, y_ * u);
-		}
-		template <typename U>
-		Point2<T>& operator*=(const U u) {
-			x_ *= u;
-			y_ *= u;
-			return *this;
-		}
-		template <typename U>
-		Point2<T> operator/(const U u) const {
-			double inv = 1.0 / u;
-			return Point2<T>(x_ * inv, y_ * inv);
-		}
-		template <typename U>
-		Point2<T>& operator/=(const U u) {
-			double inv = 1.0 / u;
-			x_ *= inv;
-			y_ *= inv;
-			return *this;
-		}
-
-		Point2<T> operator-() const { return Point2<T>(-x_, -y_); }
-
-		T& operator[](size_t i) {
-			assert(i < 2);
-			if (i == 0) return x_;
-			return y_;
-		}
-		const T& operator[](size_t i) const {
-			assert(i < 2);
-			if (i == 0) return x_;
-			return y_;
-		}
-
-		friend std::ostream& operator<<(std::ostream &os, const Point2<T> &p) {
-			return os << std::setw(8) << p.x_ << " "
-								<< std::setw(8) << p.y_ << std::endl;
-		}
 };
 
 template <typename T>
@@ -198,12 +131,6 @@ class Point3
 			if (i == 0) return x_;
 			if (i == 1) return y_;
 			return z_;
-		}
-
-		friend std::ostream& operator<<(std::ostream &os, const Point3<T> &p) {
-			return os << std::setw(8) << p.x_ << " "
-								<< std::setw(8) << p.y_ << " "
-								<< std::setw(8) << p.z_ << std::endl;
 		}
 };
 

@@ -16,6 +16,8 @@ namespace Zebra {
 class Ray
 {
 	public:
+		Ray() { }
+
 		Ray(const Point &origin, const Vector &direction):origin_(origin), direction_(direction) { }
 
 		const Point& Origin() const { return origin_; }

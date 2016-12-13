@@ -32,7 +32,7 @@ class Light
 		virtual Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf)
       const = 0;
 
-		virtual Spectrum SampleLe(Vector &wi, const Point2<double> &u,
+		virtual Spectrum SampleLe(Ray &ray, const Point2<double> &u,
       double &pdf_pos, double &pdf_dir) const = 0;
 
 		virtual ~Light() { }
@@ -45,7 +45,7 @@ class DirectionalLight : public Light
 {
 	public:
 		DirectionalLight(const Vector &direction, const Spectrum &intensity)
-		:Light(intensity), direction_(-Normalize(direction)) { }
+		:Light(intensity), direction_(Normalize(direction)) { }
 
 		Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf) const {
 			wi  = direction_;
@@ -54,9 +54,9 @@ class DirectionalLight : public Light
 			return intensity_;
 		}
 
-		Spectrum SampleLe(Vector &wi, const Point2<double> &u,
+		Spectrum SampleLe(Ray &ray, const Point2<double> &u,
 			double &pdf_pos, double &pdf_dir) const {
-			wi = direction_;
+			ray = Ray(Point(), direction_);
 			pdf_pos = 1.0;
 			pdf_dir = 1.0;
 			return intensity_;
@@ -80,9 +80,9 @@ class PointLight : public Light
 			return intensity_;
 		}
 
-		Spectrum SampleLe(Vector &wi, const Point2<double> &u,
+		Spectrum SampleLe(Ray &ray, const Point2<double> &u,
 			double &pdf_pos, double &pdf_dir) const {
-			wi = UniformSphere(u);
+			ray = Ray(position_, UniformSphere(u));
 			pdf_pos = 1.0;
 			pdf_dir = INV_PI * 0.25;
 			return intensity_;

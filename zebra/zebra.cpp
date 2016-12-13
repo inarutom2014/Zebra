@@ -9,6 +9,7 @@
 
 #include "parser.hpp"
 #include "path_tracer.hpp"
+#include "light_tracer.hpp"
 
 int main(int argc, char **argv)
 {
@@ -21,10 +22,13 @@ int main(int argc, char **argv)
 	if (!depth) depth = 5;
 
 	Parser parser("scene.Zebra");
-	Integrator *path_tracer = new PathTracer(samples, parser.GetScene(), depth);
-	std::string image = path_tracer->Render();
+	// Integrator *path_tracer = new PathTracer(samples, parser.GetScene(), depth);
+	// std::string image = path_tracer->Render();
+	Integrator *light_tracer = new LightTracer(samples, parser.GetScene(), depth);
+	std::string image = light_tracer->Render();
 	execlp("display", "display", image.c_str(), NULL);
-	delete path_tracer;
+	// delete path_tracer;
+	delete light_tracer;
 
 	return 0;
 }

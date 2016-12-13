@@ -16,8 +16,7 @@
 #include <chrono>
 
 #include "vector.hpp"
-#include "point.hpp"
-#include "ray.hpp"
+#include "camera.hpp"
 
 namespace Zebra {
 
@@ -25,51 +24,15 @@ class Integrator
 {
 	public:
 		Integrator(int samples, const Scene &scene)
-		:scene_(scene), generator_(time(0)), distribution_(0, 1),
-		 samples_(samples), pixel_bound_(Point2<int>(512, 512)),
-		 pixels_(new Vector[pixel_bound_.x_ * pixel_bound_.y_]) { }
+		:samples_(samples), camera_(Camera()), scene_(scene),
+		 pixels_(new Vector[camera_.resolution_.x_ * camera_.resolution_.y_]),
+		 generator_(time(0)), distribution_(0, 1) { }
 
-		std::string Render() {
-			Spectrum L;
-			double cx = (double)pixel_bound_.x_ / pixel_bound_.y_;
-			double cy = 1;
-			auto beg = std::chrono::high_resolution_clock::now();
-			#pragma omp parallel for schedule(dynamic, 1) private(L)
-			for (int x = 0; x < pixel_bound_.x_; ++x) {
-				std::cout << "\rprogress: " << (100 * x / (pixel_bound_.x_-1)) << " %";
-				for (int y = 0; y < pixel_bound_.y_; ++y, L = Spectrum()) {
-					for (int n = 0; n < samples_; ++n) {
-						double dx = distribution(generator) - 0.5;
-						double dy = distribution(generator) - 0.5;
-						Ray ray(Point(), Normalize(Vector(cx * (((dx + x) / pixel_bound_.x_) - 0.5),
-                                              cy * (0.5 - ((dy + y) / pixel_bound_.y_)),
-                                              -1)));
-						L += Li(ray);
-					}
-					pixels_[y * pixel_bound_.x_ + x] = L / samples_;
-				}
-			}
-			auto end = std::chrono::high_resolution_clock::now();
-			auto t = std::chrono::duration<double, std::ratio<1>>(end - beg).count();
-			std::cerr << "\ntime:  " << t << "  s\n";
-			return WriteImage();
-		}
-
-		virtual Spectrum Li(Ray ray) const = 0;
+		virtual std::string Render() = 0;
 
 		virtual ~Integrator() { delete [] pixels_; }
 
 	protected:
-
-		const Scene       scene_;
-
-		std::default_random_engine generator_;
-		std::uniform_real_distribution<double> distribution_;
-
-	private:
-		const int         samples_;
-		const Point2<int> pixel_bound_;
-		Vector           *pixels_;
 
 		std::string WriteImage() {
 			time_t t;
@@ -84,8 +47,9 @@ class Integrator
 
 			std::ofstream out(file, std::ios::out | std::ios::binary);
 			if (!out.is_open()) { std::cerr << "ppm格式图片保存失败 :(\n"; return ""; }
-			out << "P3\n" << pixel_bound_.x_ << " " << pixel_bound_.y_ << "\n255\n";
-			for (int i = 0; i < pixel_bound_.x_ * pixel_bound_.y_; ++i) {
+			int x = camera_.resolution_.x_, y = camera_.resolution_.y_;
+			out << "P3\n" << x << " " << y << "\n255\n";
+			for (int i = 0; i < x * y; ++i) {
 				int r = static_cast<int>(std::min(pixels_[i].x_, 1.0) * 255);
 				int g = static_cast<int>(std::min(pixels_[i].y_, 1.0) * 255);
 				int b = static_cast<int>(std::min(pixels_[i].z_, 1.0) * 255);
@@ -94,6 +58,14 @@ class Integrator
 			out.close();
 			return file;
 		}
+
+		const int         samples_;
+		const Camera      camera_;
+		const Scene       scene_;
+		Vector           *pixels_;
+
+		std::default_random_engine generator_;
+		std::uniform_real_distribution<double> distribution_;
 };
 
 } // namespace Zebra
