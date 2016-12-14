@@ -74,10 +74,11 @@ class PointLight : public Light
 
 		Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf) const {
 			Vector dir(position_ - position);
-			dis = dir.Length();
+			double tmp = dir.Length2();
+			dis = std::sqrt(tmp);
 			wi  = dir / dis;
-			pdf = 1.0;
-			return intensity_;
+			pdf = 1;
+			return intensity_ / tmp;
 		}
 
 		Spectrum SampleLe(Ray &ray, const Point2<double> &u,

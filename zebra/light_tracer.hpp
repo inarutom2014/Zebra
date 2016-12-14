@@ -21,8 +21,8 @@ namespace Zebra {
 class LightTracer : public Integrator
 {
 	public:
-		LightTracer(int samples, const Scene &scene, int max_depth)
-		:Integrator(samples, scene), max_depth_(max_depth) { }
+		LightTracer(int samples, const Scene &scene)
+		:Integrator(samples, scene), max_depth_(5) { }
 
 		std::string Render() {
 			for (int i = 0; i != samples_; ++i) {
@@ -43,7 +43,7 @@ class LightTracer : public Integrator
 			l *= 1.0 / (light_pdf * pdf_pos * pdf_dir);
 			for (int bounce = 0; ; ++bounce) {
 				Isect isect;
-				if (!scene_.Intersect(ray, isect) || bounce > max_depth_) break;
+				if (!scene_.Intersect(ray, isect) || bounce > 0) break;
 
 				Vector u, v, w(isect.Normal());
 				if (std::fabs(w.x_) > std::fabs(w.y_))
@@ -56,19 +56,17 @@ class LightTracer : public Integrator
 				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
 
 				if (!isect.Bsdf()->IsDelta()) {
-					Vector d = camera_.DirectionToCamera(isect.Position());
-					Point2<int> raster = camera_.WorldToRaster(d / d.z_);
+					Vector wi = camera_.DirectionToCamera(isect.Position());
+					Point2<int> raster = camera_.WorldToRaster(wi / wi.z_);
 					if (!camera_.RasterIsValid(raster)) break;
-					double distance = d.Length();
-					d /= d.Length();
-					double cosi = Dot(Vector(0, 0, -1), -d);
-					Vector wi;
-					double pdf, pdf_dir;
-					Spectrum f = isect.Bsdf()->SampleF(wo, wi, pdf);
-					pdf_dir = (distance * distance) /
-						(camera_.resolution_.x_ * camera_.resolution_.y_ * cosi * cosi * cosi);
-					f *= l * (1.0 / (samples_ * pdf_dir * pdf));
-					Ray ray(isect.Position() + d * 1e-4, d);
+					double distance = wi.Length();
+					wi /= wi.Length();
+					double cosi = Dot(Vector(0, 0, -1), -wi);
+					Spectrum f = isect.Bsdf()->F(wo, wi);
+					double pdf = distance * distance /
+						(camera_.resolution_.x_ * camera_.resolution_.y_ * cosi * cosi *cosi);
+					f *= l * Dot(wi, isect.Normal()) * (1.0 / (camera_.ssresolution_.x_ * camera_.resolution_.y_ * pdf));
+					Ray ray(isect.Position() + wi * 1e-4, wi);
 					if (!scene_.IntersectP(ray, distance))
 						pixels_[camera_.RasterToIndex(raster)] += f;
 				}

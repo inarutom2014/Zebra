@@ -49,30 +49,6 @@ static inline Vector CosineWeightedHemisphere()
 	return Normalize(Vector(xs, ys, zs));
 }
 
-double FresnelDielectric(double cosi, double etai, double etat)
-{
-	if (cosi < 0) {
-		std::swap(etai, etat);
-		cosi = -cosi;
-	}
-
-	double sini = std::sqrt(std::max(0.0, 1 - cosi * cosi));
-	double sint = etai / etat * sini;
-
-	if (sint >= 1) return 1;
-
-	double cost = std::sqrt(std::max(0.0, 1 - sint * sint));
-
-	double term1 = etai * cost;
-	double term2 = etat * cosi;
-	double term3 = etai * cosi;
-	double term4 = etat * cost;
-
-	double parl = (term2 - term1) / (term2 + term1);
-	double perp = (term3 - term4) / (term3 + term4);
-	return (parl * parl + perp * perp) * 0.5;
-}
-
 class BSDF
 {
 	public:
@@ -150,7 +126,10 @@ class RefractBSDF : public BSDF
 			double sini = std::max(0.0, 1 - cosi * cosi);
 			double sint = eta * eta * sini;
 
-			if (sint >= 1) return Spectrum(0);
+			if (sint >= 1) {
+				pdf = 0;
+				return Spectrum(0);
+			}
 
 			double cost = std::sqrt(1 - sint);
 
@@ -163,7 +142,7 @@ class RefractBSDF : public BSDF
 			double perp = (term3 - term4) / (term3 + term4);
 			double re = (parl * parl + perp * perp) * 0.5;
 
-			wi = wo * eta + Vector(0, 0, 1) * ((eta * cosi - cost) * (entering ? 1 : -1));
+			wi = Vector(-wo.x_ * eta, -wo.y_ * eta, entering ? cost : -cost);
 			pdf = 1 - re;
 			return r_ * (1 - re) / AbsCosTheta(wi);
 		}
@@ -171,8 +150,8 @@ class RefractBSDF : public BSDF
 		bool IsDelta() const override { return true; }
 
 	private:
-		double etai_;
-		double etat_;
+		const double etai_;
+		const double etat_;
 };
 
 BSDF* NewDiffuseBSDF(Parameter &param)

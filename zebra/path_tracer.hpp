@@ -20,8 +20,8 @@ namespace Zebra {
 class PathTracer : public Integrator
 {
 	public:
-		PathTracer(int samples, const Scene &scene, int max_depth)
-		:Integrator(samples, scene), max_depth_(max_depth) { }
+		PathTracer(int samples, const Scene &scene)
+		:Integrator(samples, scene), max_depth_(5) { }
 
 		std::string Render() override {
 			auto beg = std::chrono::high_resolution_clock::now();
@@ -29,7 +29,7 @@ class PathTracer : public Integrator
 			Spectrum L;
 			#pragma omp parallel for schedule(dynamic, 1) private(L)
 			for (int x = 0; x < X; ++x) {
-				std::cout << "\rprogress: " << (100 * x / (X - 1)) << " %";
+				fprintf(stderr, "\rprogress: %3.1f %%", ((float)100 * x / (X - 1)));
 				for (int y = 0; y < Y; ++y, L = Spectrum()) {
 					for (int n = 0; n < samples_; ++n) {
 						double dx = distribution(generator) - 0.5;
@@ -80,12 +80,12 @@ class PathTracer : public Integrator
 				Vector wi;
 				Spectrum f = isect.Bsdf()->SampleF(wo, wi, pdf);
 				if (f.IsZero() || pdf == 0) break;
-				weight *= f * (CosTheta(wi) * (1.0 / pdf));
+				weight *= f * (AbsCosTheta(wi) * (1.0 / pdf));
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
-					if (distribution(generator) < p) break;
-					weight *= 1.0 / (1 - p);
+					if (distribution(generator) > p) break;
+					weight *= 1.0 / p;
 				}
 
 				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;

@@ -30,12 +30,12 @@ class Camera
 
 		Point2<int> WorldToRaster(const Vector &v) const {
 			if (v.z_ <= 0) return Point2<int>(-1, -1);
-			return Point2<int>((v.x_ + 0.5) * resolution_.x_,
-                         (v.y_ + 0.5) * resolution_.y_);
+			return Point2<int>((0.5 - v.x_) * resolution_.x_,
+                         (0.5 + v.y_) * resolution_.y_);
 		}
 
 		Vector DirectionToCamera(const Point &p) const {
-			return Normalize(Point(0, 0, 1) - p);
+			return Normalize(Point(0) - p);
 		}
 
 		int RasterToIndex(const Point2<int> &raster) const {
