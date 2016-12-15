@@ -8,4 +8,3 @@ tag:
 
 clean:
 	rm Zebra
-	# rm ../image/*

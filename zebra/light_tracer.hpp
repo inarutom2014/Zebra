@@ -21,17 +21,16 @@ namespace Zebra {
 class LightTracer : public Integrator
 {
 	public:
-		LightTracer(int samples, const Scene &scene)
-		:Integrator(samples, scene), max_depth_(5) { }
+		LightTracer(const int iteration, const Scene &scene)
+		:Integrator(scene), iteration_(iteration) { }
 
 		std::string Render() {
-			for (int i = 0; i != samples_; ++i) {
-				double x = distribution_(generator_);
-				auto lights = scene_.Lights();
-				double pdf = 1.0 / lights.size();
-				const Light *light = lights[(int)(x * lights.size())];
-				Walk(light, pdf);
-			}
+			auto lights = scene_.Lights();
+			for (int i = 0; i != iteration_; ++i)
+				for (int x = 0; x != camera_.resolution_.x_; ++x)
+					for (int y = 0; y != camera_.resolution_.y_; ++y) {
+						Walk(lights[0], 1.0);
+					}
 			return WriteImage();
 		}
 
@@ -56,40 +55,16 @@ class LightTracer : public Integrator
 				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
 
 				if (!isect.Bsdf()->IsDelta()) {
-					Vector wi = camera_.DirectionToCamera(isect.Position());
-					Point2<int> raster = camera_.WorldToRaster(wi / wi.z_);
-					if (!camera_.RasterIsValid(raster)) break;
-					double distance = wi.Length();
-					wi /= wi.Length();
-					double cosi = Dot(Vector(0, 0, -1), -wi);
-					Spectrum f = isect.Bsdf()->F(wo, wi);
-					double pdf = distance * distance /
-						(camera_.resolution_.x_ * camera_.resolution_.y_ * cosi * cosi *cosi);
-					f *= l * Dot(wi, isect.Normal()) * (1.0 / (camera_.ssresolution_.x_ * camera_.resolution_.y_ * pdf));
-					Ray ray(isect.Position() + wi * 1e-4, wi);
-					if (!scene_.IntersectP(ray, distance))
-						pixels_[camera_.RasterToIndex(raster)] += f;
+
+					// Ray ray(isect.Position() + wi * 1e-4, wi);
+					// if (!scene_.IntersectP(ray, distance))
+						// pixels_[camera_.RasterToIndex(raster)] += f;
 				}
-
-				// double pdf;
-				// Vector wi;
-				// Spectrum f = isect.Bsdf()->SampleF(wo, wi, pdf);
-				// if (f.IsZero() || pdf == 0) break;
-				// weight *= f * (CosTheta(wi) * (1.0 / pdf));
-
-				// if (bounce > 3) {
-				// 	double p = std::max(f.x_, std::max(f.y_, f.z_));
-				// 	if (distribution(generator) < p) break;
-				// 	weight *= 1.0 / (1 - p);
-				// }
-
-				// Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
-				// ray = Ray(isect.Position() + dir * 1e-4, dir);
 			}
 		}
 
 	private:
-		int max_depth_;
+		const int iteration_;
 };
 
 } // namespace Zebra

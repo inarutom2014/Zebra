@@ -21,10 +21,8 @@ class Camera
 		:resolution_(resolution) { }
 
 		Vector RasterToWorld(const Point2<double> &p) const {
-			static const double cx = (double)resolution_.x_ / resolution_.y_;
-			static const double cy = 1;
-			return Normalize(Vector(cx * ((p.x_ / resolution_.x_) - 0.5),
-                              cy * (0.5 - (p.y_ / resolution_.y_)),
+			return Normalize(Vector(((p.x_ / resolution_.x_) - 0.5),
+                              (0.5 - (p.y_ / resolution_.y_)),
                               -1));
 		}
 
@@ -32,10 +30,6 @@ class Camera
 			if (v.z_ <= 0) return Point2<int>(-1, -1);
 			return Point2<int>((0.5 - v.x_) * resolution_.x_,
                          (0.5 + v.y_) * resolution_.y_);
-		}
-
-		Vector DirectionToCamera(const Point &p) const {
-			return Normalize(Point(0) - p);
 		}
 
 		int RasterToIndex(const Point2<int> &raster) const {

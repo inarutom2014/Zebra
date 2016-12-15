@@ -21,7 +21,7 @@ class PathTracer : public Integrator
 {
 	public:
 		PathTracer(int samples, const Scene &scene)
-		:Integrator(samples, scene), max_depth_(5) { }
+		:Integrator(scene), samples_(samples) { }
 
 		std::string Render() override {
 			auto beg = std::chrono::high_resolution_clock::now();
@@ -43,6 +43,7 @@ class PathTracer : public Integrator
 			auto end = std::chrono::high_resolution_clock::now();
 			auto t = std::chrono::duration<double, std::ratio<1>>(end - beg).count();
 			std::cerr << "\ntime:  " << t << "  s\n";
+			save_png();
 			return WriteImage();
 		}
 
@@ -50,7 +51,7 @@ class PathTracer : public Integrator
 			Spectrum L(0), weight(1);
 			for (int bounce = 0; ; ++bounce) {
 				Isect isect;
-				if (!scene_.Intersect(ray, isect) || bounce > max_depth_) break;
+				if (!scene_.Intersect(ray, isect) || bounce > 5) break;
 
 				Vector u, v, w(isect.Normal());
 				if (std::fabs(w.x_) > std::fabs(w.y_))
@@ -95,7 +96,7 @@ class PathTracer : public Integrator
 		}
 
 	private:
-		int max_depth_;
+		const int samples_;
 };
 
 } // namespace Zebra
