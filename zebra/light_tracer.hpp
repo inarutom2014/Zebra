@@ -21,16 +21,22 @@ namespace Zebra {
 class LightTracer : public Integrator
 {
 	public:
-		LightTracer(const int iteration, const Scene &scene)
-		:Integrator(scene), iteration_(iteration) { }
+		LightTracer(int iterations, const Scene &scene)
+		:Integrator(iterations, scene) { }
 
 		std::string Render() {
+			auto beg = std::chrono::high_resolution_clock::now();
+			path_count_ = camera_.resolution_.x_ * camera_.resolution_.y_;
 			auto lights = scene_.Lights();
-			for (int i = 0; i != iteration_; ++i)
-				for (int x = 0; x != camera_.resolution_.x_; ++x)
-					for (int y = 0; y != camera_.resolution_.y_; ++y) {
-						Walk(lights[0], 1.0);
-					}
+			#pragma omp parallel for schedule(dynamic, 1)
+			for (int i = 0; i < iterations_; ++i) {
+				fprintf(stderr, "\rrunning iteration %d/%d", i + 1, iterations_);
+				for (int j = 0; j < path_count_; ++j)
+					Walk(lights[0], 1.0);
+			}
+			auto end = std::chrono::high_resolution_clock::now();
+			auto t = std::chrono::duration<double, std::ratio<1>>(end - beg).count();
+			fprintf(stderr, "\ntime:  %.2f  s\n", t);
 			return WriteImage();
 		}
 
@@ -42,7 +48,7 @@ class LightTracer : public Integrator
 			l *= 1.0 / (light_pdf * pdf_pos * pdf_dir);
 			for (int bounce = 0; ; ++bounce) {
 				Isect isect;
-				if (!scene_.Intersect(ray, isect) || bounce > 0) break;
+				if (bounce > 5 || !scene_.Intersect(ray, isect)) break;
 
 				Vector u, v, w(isect.Normal());
 				if (std::fabs(w.x_) > std::fabs(w.y_))
@@ -55,16 +61,41 @@ class LightTracer : public Integrator
 				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
 
 				if (!isect.Bsdf()->IsDelta()) {
+					Vector d = camera_.DirectionToCamera(isect.Position());
+					double distance = d.Length();
+					d /= distance;
+					auto raster = camera_.WorldToRaster(d);
+					if (!camera_.RasterIsValid(raster)) break;
+					double cosi = Dot(Vector(0, 0, -1), -d);
+					Vector wi = Vector(Dot(d, u), Dot(d, v), Dot(d, w));
+					Spectrum f = isect.Bsdf()->F(wo, wi);
+					double pdf = cosi * cosi * cosi * distance * distance;
+					f *= l * CosTheta(wi) * (1.0 / pdf);
 
-					// Ray ray(isect.Position() + wi * 1e-4, wi);
-					// if (!scene_.IntersectP(ray, distance))
-						// pixels_[camera_.RasterToIndex(raster)] += f;
+					Ray ray(isect.Position() + d * 1e-4, d);
+					if (!scene_.IntersectP(ray, distance))
+						pixels_[camera_.RasterToIndex(raster)] += f / iterations_;
 				}
+
+				double pdf;
+				Vector wi;
+				Spectrum f = isect.Bsdf()->SampleF(wo, wi, pdf);
+				if (f.IsZero() || pdf == 0) break;
+				l *= f * (AbsCosTheta(wi) * (1.0 / pdf));
+
+				if (bounce > 3) {
+					double p = std::max(f.x_, std::max(f.y_, f.z_));
+					if (distribution(generator) > p) break;
+					l *= 1.0 / p;
+				}
+
+				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
+				ray = Ray(isect.Position() + dir * 1e-4, dir);
 			}
 		}
 
 	private:
-		const int iteration_;
+		int path_count_;
 };
 
 } // namespace Zebra

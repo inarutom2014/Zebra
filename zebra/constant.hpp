@@ -17,11 +17,6 @@ const double PI        = 3.141592653589793238;
 const double INV_PI    = 1.0 / PI;
 const double kInfinity = std::numeric_limits<double>::max();
 const double kEpsilon  = 1e-4;
-const double E         = 2.718281828459045;
-
-inline double radian(double angle) {
-	return angle * (PI / 180.0);
-}
 
 } // namespace Zebra
 

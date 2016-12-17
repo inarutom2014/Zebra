@@ -24,8 +24,8 @@ namespace Zebra {
 class Integrator
 {
 	public:
-		Integrator(const Scene &scene)
-		:camera_(Camera()), scene_(scene),
+		Integrator(const int iterations, const Scene &scene)
+		:iterations_(iterations), camera_(Camera()), scene_(scene),
 		 pixels_(new Vector[camera_.resolution_.x_ * camera_.resolution_.y_]),
 		 generator_(time(0)), distribution_(0, 1) { }
 
@@ -132,6 +132,7 @@ class Integrator
 			return true;
 		}
 */
+		const int         iterations_;
 		const Camera      camera_;
 		const Scene       scene_;
 		Vector           *pixels_;

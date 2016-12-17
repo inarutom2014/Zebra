@@ -32,6 +32,10 @@ class Camera
                          (0.5 + v.y_) * resolution_.y_);
 		}
 
+		Vector DirectionToCamera(const Point &p) const {
+			return Point(0) - p;
+		}
+
 		int RasterToIndex(const Point2<int> &raster) const {
 			return raster.y_ * resolution_.x_ + raster.x_;
 		}

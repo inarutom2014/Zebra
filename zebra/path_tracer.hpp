@@ -20,30 +20,29 @@ namespace Zebra {
 class PathTracer : public Integrator
 {
 	public:
-		PathTracer(int samples, const Scene &scene)
-		:Integrator(scene), samples_(samples) { }
+		PathTracer(int iterations, const Scene &scene)
+		:Integrator(iterations, scene) { }
 
 		std::string Render() override {
 			auto beg = std::chrono::high_resolution_clock::now();
 			int X = camera_.resolution_.x_, Y = camera_.resolution_.y_;
-			Spectrum L;
-			#pragma omp parallel for schedule(dynamic, 1) private(L)
-			for (int x = 0; x < X; ++x) {
-				fprintf(stderr, "\rprogress: %3.1f %%", ((float)100 * x / (X - 1)));
-				for (int y = 0; y < Y; ++y, L = Spectrum()) {
-					for (int n = 0; n < samples_; ++n) {
+			#pragma omp parallel for schedule(dynamic, 1)
+			for (int n = 0; n < iterations_; ++n) {
+				fprintf(stderr, "\rrunning iteration: %d/%d", n + 1, iterations_);
+				for (int x = 0; x < X; ++x) {
+					for (int y = 0; y < Y; ++y) {
 						double dx = distribution(generator) - 0.5;
 						double dy = distribution(generator) - 0.5;
 						Ray ray(Point(), camera_.RasterToWorld(Point2<double>(dx + x, dy + y)));
-						L += Li(ray);
+						Spectrum L = Li(ray);
+						pixels_[camera_.RasterToIndex(Point2<int>(x, y))] += L / iterations_;
 					}
-					pixels_[camera_.RasterToIndex(Point2<int>(x, y))] = L / samples_;
 				}
 			}
 			auto end = std::chrono::high_resolution_clock::now();
 			auto t = std::chrono::duration<double, std::ratio<1>>(end - beg).count();
-			std::cerr << "\ntime:  " << t << "  s\n";
-			save_png();
+			fprintf(stderr, "\ntime:  %.2f  s\n", t);
+			// save_png();
 			return WriteImage();
 		}
 
@@ -51,7 +50,7 @@ class PathTracer : public Integrator
 			Spectrum L(0), weight(1);
 			for (int bounce = 0; ; ++bounce) {
 				Isect isect;
-				if (!scene_.Intersect(ray, isect) || bounce > 5) break;
+				if (bounce > 5 || !scene_.Intersect(ray, isect)) break;
 
 				Vector u, v, w(isect.Normal());
 				if (std::fabs(w.x_) > std::fabs(w.y_))
@@ -94,9 +93,6 @@ class PathTracer : public Integrator
 			}
 			return L;
 		}
-
-	private:
-		const int samples_;
 };
 
 } // namespace Zebra
