@@ -26,17 +26,18 @@ class PathTracer : public Integrator
 		std::string Render() override {
 			auto beg = std::chrono::high_resolution_clock::now();
 			int X = camera_.resolution_.x_, Y = camera_.resolution_.y_;
-			#pragma omp parallel for schedule(dynamic, 1)
-			for (int n = 0; n < iterations_; ++n) {
-				fprintf(stderr, "\rrunning iteration: %d/%d", n + 1, iterations_);
-				for (int x = 0; x < X; ++x) {
-					for (int y = 0; y < Y; ++y) {
+			Spectrum L;
+			#pragma omp parallel for schedule(dynamic, 1) private(L)
+			for (int x = 0; x < X; ++x) {
+				fprintf(stderr, "\rprogress: %.1f %%", (double)x / (X - 1) * 100);
+				for (int y = 0; y < Y; ++y, L = Spectrum()) {
+					for (int n = 0; n < iterations_; ++n) {
 						double dx = distribution(generator) - 0.5;
 						double dy = distribution(generator) - 0.5;
 						Ray ray(Point(), camera_.RasterToWorld(Point2<double>(dx + x, dy + y)));
-						Spectrum L = Li(ray);
-						pixels_[camera_.RasterToIndex(Point2<int>(x, y))] += L / iterations_;
+						L += Li(ray);
 					}
+					pixels_[camera_.RasterToIndex(Point2<int>(x, y))] = L / iterations_;
 				}
 			}
 			auto end = std::chrono::high_resolution_clock::now();

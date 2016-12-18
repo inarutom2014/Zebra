@@ -41,31 +41,6 @@ class Light
 		const Spectrum intensity_;
 };
 
-class DirectionalLight : public Light
-{
-	public:
-		DirectionalLight(const Vector &direction, const Spectrum &intensity)
-		:Light(intensity), direction_(Normalize(direction)) { }
-
-		Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf) const {
-			wi  = direction_;
-			dis = kInfinity;
-			pdf = 1.0;
-			return intensity_;
-		}
-
-		Spectrum SampleLe(Ray &ray, const Point2<double> &u,
-			double &pdf_pos, double &pdf_dir) const {
-			ray = Ray(Point(), direction_);
-			pdf_pos = 1.0;
-			pdf_dir = 1.0;
-			return intensity_;
-		}
-
-	private:
-		const Vector direction_;
-};
-
 class PointLight : public Light
 {
 	public:
@@ -98,13 +73,6 @@ Light* NewPointLight(Parameter &param)
 	Point  position  = param.FindPosition();
 	Vector intensity = param.FindVector();
 	return new PointLight(position, intensity);
-}
-
-Light* NewDirectionalLight(Parameter &param)
-{
-	Vector direction = param.FindVector();
-	Vector intensity = param.FindVector();
-	return new DirectionalLight(direction, intensity);
 }
 
 } // namespace Zebra

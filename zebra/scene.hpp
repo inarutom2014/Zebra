@@ -10,10 +10,10 @@
 
 #include <vector>
 
+#include "ray.hpp"
 #include "object.hpp"
 #include "light.hpp"
 #include "isect.hpp"
-#include "ray.hpp"
 
 namespace Zebra {
 
