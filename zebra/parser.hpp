@@ -72,7 +72,7 @@ class Parser
 		Light* FindLight() {
 			std::string s(parameter_.FindString());
 			if (s == "Point") return NewPointLight(parameter_);
-			else if (s == "Directional") return NewDirectionalLight(parameter_);
+			// else if (s == "Directional") return NewDirectionalLight(parameter_);
 			std::cerr << "line: " << line_ << ": syntax error :(\n";
 			exit(-1);
 		}

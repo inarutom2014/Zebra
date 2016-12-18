@@ -19,23 +19,17 @@ namespace Zebra {
 class Object
 {
 	public:
-		Object(const BSDF *bsdf):bsdf_(bsdf) { }
-
 		virtual bool Intersect(const Ray &ray, Isect &isect) const = 0;
 
 		virtual bool IntersectP(const Ray &ray, double distance) const = 0;
 
 		virtual ~Object() { }
-
-	protected:
-		const BSDF *bsdf_;
 };
 
 class Sphere : public Object
 {
 	public:
-		Sphere(double radius, const Point &position, const BSDF *bsdf)
-		:Object(bsdf), radius_(radius), position_(position) { }
+		Sphere(double radius, const Point &position):radius_(radius), position_(position) { }
 
 		bool Intersect(const Ray &r, Isect &i) const override {
 			Vector l = position_ - r.Origin();
@@ -50,9 +44,9 @@ class Sphere : public Object
 			double q = std::sqrt(r2 - q2);
 			double d = l2 > r2 ? (s - q) : (s + q);
 
-			if (d < i.Distance()) {
-				Point p(r.Origin() + r.Direction() * d);
-				i.Update(d, p, Normalize(p - position_), bsdf_);
+			if (d < r.Distance()) {
+				r.SetDistance(d);
+				i = Isect(d, r.Origin() + r.Direction() * d, Normalize(p - position_));
 				return true;
 			}
 			return false;
@@ -71,8 +65,7 @@ class Sphere : public Object
 			double q = std::sqrt(r2 - q2);
 			double d = l2 > r2 ? (s - q) : (s + q);
 
-			if (d < D) return true;
-			return false;
+			return d < D ? true : false;
 		}
 
 	private:
@@ -83,8 +76,8 @@ class Sphere : public Object
 class Plane : public Object
 {
 	public:
-		Plane(const Point &position, const Vector &normal, const BSDF *bsdf)
-		:Object(bsdf), position_(position), normal_(Normalize(normal)) { }
+		Plane(const Point &position, const Vector &normal)
+		:position_(position), normal_(Normalize(normal)) { }
 
 		bool Intersect(const Ray &r, Isect &i) const override {
 			double a = Dot(normal_, r.Direction());
@@ -94,12 +87,13 @@ class Plane : public Object
 
 			double d = b / a;
 
-			if (d > 0 && d < i.Distance()) {
-				Point p(r.Origin() + r.Direction() * d);
-				i.Update(d, p, normal_, bsdf_);
+			if (d > 0 && d < r.Distance()) {
+				r.SetDistance(d);
+				i = Isect(d, r.Origin() + r.Direction() * d, normal_);
 				return true;
+			} else {
+				return false;
 			}
-			return false;
 		}
 
 		bool IntersectP(const Ray &r, double D) const override {
@@ -110,8 +104,7 @@ class Plane : public Object
 
 			double d = b / a;
 
-			if (d > 0 && d < D) return true;
-			return false;
+			return d < D ? true : false;
 		}
 
 	private:
@@ -119,18 +112,18 @@ class Plane : public Object
 		Vector normal_;
 };
 
-Object* NewSphere(Parameter &param, const BSDF *bsdf)
+Object* NewSphere(Parameter &param)
 {
 	Point position = param.FindPosition();
 	double radius  = param.FindDouble();
-	return new Sphere(radius, position, bsdf);
+	return new Sphere(radius, position);
 }
 
-Object* NewPlane(Parameter &param, const BSDF *bsdf)
+Object* NewPlane(Parameter &param)
 {
 	Point position = param.FindPosition();
 	Vector normal = param.FindVector();
-	return new Plane(position, normal, bsdf);
+	return new Plane(position, normal);
 }
 
 } // namespace Zebra

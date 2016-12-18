@@ -11,39 +11,23 @@
 #include "constant.hpp"
 #include "vector.hpp"
 #include "point.hpp"
+#include "primitive.hpp"
 
 namespace Zebra {
 
 class Isect
 {
 	public:
-		Isect():distance_(kInfinity) { }
+		Isect() { }
 
-		double Miss() const { return distance_ == kInfinity; }
-
-		double Distance() const { return distance_; }
-
-		Point Position() const { return position_; }
-
-		Vector Normal() const { return normal_; }
-
-		const BSDF* Bsdf() const { return bsdf_; }
-
-		void Update(double distance,
-                const Point &position,
-                const Vector &normal,
-                const BSDF *bsdf) {
-      distance_ = distance;
-      position_ = position;
-      normal_   = normal;
-      bsdf_     = bsdf;
-		}
+		void Isect(const Point &position, const Vector &normal)
+		:position_(position), normal_(normal) { }
 
 	private:
-		double      distance_;
-		Point       position_;
-		Vector      normal_;
-		const BSDF *bsdf_;
+		Point            position_;
+		Vector           normal_;
+		const Primitive *primitive_;
+		const BSDF      *bsdf_;
 };
 
 } // namespace Zebra
