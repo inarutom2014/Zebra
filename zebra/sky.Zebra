@@ -1,5 +1,0 @@
-Light Area Sphere Position 0 0.5 -2 Radius 0.1 Intensity 4 4 4
-
-Object Sphere Position 0 0.1 -2 Radius 0.2 Diffuse Spectrum 0.25 0.25 0.75
-
-Object Plane Position 0 -0.1 0 Normal 0 1 0 Diffuse Spectrum 0.3 0.3 0.3
