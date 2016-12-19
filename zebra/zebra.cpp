@@ -9,7 +9,7 @@
 
 #include "parser.hpp"
 #include "path_tracer.hpp"
-#include "light_tracer.hpp"
+// #include "light_tracer.hpp"
 
 int main(int argc, char **argv)
 {
@@ -19,15 +19,15 @@ int main(int argc, char **argv)
 	if (!samples) samples = 1;
 
 	Parser parser("sky.Zebra");
-#ifdef LT
-	Integrator *light_tracer = new LightTracer(samples, parser.GetScene());
-	std::string image = light_tracer->Render();
-	delete light_tracer;
-#else
+// #ifdef LT
+	// Integrator *light_tracer = new LightTracer(samples, parser.GetScene());
+	// std::string image = light_tracer->Render();
+	// delete light_tracer;
+// #else
 	Integrator *path_tracer = new PathTracer(samples, parser.GetScene());
 	std::string image = path_tracer->Render();
 	delete path_tracer;
-#endif
+// #endif
 	execlp("display", "display", image.c_str(), NULL);
 
 	return 0;

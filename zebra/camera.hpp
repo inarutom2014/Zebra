@@ -17,18 +17,18 @@ namespace Zebra {
 class Camera
 {
 	public:
-		Camera(const Point2<int> &resolution = Point2<int>(512, 512))
+		Camera(const Point2i &resolution = Point2i(512, 512))
 		:resolution_(resolution) { }
 
-		Vector RasterToWorld(const Point2<double> &p) const {
+		Vector RasterToWorld(const Point2 &p) const {
 			return Normalize(Vector(((p.x_ / resolution_.x_) - 0.5),
                               (0.5 - (p.y_ / resolution_.y_)),
                               -1));
 		}
 
-		Point2<int> WorldToRaster(const Vector &v) const {
-			if (v.z_ <= 0) return Point2<int>(-1, -1);
-			return Point2<int>((0.5 - v.x_) * resolution_.x_,
+		Point2i WorldToRaster(const Vector &v) const {
+			if (v.z_ <= 0) return Point2i(-1, -1);
+			return Point2i((0.5 - v.x_) * resolution_.x_,
                          (0.5 + v.y_) * resolution_.y_);
 		}
 
@@ -36,15 +36,15 @@ class Camera
 			return Point(0) - p;
 		}
 
-		int RasterToIndex(const Point2<int> &raster) const {
+		int RasterToIndex(const Point2i &raster) const {
 			return raster.y_ * resolution_.x_ + raster.x_;
 		}
 
-		bool RasterIsValid(const Point2<int> &p) const {
+		bool RasterIsValid(const Point2i &p) const {
 			return p.x_ >= 0 && p.y_ >= 0 && p.x_ < resolution_.x_ && p.y_ < resolution_.y_;
 		}
 
-		const Point2<int> resolution_;
+		const Point2i resolution_;
 };
 
 } // namespace Zebra

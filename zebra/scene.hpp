@@ -11,9 +11,9 @@
 #include <vector>
 
 #include "ray.hpp"
-#include "object.hpp"
+#include "primitive.hpp"
 #include "light.hpp"
-#include "isect.hpp"
+#include "intersection.hpp"
 
 namespace Zebra {
 
@@ -22,30 +22,30 @@ class Scene
 	public:
 		Scene() { }
 
-		Scene(const std::vector<Object *> &objects, const std::vector<Light *> &lights)
-		:objects_(objects), lights_(lights) { }
+		Scene(const std::vector<Primitive *> &primitives, const std::vector<Light *> &lights)
+		:primitives_(primitives), lights_(lights) { }
 
-		bool Intersect(const Ray &ray, Isect &isect) const {
+		bool Intersect(Ray &ray, Intersection &isect) const {
 			bool flag = false;
-			for (auto e : objects_)
+			for (auto e : primitives_)
 				if (e->Intersect(ray, isect))
 					flag = true;
 			return flag;
 		}
 
-		bool IntersectP(const Ray &ray, double distance) const {
-			for (auto e : objects_)
-				if (e->IntersectP(ray, distance))
+		bool IntersectP(const Ray &ray) const {
+			for (auto e : primitives_)
+				if (!e->GetAreaLight() && e->IntersectP(ray))
 					return true;
 			return false;
 		}
 
-		const std::vector<Object *>& Objects() const { return objects_; }
+		const std::vector<Primitive *>& Primitives() const { return primitives_; }
 		const std::vector<Light *>& Lights() const { return lights_; }
 
 	private:
-		const std::vector<Object *> objects_;
-		const std::vector<Light *>  lights_;
+		const std::vector<Primitive *> primitives_;
+		const std::vector<Light *>     lights_;
 };
 
 } // namespace Zebra

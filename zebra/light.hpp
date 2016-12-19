@@ -9,31 +9,26 @@
 #define _LIGHT_HPP_
 
 #include "constant.hpp"
-#include "point.hpp"
 #include "vector.hpp"
+#include "point.hpp"
+#include "vertex.hpp"
+#include "object.hpp"
+#include "sampling.hpp"
 #include "ray.hpp"
 #include "parameter.hpp"
 
 namespace Zebra {
-
-static inline Vector UniformSphere(const Point2<double> &u)
-{
-	double z = 1 - 2 * u.x_;
-	double r = std::sqrt(std::max(0.0, 1 - z * z));
-	double phi = 2 * PI * u.y_;
-	return Normalize(Vector(r * std::cos(phi), r * std::sin(phi), z));
-}
 
 class Light
 {
 	public:
 		Light(const Spectrum &intensity):intensity_(intensity) { }
 
-		virtual Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf)
-      const = 0;
+		virtual Spectrum SampleLi(const Point &position, const Point2 &u,
+			Vector &wi, double &dis, double &pdf) const = 0;
 
-		virtual Spectrum SampleLe(Ray &ray, const Point2<double> &u,
-      double &pdf_pos, double &pdf_dir) const = 0;
+		virtual Spectrum SampleLe(Ray &ray, const Point2 &u,
+			double &pdf_pos, double &pdf_dir) const = 0;
 
 		virtual ~Light() { }
 
@@ -47,7 +42,8 @@ class PointLight : public Light
 		PointLight(const Point &position, const Spectrum &intensity)
 		:Light(intensity), position_(position) { }
 
-		Spectrum SampleLi(const Point &position, Vector &wi, double &dis, double &pdf) const {
+		Spectrum SampleLi(const Point &position, const Point2 &u, Vector &wi, double &dis,
+			double &pdf) const {
 			Vector dir(position_ - position);
 			double tmp = dir.Length2();
 			dis = std::sqrt(tmp);
@@ -56,9 +52,8 @@ class PointLight : public Light
 			return intensity_ / tmp;
 		}
 
-		Spectrum SampleLe(Ray &ray, const Point2<double> &u,
-			double &pdf_pos, double &pdf_dir) const {
-			ray = Ray(position_, UniformSphere(u));
+		Spectrum SampleLe(Ray &ray, const Point2 &u, double &pdf_pos, double &pdf_dir) const {
+			ray = Ray(position_, UniformSampleSphere(u));
 			pdf_pos = 1.0;
 			pdf_dir = INV_PI * 0.25;
 			return intensity_;
@@ -68,11 +63,49 @@ class PointLight : public Light
 		const Point position_;
 };
 
+class AreaLight : public Light
+{
+	public:
+		AreaLight(const Object *object, const Spectrum &intensity)
+		:Light(intensity), object_(object) { }
+
+		Spectrum SampleLi(const Point &position, const Point2 &u, Vector &wi, double &dis,
+			double &pdf) const {
+			Vertex v = object_->Sample(u);
+			Vector dir(v.position_ - position);
+			dis = dir.Length();
+			wi  = dir / dis;
+			pdf = object_->Pdf(v);
+			return L(v, -wi);
+		}
+
+		Spectrum SampleLe(Ray &ray, const Point2 &u, double &pdf_pos, double &pdf_dir) const {
+			return Spectrum();
+		}
+
+		Spectrum L(const Vertex &v, const Vector &w) const {
+			return Dot(v.normal_, w) > 0 ? intensity_ : Spectrum();
+		}
+
+		~AreaLight() { delete object_; }
+
+		const Object *object_;
+};
+
 Light* NewPointLight(Parameter &param)
 {
 	Point  position  = param.FindPosition();
 	Vector intensity = param.FindVector();
 	return new PointLight(position, intensity);
+}
+
+AreaLight* NewAreaLight(Parameter &param)
+{
+	std::string o(param.FindString());
+	assert(o == "Sphere");
+	const Object *object = NewSphere(param);
+	Vector intensity = param.FindVector();
+	return new AreaLight(object, intensity);
 }
 
 } // namespace Zebra

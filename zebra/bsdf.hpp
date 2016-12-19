@@ -14,6 +14,7 @@
 #include "constant.hpp"
 #include "vector.hpp"
 #include "point.hpp"
+#include "sampling.hpp"
 #include "parameter.hpp"
 
 namespace Zebra {
@@ -29,24 +30,6 @@ static inline double CosTheta(const Vector &wi)
 static inline double AbsCosTheta(const Vector &wi)
 {
 	return std::abs(wi.z_);
-}
-
-static inline Vector CosineWeightedHemisphere()
-{
-	double u1 = distribution(generator);
-	double u2 = distribution(generator);
-
-	double theta = std::asin(std::sqrt(u1));
-	double phi = 2 * PI * u2;
-
-	double sini = std::sin(theta);
-	double cosi = std::cos(theta);
-
-	double xs = sini * std::cos(phi);
-	double ys = sini * std::sin(phi);
-	double zs = cosi;
-
-	return Normalize(Vector(xs, ys, zs));
 }
 
 class BSDF
@@ -78,7 +61,8 @@ class DiffuseBSDF : public BSDF
 		}
 
 		Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
-			wi  = CosineWeightedHemisphere();
+			Point2 u(distribution(generator), distribution(generator));
+			wi  = CosineWeightedHemisphere(u);
 			pdf = CosTheta(wi) * INV_PI;
 			return F(wo, wi);
 		}

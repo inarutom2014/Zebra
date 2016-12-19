@@ -17,21 +17,12 @@ namespace Zebra {
 class Ray
 {
 	public:
-		Ray(const Point &origin, const Vector &direction)
-		:max_(kInfinity), origin_(origin), direction_(direction) { }
+		Ray(const Point &origin, const Vector &direction, double max = kInfinity)
+		:max_(max), origin_(origin), direction_(direction) { }
 
-		double Distance() const { return max_; }
-
-		void SetDistance(double max) { max_ = max; }
-
-		const Point& Origin() const { return origin_; }
-
-		const Vector& Direction() const { return direction_; }
-
-	private:
-		double       max_;
-		const Point  origin_;
-		const Vector direction_;
+		double max_;
+		Point  origin_;
+		Vector direction_;
 };
 
 } // namespace Zebra

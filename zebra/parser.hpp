@@ -17,6 +17,7 @@
 #include "bsdf.hpp"
 #include "object.hpp"
 #include "light.hpp"
+#include "primitive.hpp"
 #include "scene.hpp"
 #include "parameter.hpp"
 
@@ -38,8 +39,8 @@ class Parser
 					continue;
 				parameter_ = Parameter(str, line_);
 				std::string s(parameter_.FindString());
-				if (s == "Object") objects_.push_back(FindObject());
-				else if (s == "Light") lights_.push_back(FindLight());
+				if (s == "Object") FindObject();
+				else if (s == "Light") FindLight();
 				else {
 					std::cerr << "line: " << line_ << ": syntax error :(\n";
 					exit(-1);
@@ -48,7 +49,17 @@ class Parser
 			}
 		}
 
-		Object* FindObject() {
+		void FindObject() {
+			std::string o(parameter_.FindString());
+			const Object *object = nullptr;
+			if (o == "Sphere")
+				object = NewSphere(parameter_);
+			else if (o == "Plane")
+				object = NewPlane(parameter_);
+			else {
+				std::cerr << "line: " << line_ << ": syntax error :(\n";
+				exit(-1);
+			}
 			std::string s(parameter_.FindString());
 			const BSDF *bsdf = nullptr;
 			if (s == "Diffuse") bsdf = NewDiffuseBSDF(parameter_);
@@ -58,44 +69,42 @@ class Parser
 				std::cerr << "line: " << line_ << ": syntax error :(\n";
 				exit(-1);
 			}
-			std::string o(parameter_.FindString());
-			if (o == "Sphere")
-				return NewSphere(parameter_, bsdf);
-			else if (o == "Plane")
-				return NewPlane(parameter_, bsdf);
-			else {
+			primitives_.push_back(std::shared_ptr<Primitive>(new Primitive(object, bsdf)));
+		}
+
+		void FindLight() {
+			std::string s(parameter_.FindString());
+			std::shared_ptr<Light> light = nullptr;
+			if (s == "Point") {
+				light = std::shared_ptr<Light>(NewPointLight(parameter_));
+			} else if (s == "Area") {
+				AreaLight *area_light = NewAreaLight(parameter_);
+				light = std::shared_ptr<Light>(area_light);
+				primitives_.push_back(std::shared_ptr<Primitive>(
+					new Primitive(area_light->object_, nullptr, area_light)));
+			} else {
 				std::cerr << "line: " << line_ << ": syntax error :(\n";
 				exit(-1);
 			}
-		}
-
-		Light* FindLight() {
-			std::string s(parameter_.FindString());
-			if (s == "Point") return NewPointLight(parameter_);
-			// else if (s == "Directional") return NewDirectionalLight(parameter_);
-			std::cerr << "line: " << line_ << ": syntax error :(\n";
-			exit(-1);
+			lights_.push_back(light);
 		}
 
 		Scene GetScene() const {
-			assert(objects_.size() && lights_.size());
-			return Scene(objects_, lights_);
-		}
-
-		~Parser() {
-			std::for_each(lights_.begin(), lights_.end(), [](Light *light) {
-				delete light;
-			});
-			std::for_each(objects_.begin(), objects_.end(), [](Object *object) {
-				delete object;
-			});
+			assert(primitives_.size() && lights_.size());
+			std::vector<Primitive *> primitives;
+			std::vector<Light *> lights;
+			for (auto e : primitives_)
+				primitives.push_back(e.get());
+			for (auto e : lights_)
+				lights.push_back(e.get());
+			return Scene(primitives, lights);
 		}
 
 	private:
-		int       line_;
-		Parameter parameter_;
-		std::vector<Light *>  lights_;
-		std::vector<Object *> objects_;
+		int                                     line_;
+		Parameter                               parameter_;
+		std::vector<std::shared_ptr<Light>>     lights_;
+		std::vector<std::shared_ptr<Primitive>> primitives_;
 };
 
 } // namespace Zebra

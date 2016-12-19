@@ -10,8 +10,10 @@
 
 #include "vector.hpp"
 #include "point.hpp"
+#include "vertex.hpp"
+#include "sampling.hpp"
 #include "ray.hpp"
-#include "isect.hpp"
+#include "intersection.hpp"
 #include "parameter.hpp"
 
 namespace Zebra {
@@ -19,9 +21,13 @@ namespace Zebra {
 class Object
 {
 	public:
-		virtual bool Intersect(const Ray &ray, Isect &isect) const = 0;
+		virtual bool Intersect(Ray &ray, Intersection &isect) const = 0;
 
-		virtual bool IntersectP(const Ray &ray, double distance) const = 0;
+		virtual bool IntersectP(const Ray &ray) const = 0;
+
+		virtual Vertex Sample(const Point2 &u) const = 0;
+
+		virtual double Pdf(const Vertex &v) const = 0;
 
 		virtual ~Object() { }
 };
@@ -31,9 +37,9 @@ class Sphere : public Object
 	public:
 		Sphere(double radius, const Point &position):radius_(radius), position_(position) { }
 
-		bool Intersect(const Ray &r, Isect &i) const override {
-			Vector l = position_ - r.Origin();
-			double s = Dot(l, r.Direction());
+		bool Intersect(Ray &r, Intersection &i) const override {
+			Vector l = position_ - r.origin_;
+			double s = Dot(l, r.direction_);
 			double l2 = l.Length2();
 			double r2 = radius_ * radius_;
 			if (s < 0 && l2 > r2)
@@ -44,17 +50,18 @@ class Sphere : public Object
 			double q = std::sqrt(r2 - q2);
 			double d = l2 > r2 ? (s - q) : (s + q);
 
-			if (d < r.Distance()) {
-				r.SetDistance(d);
-				i = Isect(d, r.Origin() + r.Direction() * d, Normalize(p - position_));
+			if (d < r.max_) {
+				r.max_ = d;
+				Point p = r.origin_ + r.direction_ * d;
+				i = Intersection(p, Normalize(p - position_));
 				return true;
 			}
 			return false;
 		}
 
-		bool IntersectP(const Ray &r, double D) const override {
-			Vector l = position_ - r.Origin();
-			double s = Dot(l, r.Direction());
+		bool IntersectP(const Ray &r) const override {
+			Vector l = position_ - r.origin_;
+			double s = Dot(l, r.direction_);
 			double l2 = l.Length2();
 			double r2 = radius_ * radius_;
 			if (s < 0 && l2 > r2)
@@ -65,7 +72,18 @@ class Sphere : public Object
 			double q = std::sqrt(r2 - q2);
 			double d = l2 > r2 ? (s - q) : (s + q);
 
-			return d < D ? true : false;
+			return d < r.max_ ? true : false;
+		}
+
+		Vertex Sample(const Point2 &u) const override {
+			Point p = position_ + UniformSampleSphere(u) * radius_;
+			return Vertex(p, p - position_);
+		}
+
+		double Pdf(const Vertex &v) const override {
+			double sini = radius_ * radius_ / (v.position_ - position_).Length2();
+			double cos_theta = std::sqrt(std::max(0.0, 1.0 - sini));
+			return UniformConePdf(cos_theta);
 		}
 
 	private:
@@ -79,32 +97,40 @@ class Plane : public Object
 		Plane(const Point &position, const Vector &normal)
 		:position_(position), normal_(Normalize(normal)) { }
 
-		bool Intersect(const Ray &r, Isect &i) const override {
-			double a = Dot(normal_, r.Direction());
+		bool Intersect(Ray &r, Intersection &i) const override {
+			double a = Dot(normal_, r.direction_);
 			if (a > 0) return false;
 
-			double b = -Dot(r.Origin() - position_, normal_);
+			double b = -Dot(r.origin_ - position_, normal_);
 
 			double d = b / a;
 
-			if (d > 0 && d < r.Distance()) {
-				r.SetDistance(d);
-				i = Isect(d, r.Origin() + r.Direction() * d, normal_);
+			if (d > 0 && d < r.max_) {
+				r.max_ = d;
+				i = Intersection(r.origin_ + r.direction_ * d, normal_);
 				return true;
 			} else {
 				return false;
 			}
 		}
 
-		bool IntersectP(const Ray &r, double D) const override {
-			double a = Dot(normal_, r.Direction());
+		bool IntersectP(const Ray &r) const override {
+			double a = Dot(normal_, r.direction_);
 			if (a > 0) return false;
 
-			double b = -Dot(r.Origin() - position_, normal_);
+			double b = -Dot(r.origin_ - position_, normal_);
 
 			double d = b / a;
 
-			return d < D ? true : false;
+			return d < r.max_ ? true : false;
+		}
+
+		Vertex Sample(const Point2 &u) const override {
+			return Vertex();
+		}
+
+		double Pdf(const Vertex &v) const override {
+			return 0.0;
 		}
 
 	private:
@@ -115,6 +141,8 @@ class Plane : public Object
 Object* NewSphere(Parameter &param)
 {
 	Point position = param.FindPosition();
+	std::string o(param.FindString());
+	assert(o == "Radius");
 	double radius  = param.FindDouble();
 	return new Sphere(radius, position);
 }

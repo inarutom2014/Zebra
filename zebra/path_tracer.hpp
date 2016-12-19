@@ -12,7 +12,7 @@
 #include "point.hpp"
 #include "bsdf.hpp"
 #include "light.hpp"
-#include "isect.hpp"
+#include "intersection.hpp"
 #include "integrator.hpp"
 
 namespace Zebra {
@@ -34,10 +34,10 @@ class PathTracer : public Integrator
 					for (int n = 0; n < iterations_; ++n) {
 						double dx = distribution(generator) - 0.5;
 						double dy = distribution(generator) - 0.5;
-						Ray ray(Point(), camera_.RasterToWorld(Point2<double>(dx + x, dy + y)));
+						Ray ray(Point(), camera_.RasterToWorld(Point2(dx + x, dy + y)));
 						L += Li(ray);
 					}
-					pixels_[camera_.RasterToIndex(Point2<int>(x, y))] = L / iterations_;
+					pixels_[camera_.RasterToIndex(Point2i(x, y))] = L / iterations_;
 				}
 			}
 			auto end = std::chrono::high_resolution_clock::now();
@@ -49,37 +49,50 @@ class PathTracer : public Integrator
 
 		Spectrum Li(Ray ray) {
 			Spectrum L(0), weight(1);
+			bool last_specular = false;
 			for (int bounce = 0; ; ++bounce) {
-				Isect isect;
-				if (bounce > 5 || !scene_.Intersect(ray, isect)) break;
+				Intersection isect;
+				bool intersect = false;
+				if (bounce > 5 || !(intersect = scene_.Intersect(ray, isect))) break;
 
-				Vector u, v, w(isect.Normal());
+				if ((!bounce || last_specular) && intersect) {
+					auto light = isect.primitive_->GetAreaLight();
+					L += weight * (light ? light->L(isect, -ray.direction_) : Spectrum());
+				}
+
+				if (!isect.bsdf_) break;
+
+				Vector u, v, w(isect.normal_);
 				if (std::fabs(w.x_) > std::fabs(w.y_))
 					u = Normalize(Cross(Vector(0, 1, 0), w));
 				else
 					u = Normalize(Cross(Vector(1, 0, 0), w));
 				v = Cross(w, u);
 
-				const Vector tmp = -ray.Direction();
+				const Vector tmp = -ray.direction_;
 				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
 
-				if (!isect.Bsdf()->IsDelta()) {
+				if (!isect.bsdf_->IsDelta()) {
 					for (auto e : scene_.Lights()) {
 						Vector dir;
 						double distance, pdf;
-						Spectrum l = e->SampleLi(isect.Position(), dir, distance, pdf);
+						Point2 uu(distribution(generator), distribution(generator));
+						Spectrum l = e->SampleLi(isect.position_, uu, dir, distance, pdf);
 						Vector wi = Vector(Dot(dir, u), Dot(dir, v), Dot(dir, w));
-						Spectrum f = isect.Bsdf()->F(wo, wi);
+						Spectrum f = isect.bsdf_->F(wo, wi);
 
-						Ray shadow_ray(isect.Position() + dir * 1e-4, dir);
-						if (!scene_.IntersectP(shadow_ray, distance))
+						Ray shadow_ray(isect.position_ + dir * kEpsilon, dir, distance);
+						if (!scene_.IntersectP(shadow_ray))
 							L += weight * f * l * (CosTheta(wi) * (1.0 / pdf));
 					}
+					last_specular = false;
+				} else {
+					last_specular = true;
 				}
 
 				double pdf;
 				Vector wi;
-				Spectrum f = isect.Bsdf()->SampleF(wo, wi, pdf);
+				Spectrum f = isect.bsdf_->SampleF(wo, wi, pdf);
 				if (f.IsZero() || pdf == 0) break;
 				weight *= f * (AbsCosTheta(wi) * (1.0 / pdf));
 
@@ -90,7 +103,7 @@ class PathTracer : public Integrator
 				}
 
 				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
-				ray = Ray(isect.Position() + dir * 1e-4, dir);
+				ray = Ray(isect.position_ + dir * kEpsilon, dir);
 			}
 			return L;
 		}

@@ -8,8 +8,6 @@
 #ifndef _POINT_HPP_
 #define _POINT_HPP_
 
-#include <iostream>
-#include <iomanip>
 #include <cassert>
 
 #include "vector.hpp"
@@ -17,16 +15,19 @@
 namespace Zebra {
 
 template <typename T>
-class Point2
+class point2
 {
 	public:
 		T x_;
 		T y_;
 
-		Point2():x_(0), y_(0) { }
-		explicit Point2(const T &t):x_(t), y_(t) { }
-		Point2(const T &x, const T &y):x_(x), y_(y) { }
+		point2():x_(0), y_(0) { }
+		explicit point2(const T &t):x_(t), y_(t) { }
+		point2(const T &x, const T &y):x_(x), y_(y) { }
 };
+
+typedef point2<double> Point2;
+typedef point2<int> Point2i;
 
 template <typename T>
 class Point3

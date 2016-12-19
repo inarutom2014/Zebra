@@ -8,9 +8,12 @@
 #ifndef _PRIMITIVE_HPP_
 #define _PRIMITIVE_HPP_
 
+#include <cassert>
+
 #include "object.hpp"
-#include "bsdf.hpp"
 #include "light.hpp"
+#include "bsdf.hpp"
+#include "intersection.hpp"
 
 namespace Zebra {
 
@@ -20,15 +23,25 @@ class Primitive
 		Primitive(const Object *object, const BSDF *bsdf, const AreaLight *light = nullptr)
 		:object_(object), bsdf_(bsdf), light_(light) { }
 
-		bool Intersect(const Ray &r, Isect &i) const {
+		bool Intersect(Ray &r, Intersection &i) const {
 			if (!object_->Intersect(r, i)) return false;
 			i.primitive_ = this;
 			i.bsdf_      = bsdf_;
 			return true;
 		}
 
-		bool IntersectP(const Ray &r, double d) const {
-			return object_.IntersectP(r, d);
+		bool IntersectP(const Ray &r) const {
+			return object_->IntersectP(r);
+		}
+
+		const AreaLight* GetAreaLight() const { return light_; }
+
+		~Primitive() {
+			if (light_)
+				delete light_;
+			else
+				delete object_;
+			delete bsdf_;
 		}
 
 	private:

@@ -10,8 +10,6 @@
 
 #include <cmath>
 #include <cassert>
-#include <iostream>
-#include <iomanip>
 
 namespace Zebra {
 
@@ -101,12 +99,6 @@ class Vector3
 
 		bool IsZero() const {
 			return x_ == 0 && y_ == 0 && z_ == 0;
-		}
-
-		friend std::ostream& operator<<(std::ostream &os, const Vector3<T> &v) {
-			return os << std::setw(8) << v.x_ << " "
-								<< std::setw(8) << v.y_ << " "
-								<< std::setw(8) << v.z_ << std::endl;
 		}
 };
 
