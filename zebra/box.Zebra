@@ -7,4 +7,4 @@ Object Plane Position -1 0 0 Normal 1 0 0 Diffuse Spectrum 0.25 0.75 0.25
 Object Plane Position 1 0 0 Normal -1 0 0 Diffuse Spectrum 0.75 0.25 0.25
 Object Plane Position 0 -1 0 Normal 0 1 0 Diffuse Spectrum 0.7 0.7 0.7
 Object Plane Position 0 1 0 Normal 0 -1 0 Diffuse Spectrum 0.7 0.7 0.7
-Object Plane Position 0 0 -4 Normal 0 0 1 Diffuse Spectrum 0.75 0.75 0.25
+Object Plane Position 0 0 -4 Normal 0 0 1 Reflect Spectrum 1 1 1

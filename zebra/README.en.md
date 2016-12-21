@@ -15,3 +15,10 @@
 `g++ -std=c++11 -fopenmp zebra.cpp -o Zebra`  
 `./Zebra 4 (4 means sample number, could be any positive number)`  
 `Zebra has its own tracing language, so you can change scene paramater in file scene.Zebra without re-compile`
+
+####Rainbow
+![](./image/rainbow.png)
+
+####Cornell_Box
+![](./image/box.png)
+
