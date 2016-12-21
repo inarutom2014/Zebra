@@ -18,7 +18,7 @@ int main(int argc, char **argv)
 	if (argc > 1) samples = atoi(argv[1]);
 	if (!samples) samples = 1;
 
-	Parser parser("planet.Zebra");
+	Parser parser("rainbow.Zebra");
 // #ifdef LT
 	// Integrator *light_tracer = new LightTracer(samples, parser.GetScene());
 	// std::string image = light_tracer->Render();

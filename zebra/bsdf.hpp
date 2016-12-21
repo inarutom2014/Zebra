@@ -39,7 +39,8 @@ class BSDF
 
 		virtual Spectrum F(const Vector &wo, const Vector &wi) const = 0;
 
-		virtual Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const = 0;
+		virtual Spectrum SampleF(const Vector &wo, const Point2 &u, Vector &wi, double &pdf)
+		const = 0;
 
 		virtual bool IsDelta() const { return false; }
 
@@ -60,8 +61,7 @@ class DiffuseBSDF : public BSDF
 			return r_ * INV_PI;
 		}
 
-		Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
-			Point2 u(distribution(generator), distribution(generator));
+		Spectrum SampleF(const Vector &wo, const Point2 &u, Vector &wi, double &pdf) const {
 			wi  = CosineWeightedHemisphere(u);
 			pdf = CosTheta(wi) * INV_PI;
 			return F(wo, wi);
@@ -75,17 +75,17 @@ class ReflectBSDF : public BSDF
 	public:
 		ReflectBSDF(const Spectrum &r):BSDF(r) { }
 
-		Spectrum F(const Vector &wo, const Vector &wi) const override {
+		Spectrum F(const Vector &wo, const Vector &wi) const {
 			return Spectrum();
 		}
 
-		Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
+		Spectrum SampleF(const Vector &wo, const Point2 &u, Vector &wi, double &pdf) const {
 			wi = Vector(-wo.x_, -wo.y_, wo.z_);
 			pdf = 1.0;
 			return r_ * (1.0 / CosTheta(wi));
 		}
 
-		bool IsDelta() const override { return true; }
+		bool IsDelta() const { return true; }
 };
 
 class RefractBSDF : public BSDF
@@ -98,7 +98,7 @@ class RefractBSDF : public BSDF
 			return Spectrum();
 		}
 
-		Spectrum SampleF(const Vector &wo, Vector &wi, double &pdf) const override {
+		Spectrum SampleF(const Vector &wo, const Point2 &u, Vector &wi, double &pdf) const {
 			bool entering = CosTheta(wo) < 0;
 			double etai = entering ? etai_ : etat_;
 			double etat = entering ? etat_ : etai_;
@@ -110,13 +110,9 @@ class RefractBSDF : public BSDF
 			double sini = std::max(0.0, 1 - cosi * cosi);
 			double sint = eta * eta * sini;
 
-			if (sint >= 1) {
-				pdf = 0;
-				return Spectrum(0);
-			}
+			if (sint >= 1) return Spectrum(0);
 
 			double cost = std::sqrt(1 - sint);
-
 			double term1 = etai * cost;
 			double term2 = etat * cosi;
 			double term3 = etai * cosi;
@@ -125,10 +121,9 @@ class RefractBSDF : public BSDF
 			double parl = (term2 - term1) / (term2 + term1);
 			double perp = (term3 - term4) / (term3 + term4);
 			double re = (parl * parl + perp * perp) * 0.5;
-
 			wi = Vector(-wo.x_ * eta, -wo.y_ * eta, entering ? cost : -cost);
 			pdf = 1 - re;
-			return r_ * (1 - re) / AbsCosTheta(wi);
+			return r_ * ((1 - re) / AbsCosTheta(wi));
 		}
 
 		bool IsDelta() const override { return true; }

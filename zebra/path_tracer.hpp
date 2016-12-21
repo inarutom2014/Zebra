@@ -92,7 +92,8 @@ class PathTracer : public Integrator
 
 				double pdf;
 				Vector wi;
-				Spectrum f = isect.bsdf_->SampleF(wo, wi, pdf);
+				Point2 uu(distribution(generator), distribution(generator));
+				Spectrum f = isect.bsdf_->SampleF(wo, uu, wi, pdf);
 				if (f.IsZero() || pdf == 0) break;
 				weight *= f * (AbsCosTheta(wi) * (1.0 / pdf));
 
