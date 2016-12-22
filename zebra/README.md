@@ -19,5 +19,5 @@
 ####Rainbow
 ![](./image/rainbow.png)
 
-####Cornell_Box
+####Cornell Box
 ![](./image/box.png)

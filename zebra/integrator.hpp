@@ -79,25 +79,7 @@ class Integrator
 			}
 
 			png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
-			if (!png_ptr) {
-				std::cerr << "png格式图片保存失败 :(\n";
-				fclose(fp);
-				return false;
-			}
 			png_infop info_ptr = png_create_info_struct(png_ptr);
-			if (!info_ptr) {
-				png_destroy_write_struct(&png_ptr, (png_infopp) 0);
-				std::cerr << "png格式图片保存失败 :(\n";
-				fclose(fp);
-				return false;
-			}
-
-			if (setjmp(png_jmpbuf(png_ptr))) {
-				png_destroy_write_struct(&png_ptr, &info_ptr);
-				std::cerr << "png格式图片保存失败 :(\n";
-				fclose(fp);
-				return false;
-			}
 
 			png_init_io(png_ptr, fp);
 			int width = camera_.resolution_.x_, height = camera_.resolution_.y_;
