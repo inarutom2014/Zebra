@@ -15,7 +15,8 @@
 `./Zebra box 1 (1代表采样数,可以为任意大于0的值)`  
 `./Zebra rainbow 8`  
 `./Zebra planet 16`  
-`因为Zebra有自己的追踪语言，所以你可以在以.Zebra为后缀的文件中对场景参数进行修改而不用重新编译`
+`因为Zebra有自己的追踪语言，所以你可以在以.Zebra为后缀的文件中对场景参数进行修改而不用重新编译`  
+`如果你是Windows用户或者没有omp，把path_tracer.hpp里面第三十行#pragma omp parallel for schedule(dynamic, 1) private(L)去掉，然后g++ -std=c++11 -O3 zebra.cpp -o Zebra，这样就变成单线程的了，所以会慢一点`
 
 
 ####Rainbow
