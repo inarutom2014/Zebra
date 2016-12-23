@@ -11,9 +11,11 @@
 * 进行必要的调整来配合 [Elephant](https://www.github.com/UncP/Elephant) 进行图形学与机器学习相结合的实践
 
 ###如果你感兴趣
-`g++ -std=c++11 -fopenmp zebra.cpp -o Zebra`  
-`./Zebra 4 (4代表采样数,可以为任意大于0的值)`  
-`因为Zebra有自己的追踪语言，所以你可以在scene.Zebra对场景参数进行修改而不用重新编译`
+`g++ -std=c++11 -O3 -fopenmp zebra.cpp -o Zebra`  
+`./Zebra box 1 (1代表采样数,可以为任意大于0的值)`  
+`./Zebra rainbow 8`  
+`./Zebra planet 16`  
+`因为Zebra有自己的追踪语言，所以你可以在以.Zebra为后缀的文件中对场景参数进行修改而不用重新编译`
 
 
 ####Rainbow

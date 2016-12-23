@@ -37,9 +37,7 @@ class Primitive
 		const AreaLight* GetAreaLight() const { return light_; }
 
 		~Primitive() {
-			if (light_)
-				delete light_;
-			else
+			if (!light_)
 				delete object_;
 			delete bsdf_;
 		}

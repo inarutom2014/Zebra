@@ -14,7 +14,7 @@
 #include <fstream>
 #include <string>
 #include <chrono>
-#include <png.h>
+// #include <png.h>
 
 #include "vector.hpp"
 #include "camera.hpp"
@@ -59,7 +59,7 @@ class Integrator
 			out.close();
 			return file;
 		}
-
+/*
 		bool save_png()
 		{
 			time_t t;
@@ -112,7 +112,7 @@ class Integrator
 			fclose(fp);
 			return true;
 		}
-
+*/
 		const int         iterations_;
 		const Camera      camera_;
 		const Scene       scene_;
