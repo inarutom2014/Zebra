@@ -20,14 +20,14 @@ MultiSVM::MultiSVM(const char *train, const char *test, float rate, float reg, s
 std::string MultiSVM::ToString() const
 {
 	std::ostringstream os;
-	os << "MultiSVM info:\n";
-	os << "train data:   \033[31m" << x_.ToString() << "\033[0m";
-	os << "train label:  \033[32m" << y_.size() << std::endl << "\033[0m";
-	os << "weight: \033[34m" << w_.ToString() << "\033[0m";
+	// os << "MultiSVM info:\n";
+	// os << "train data:   \033[31m" << x_.ToString() << "\033[0m";
+	// os << "train label:  \033[32m" << y_.size() << std::endl << "\033[0m";
+	// os << "weight: \033[34m" << w_.ToString() << "\033[0m";
 	os << rate_ << " " << reg_ << " " << max_iter_ << " " << batch_ << std::endl;
 	os << "loss: \033[31m" << loss_ << "\033[0m\n";
-	os << "test data:    \033[31m" << x_test_.ToString() << "\033[0m";
-	os << "test label:   \033[32m" << y_test_.size() << std::endl << "\033[0m";
+	// os << "test data:    \033[31m" << x_test_.ToString() << "\033[0m";
+	// os << "test label:   \033[32m" << y_test_.size() << std::endl << "\033[0m";
 	os << "error rate: \033[31m" <<  err_rate_ << "\033[0m %\n";
 
 	return std::move(os.str());
@@ -96,14 +96,12 @@ void MultiSVM::Train()
 	LoadModel(train_dir_, x_, y_, 1000);
 	auto pair = x_.Shape();
 	assert(pair.first == y_.size());
-	w_ = Matrix<float>(10, pair.second);
-	w_.Randomize(0.1);
+	w_ = Matrix<float>::Randomize(10, pair.second, 0.1);
 
 	for (size_t i = 0; i != max_iter_; ++i) {
-		Vector<size_t> index(batch_);
-		index.Randomize(batch_, pair.first);
+		auto index = Vector<size_t>::RandomIndex(batch_, pair.first);
 		loss_ = ComputerLoss(index);
-		// std::cout << loss_ << std::endl;
+		std::cout << loss_ << std::endl;
 		w_ -= dw_ * rate_;
 	}
 }

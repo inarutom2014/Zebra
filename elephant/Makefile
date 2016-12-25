@@ -3,7 +3,7 @@ CPPFLAGS = -std=c++14 -Wall -O
 
 DIR  = svm
 TDIR = ../test/
-OBJ  = svm/multi_svm.o
+OBJ  = svm/multi_svm.o nn/nn.o
 
 all:$(OBJ)
 

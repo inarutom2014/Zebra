@@ -16,15 +16,10 @@
 
 namespace Elephant {
 
-template<typename X> class Matrix;
-
 template <typename U>
 class Vector
 {
-	friend class Matrix<U>;
-
 	public:
-
 		Vector() { }
 
 		explicit Vector(size_t size, U u = 0) {
@@ -177,7 +172,7 @@ class Vector
 			size_t end = size();
 			Vector<U> res(end);
 			assert(val);
-			V v = 1 / val;
+			V v = 1.0 / val;
 			for (size_t i = 0; i < end; ++i)
 				res.data_[i] = data_[i] * v;
 			return std::move(res);
@@ -204,20 +199,22 @@ class Vector
 		void Resize(size_t size) { data_.resize(size); }
 		void Push(U u) { data_.push_back(u); }
 
-		void Randomize(size_t size, size_t up) {
-			assert(this->size() == size);
+		static Vector RandomIndex(size_t x, size_t up) {
 			static std::default_random_engine generator(time(0));
-			static std::uniform_int_distribution<size_t> distribution(0, up-1);
-			for (size_t i = 0; i != size; ++i)
-				data_[i] = distribution(generator);
+			std::uniform_int_distribution<size_t> distribution(0, up-1);
+			Vector<size_t> res(x);
+			for (size_t i = 0; i != x; ++i)
+				res.data_[i] = distribution(generator);
+			return std::move(res);
 		}
 
-		void Randomize(double scale) {
-			assert(size());
-			std::default_random_engine generator(time(0));
-			std::normal_distribution<double> distribution(0, 1);
-			for (size_t i = 0, size = this->size(); i != size; ++i)
-				data_[i] = static_cast<U>(distribution(generator) * scale);
+		static Vector Randomize(size_t x, double scale) {
+			static std::default_random_engine generator(time(0));
+			static std::normal_distribution<double> distribution(0, 1);
+			Vector<U> res(x);
+			for (size_t i = 0; i != x; ++i)
+				res.data_[i] = static_cast<U>(distribution(generator) * scale);
+			return std::move(res);
 		}
 
 		size_t ArgMax() const {

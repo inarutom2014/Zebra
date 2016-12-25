@@ -275,13 +275,15 @@ class Matrix
 		}
 
 		void Push(const Vector<U> &vec) { data_.push_back(vec); }
-		void Randomize(double scale) {
-			std::default_random_engine generator(time(0));
-			std::normal_distribution<double> distribution(0, 1);
-			auto pair = Shape();
-			for (size_t i = 0; i != pair.first; ++i)
-				for (size_t j = 0; j != pair.second; ++j)
-					data_[i][j] = static_cast<U>(distribution(generator) * scale);
+
+		static Matrix Randomize(size_t x, size_t y, double scale) {
+			static std::default_random_engine generator(time(0));
+			static std::normal_distribution<double> distribution(0, 1);
+			Matrix<U> res(x, y);
+			for (size_t i = 0; i != x; ++i)
+				for (size_t j = 0; j != y; ++j)
+					res.data_[i][j] = static_cast<U>(distribution(generator) * scale);
+			return std::move(res);
 		}
 
 		std::string ToString() const {
