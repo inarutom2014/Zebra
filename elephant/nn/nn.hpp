@@ -19,12 +19,12 @@ namespace Elephant {
 class NeuralNetwork
 {
 	public:
-		NeuralNetwork(const std::vector<size_t> &layers);
+		NeuralNetwork(const std::vector<size_t> &layers, const Activation &activation);
 
 		void Train(double rate, size_t max_iter, size_t batch, const Matrix<uint8_t> &x,
 			const Vector<uint8_t> &y);
 
-		double ComputeLoss(const Vector<size_t> &index);
+		double ComputeLoss(const Matrix<double> &x);
 
 		std::string ToString() const;
 
@@ -35,6 +35,8 @@ class NeuralNetwork
 
 		std::vector<Matrix<double>> dw_;
 		std::vector<Vector<double>> db_;
+
+		Activation                  activation_;
 };
 
 } // namespace Elephant

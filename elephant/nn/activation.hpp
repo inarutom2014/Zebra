@@ -8,34 +8,57 @@
 #ifndef _ACTIVATION_HPP_
 #define _ACTIVATION_HPP_
 
+#include <cmath>
+
+#include "../include/matrix.hpp"
+
 namespace Elephant {
 
-void Sigmoid_Forward(Matrix<double> &m)
+Matrix<double> Sigmoid_Forward(const Matrix<double> &m)
 {
-
+	return std::move(1.0 / (1.0 + (-m).Exp()));
 }
 
-void Sigmoid_Backward(Matrix<double> &m)
+Matrix<double> Sigmoid_Backward(const Matrix<double> &m)
 {
-
+	auto tmp = m.Exp();
+	return std::move(tmp * (1.0 - tmp));
 }
 
-void ReLU_Forward(Matrix<double> &m)
+Matrix<double> ReLU_Forward(const Matrix<double> &m)
 {
-
+	auto shape = m.Shape();
+	Matrix<double> res(shape);
+	for (size_t i = 0; i != shape.first; ++i)
+		for (size_t j = 0; j != shape.second; ++j) {
+			auto tmp = m[i][j];
+			if (tmp < 0)
+				res[i][j] = 0;
+			else
+				res[i][j] = tmp;
+		}
+	return std::move(res);
 }
 
-void ReLU_Backward(Matrix<double> &m)
+Matrix<double> ReLU_Backward(const Matrix<double> &m)
 {
-
+	auto shape = m.Shape();
+	Matrix<double> res(shape);
+	for (size_t i = 0; i != shape.first; ++i)
+		for (size_t j = 0; j != shape.second; ++j) {
+			auto tmp = m[i][j];
+			if (tmp < 0)
+				res[i][j] = 0;
+			else
+				res[i][j] = tmp;
+		}
+	return std::move(res);
 }
 
 class Activation
 {
 	public:
 		enum ActivationType { Sigmoid, ReLU } ;
-
-		Activation():forward_(nullptr), backward_(nullptr) { }
 
 		Activation(ActivationType type = Sigmoid) {
 			switch (type) {
@@ -52,13 +75,19 @@ class Activation
 			}
 		}
 
-		void Forward(Matrix<double> &m) const { assert(forward_); forward_(m); }
+		Matrix<double> Forward(const Matrix<double> &m) const {
+			assert(forward_);
+			return forward_(m);
+		}
 
-		void Backward(Matrix<double> &m) const { assert(backward_); backward_(m); }
+		Matrix<double> Backward(const Matrix<double> &m) const {
+			assert(backward_);
+			return backward_(m);
+		}
 
 	private:
-		void (*forward_)(Matrix<double> &m);
-		void (*backward_)(Matrix<double> &m);
+		Matrix<double> (*forward_)(const Matrix<double> &m);
+		Matrix<double> (*backward_)(const Matrix<double> &m);
 };
 
 } // namespace Elephant

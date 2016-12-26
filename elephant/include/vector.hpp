@@ -13,6 +13,8 @@
 #include <algorithm>
 #include <random>
 #include <ctime>
+#include <cmath>
+#include <iostream>
 
 namespace Elephant {
 
@@ -51,12 +53,28 @@ class Vector
 		}
 		Vector(const Vector &that):data_(that.data_) { }
 
+		template<typename V>
+		Vector(const Vector<V> &v) {
+			size_t size = v.size();
+			data_.resize(size);
+			for (size_t i = 0; i != size; ++i)
+				data_[i] = static_cast<U>(v.data_[i]);
+		}
+
 		bool operator==(const Vector &that) const {
 			return data_ == that.data_;
 		}
 
 		bool operator!=(const Vector &that) const {
 			return data_ != that.data_;
+		}
+
+		Vector operator-() const {
+			size_t end = size();
+			Vector<U> res(end);
+			for (size_t i = 0; i != end; ++i)
+				res.data_[i] = -data_[i];
+			return std::move(res);
 		}
 
 		template<typename V>
@@ -88,15 +106,17 @@ class Vector
 			return *this;
 		}
 		template<typename V>
-		Vector operator+(const V &v) const {
+		Vector operator+(const V &val) const {
 			size_t end = size();
 			Vector<U> res(end);
+			U v = static_cast<U>(val);
 			for (size_t i = 0; i < end; ++i)
 				res.data_[i] = data_[i] + v;
 			return std::move(res);
 		}
 		template<typename V>
-		Vector& operator+=(const V &v) {
+		Vector& operator+=(const V &val) {
+			U v = static_cast<U>(val);
 			for (size_t i = 0, end = size(); i < end; ++i)
 				data_[i] += v;
 			return *this;
@@ -124,34 +144,19 @@ class Vector
 		Vector operator-(const V &val) const {
 			size_t end = size();
 			Vector<U> res(end);
+			U v = static_cast<U>(val);
 			for (size_t i = 0; i < end; ++i)
-				res.data_[i] = data_[i] - val;
+				res.data_[i] = data_[i] - v;
 			return std::move(res);
 		}
 		template<typename V>
 		Vector& operator-=(const V &val) {
+			U v = static_cast<U>(val);
 			for (size_t i = 0, end = size(); i < end; ++i)
-				data_[i] -= val;
+				data_[i] -= v;
 			return *this;
 		}
 
-		// template<typename V>
-		// Vector operator*(const Vector<V> &that) const {
-		// 	// Validate(that);
-		// 	assert(size() == that.size());
-		// 	size_t end = size();
-		// 	Vector<U> res(end);
-		// 	for (size_t i = 0; i < end; ++i)
-		// 		res.data_[i] = data_[i] * that.data_[i];
-		// 	return std::move(res);
-		// }
-		// template<typename V>
-		// Vector& operator*=(const Vector<V> &that) {
-		// 	// Validate(that);
-		// 	for (size_t i = 0, end = size(); i < end; ++i)
-		// 		data_[i] *= that.data_[i];
-		// 	return *this;
-		// }
 		template<typename V>
 		Vector operator*(const V &val) const {
 			size_t end = size();
@@ -172,7 +177,7 @@ class Vector
 			size_t end = size();
 			Vector<U> res(end);
 			assert(val);
-			V v = 1.0 / val;
+			U v = static_cast<U>(1.0 / val);
 			for (size_t i = 0; i < end; ++i)
 				res.data_[i] = data_[i] * v;
 			return std::move(res);
@@ -181,7 +186,7 @@ class Vector
 		template<typename V>
 		Vector& operator/=(const V &val) {
 			assert(val);
-			V v = 1 / val;
+			U v = static_cast<U>(1.0 / val);
 			for (size_t i = 0, end = size(); i < end; ++i)
 				data_[i] *= v;
 			return *this;
@@ -189,7 +194,7 @@ class Vector
 
 		static Vector<size_t> Arange(size_t start, size_t end) {
 			assert(end > start);
-			Vector<size_t> res(Vector(end - start));
+			Vector<size_t> res(end - start);
 			for (size_t i = 0, j = start; j != end; ++i, ++j)
 				res.data_[i] = j;
 			return std::move(res);
@@ -201,14 +206,14 @@ class Vector
 
 		static Vector RandomIndex(size_t x, size_t up) {
 			static std::default_random_engine generator(time(0));
-			std::uniform_int_distribution<size_t> distribution(0, up-1);
+			std::uniform_int_distribution<size_t> distribution(0, up - 1);
 			Vector<size_t> res(x);
 			for (size_t i = 0; i != x; ++i)
 				res.data_[i] = distribution(generator);
 			return std::move(res);
 		}
 
-		static Vector Randomize(size_t x, double scale) {
+		static Vector<U> Randomize(size_t x, double scale) {
 			static std::default_random_engine generator(time(0));
 			static std::normal_distribution<double> distribution(0, 1);
 			Vector<U> res(x);
@@ -217,16 +222,53 @@ class Vector
 			return std::move(res);
 		}
 
+		U Max() const {
+			size_t end = size();
+			assert(end);
+			U max = data_[0];
+			for (size_t i = 1; i != end; ++i)
+				if (data_[i] > max)
+					max = data_[i];
+			return max;
+		}
+
 		size_t ArgMax() const {
-			assert(size());
+			size_t end = size();
+			assert(end);
 			size_t res = 0;
 			U max = data_[0];
-			for (size_t i = 1, end = size(); i != end; ++i)
+			for (size_t i = 1; i != end; ++i)
 				if (data_[i] > max) {
 					max = data_[i];
 					res = i;
 				}
 			return res;
+		}
+
+		U Sum() const {
+			U sum = 0;
+			std::for_each(data_.begin(), data_.end(), [&sum](const U &u) {
+				sum += u;
+			});
+			return sum;
+		}
+
+		Vector<double> Exp() const {
+			size_t end = size();
+			assert(end);
+			Vector<double> res(end);
+			for (size_t i = 0; i != end; ++i)
+				res.data_[i] = std::exp(data_[i]);
+			return std::move(res);
+		}
+
+		Vector<double> Log() const {
+			size_t end = size();
+			assert(end);
+			Vector<double> res(end);
+			for (size_t i = 0; i != end; ++i)
+				res.data_[i] = std::log(data_[i]);
+			return std::move(res);
 		}
 
 		void Validate(size_t i) const { assert(i < size()); }

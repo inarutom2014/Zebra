@@ -6,6 +6,7 @@
 **/
 
 #include <iostream>
+#include <cmath>
 
 #include "unit.hpp"
 #include "../elephant/include/vector.hpp"
@@ -54,15 +55,6 @@ TEST(VectorMinus2)
 	ASSERT_TRUE(v1 == v2);
 }
 
-// TEST(VectorMultiply1)
-// {
-// 	Vector<size_t> v1 = Vector<size_t>::Arange(1, 3);
-// 	Vector<size_t> v2 = Vector<size_t>::Arange(2, 4);
-// 	auto v3 = v1 * v2;
-// 	v1 *= v2;
-// 	ASSERT_TRUE(v1 == v3);
-// }
-
 TEST(VectorMultiply1)
 {
 	Vector<size_t> v1 = Vector<size_t>::Arange(1, 3);
@@ -81,11 +73,32 @@ TEST(VectorDivide)
 
 TEST(VectorRandomize)
 {
-	Vector<size_t> v1(10);
-	v1.Randomize(10, 10);
-	for (auto i = v1.begin(); i != v1.end(); ++i)
-		std::cout << *i << " ";
+	auto v = Vector<double>::Randomize(10, 0.1);
+	for (size_t i = 0; i != v.size(); ++i)
+		std::cout << v[i] << " ";
 	std::cout << std::endl;
+}
+
+TEST(VectorSum)
+{
+	auto v = Vector<size_t>::Arange(1, 101);
+	ASSERT_EQ(v.Sum(), (size_t)5050);
+}
+
+TEST(VectorExp)
+{
+	auto v = Vector<size_t>::Arange(1, 10);
+	auto w = v.Exp();
+	for (size_t i = 0; i != w.size(); ++i)
+		EXPECT_EQ(w[i], std::exp(i + 1));
+}
+
+TEST(VectorLog)
+{
+	auto v = Vector<size_t>::Arange(1, 10);
+	auto w = v.Log();
+	for (size_t i = 0; i != w.size(); ++i)
+		EXPECT_EQ(w[i], std::log(i + 1));
 }
 
 int main()

@@ -7,6 +7,7 @@
 
 #include "unit.hpp"
 #include "../elephant/include/matrix.hpp"
+#include "../elephant/include/matrix_ptr.hpp"
 
 using namespace Elephant;
 
@@ -93,18 +94,18 @@ TEST(MatrixPlus4)
 
 TEST(MatrixMultiply1)
 {
-	Matrix<size_t> m1(3, 4, 5);
-	Matrix<size_t> m2(4, 3, 5);
-	Matrix<size_t> m3(3, 3, 100);
+	Matrix<size_t> m1(2, 2, 5);
+	Matrix<size_t> m2(2, 2, 5);
+	Matrix<size_t> m3(2, 2, 25);
 	m1 *= m2;
 	ASSERT_TRUE(m1 == m3);
 }
 
 TEST(MatrixMultiply2)
 {
-	Matrix<size_t> m1(3, 4, 5);
-	Matrix<size_t> m2(4, 3, 5);
-	Matrix<size_t> m3(3, 3, 100);
+	Matrix<size_t> m1(2, 2, 5);
+	Matrix<size_t> m2(2, 2, 5);
+	Matrix<size_t> m3(2, 2, 25);
 	auto m4 = m1 * m2;
 	ASSERT_TRUE(m3 == m4);
 }
@@ -152,6 +153,17 @@ TEST(MatrixSum)
 {
 	Matrix<size_t> m1(3, 4, 5);
 	ASSERT_EQ(size_t(60), m1.Sum());
+}
+
+TEST(MatrixPtr)
+{
+	Matrix<size_t> m1(3, 4, 2);
+	Matrix<size_t> m2(4, 2, 3);
+	auto m3 = m1.Dot(m2);
+	Vector<size_t> v = Vector<size_t>::Arange(0, 3);
+	MatrixPtr<size_t> mp(m1, v);
+	auto m4 = mp.Dot(m2);
+	ASSERT_TRUE(m3 == m4);
 }
 
 int main()

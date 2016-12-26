@@ -11,7 +11,8 @@
 
 namespace Elephant {
 
-NeuralNetwork::NeuralNetwork(const std::vector<size_t> &layers):layers_(layers)
+NeuralNetwork::NeuralNetwork(const std::vector<size_t> &layers, const Activation &activation)
+:layers_(layers), activation_(activation)
 {
 	w_ = std::vector<Matrix<double>>(layers_.size());
 	b_ = std::vector<Vector<double>>(layers_.size());
@@ -34,9 +35,11 @@ void NeuralNetwork::Train(double rate, size_t max_iter, size_t batch, const Matr
 		b = layers_[i + 1];
 	}
 
+	std::vector<double> loss(max_iter);
 	for (size_t i = 0; i != max_iter; ++i) {
 		auto index = Vector<size_t>::RandomIndex(batch, shape.first);
-		loss_ = ComputerLoss(index);
+		Matrix<double> m(x, index);
+		loss[i] = ComputeLoss(m);
 		for (size_t j = 0; j != layers_.size(); ++j) {
 			w_[j] -= dw_[j] * rate;
 			b_[j] -= db_[j] * rate;
@@ -44,8 +47,18 @@ void NeuralNetwork::Train(double rate, size_t max_iter, size_t batch, const Matr
 	}
 }
 
-double NeuralNetwork::ComputerLoss(const Vector<size_t> &index)
+double NeuralNetwork::ComputeLoss(const Matrix<double> &x)
 {
+	std::vector<Matrix<double>> m(layers_.size());
+	std::vector<Matrix<double>> n(layers_.size());
+	n[0] = x;
+	for (size_t i = 0; i != layers_.size(); ++i) {
+		m[i] = n[i].Dot(w_[i]);
+		m[i] += b_[i];
+		n[i] = activation_.Forward(m[i]);
+	}
+
+
 
 }
 

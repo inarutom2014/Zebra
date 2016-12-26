@@ -70,20 +70,17 @@ float MultiSVM::ComputerLoss(const Vector<size_t> &index)
 		auto scores = w_.Dot(x_[idx]);
 		auto correct = scores[y_[idx]];
 		scores -= (correct + 1);
+		size_t sum = 0;
 		for (size_t j = 0; j != pair.first; ++j) {
-			if (y_[idx] != j) {
-				if (scores[j] > 0) {
+			if (scores[j] > 0) {
+				if (y_[idx] != j) {
 					loss += scores[j];
 					dw_[j] += x_[idx];
+					++sum;
 				}
-			} else {
-				size_t sum = 0;
-				for (size_t k = 0; k != pair.first; ++k)
-					if (scores[k] > 0 && k != j)
-						++sum;
-				dw_[j] -= x_[idx] * sum;
 			}
 		}
+		dw_[y_[idx]] -= x_[idx] * sum;
 	}
 	loss /= batch_;
 	dw_  /= batch_;
@@ -101,7 +98,7 @@ void MultiSVM::Train()
 	for (size_t i = 0; i != max_iter_; ++i) {
 		auto index = Vector<size_t>::RandomIndex(batch_, pair.first);
 		loss_ = ComputerLoss(index);
-		std::cout << loss_ << std::endl;
+		// std::cout << loss_ << std::endl;
 		w_ -= dw_ * rate_;
 	}
 }

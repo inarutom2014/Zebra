@@ -38,6 +38,14 @@ class Matrix
 		Matrix(const Matrix &) = default;
 		Matrix& operator=(const Matrix &) = default;
 
+		template<typename V>
+		Matrix(const Matrix<V> &matrix, const Vector<size_t> &index) {
+			size_t end = index.size();
+			data_.resize(end);
+			for (size_t i = 0; i != end; ++i)
+				data_[i] = static_cast<Vector<U>>(matrix[index[i]]);
+		}
+
 		Matrix T() const {
 			size_t row = Row();
 			size_t col = Col();
@@ -59,6 +67,14 @@ class Matrix
 
 		bool operator!=(const Matrix &that) const {
 			return !this->operator==(that);
+		}
+
+		Matrix operator-() const {
+			auto shape = Shape();
+			Matrix<U> res(shape);
+			for (size_t i = 0; i != shape.first; ++i)
+				res.data_[i] = -data_[i];
+			return std::move(res);
 		}
 
 		size_t Row() const { return data_.size(); }
@@ -89,10 +105,10 @@ class Matrix
 
 		template<typename V>
 		Matrix Dot(const Matrix<V> &that) const {
-			assert(Col() == that.Row());
+			size_t dim = Col();
+			assert(dim == that.Row());
 			size_t row = Row();
 			size_t col = that.Col();
-			size_t dim = Col();
 			Matrix<U> res(row, col);
 			for (size_t i = 0; i != row; ++i)
 				for (size_t k = 0; k != dim; ++k)
@@ -145,17 +161,37 @@ class Matrix
 			return *this;
 		}
 		template<typename V>
-		Matrix operator+(const V &v) const {
+		Matrix operator+(const Vector<V> &v) const {
 			auto shape = Shape();
+			assert(shape.second == v.size());
 			Matrix<U> res(shape);
 			for (size_t i = 0; i != shape.first; ++i)
 				res[i] = data_[i] + v;
 			return std::move(res);
 		}
 		template<typename V>
-		Matrix& operator+=(const V &v) {
+		Matrix& operator+=(const Vector<V> &v) {
+			auto shape = Shape();
+			assert(shape.second == v.size());
+			Matrix<U> res(shape);
+			for (size_t i = 0; i != shape.first; ++i)
+				data_[i] += v;
+			return *this;
+		}
+		template<typename V>
+		Matrix operator+(const V &val) const {
 			auto shape = Shape();
 			Matrix<U> res(shape);
+			U v = static_cast<U>(val);
+			for (size_t i = 0; i != shape.first; ++i)
+				res[i] = data_[i] + v;
+			return std::move(res);
+		}
+		template<typename V>
+		Matrix& operator+=(const V &val) {
+			auto shape = Shape();
+			Matrix<U> res(shape);
+			U v = static_cast<U>(val);
 			for (size_t i = 0; i != shape.first; ++i)
 				data_[i] += v;
 			return *this;
@@ -179,17 +215,19 @@ class Matrix
 			return *this;
 		}
 		template<typename V>
-		Matrix operator-(const V &v) const {
+		Matrix operator-(const V &val) const {
 			auto shape = Shape();
 			Matrix<U> res(shape);
+			U v = static_cast<U>(val);
 			for (size_t i = 0; i != shape.first; ++i)
 				res[i] = data_[i] - v;
 			return std::move(res);
 		}
 		template<typename V>
-		Matrix& operator-=(const V &v) {
+		Matrix& operator-=(const V &val) {
 			auto shape = Shape();
 			Matrix<U> res(shape);
+			U v = static_cast<U>(val);
 			for (size_t i = 0; i != shape.first; ++i)
 				data_[i] -= v;
 			return *this;
@@ -253,25 +291,36 @@ class Matrix
 			assert(row && col);
 			U max = data_[0][0];
 			std::for_each(data_.begin(), data_.end(), [&max](const Vector<U> &row) {
-				std::for_each(row.begin(), row.end(), [&max](const U &val) {
-					if (val > max)
-						max = val;
-				});
+				U tmp = row.Max();
+				max = ((max < tmp) ? tmp : max);
 			});
 			return max;
 		}
 
 		U Sum() const {
-			size_t col = Col();
-			size_t row = Row();
-			assert(row && col);
 			U sum = 0;
 			std::for_each(data_.begin(), data_.end(), [&sum](const Vector<U> &row) {
-				std::for_each(row.rbegin(), row.rend(), [&sum](const U &val) {
-					sum += val;
-				});
+				sum += row.Sum();
 			});
 			return sum;
+		}
+
+		Matrix<double> Exp() const {
+			auto shape = Shape();
+			assert(shape.first && shape.second);
+			Matrix<double> res(shape);
+			for (size_t i = 0; i != shape.first; ++i)
+				res[i] = data_[i].Exp();
+			return res;
+		}
+
+		Matrix<double> Log() const {
+			auto shape = Shape();
+			assert(shape.first && shape.second);
+			Matrix<double> res(shape);
+			for (size_t i = 0; i != shape.first; ++i)
+				res[i] = data_[i].Log();
+			return res;
 		}
 
 		void Push(const Vector<U> &vec) { data_.push_back(vec); }
@@ -299,6 +348,26 @@ class Matrix
 
 		std::vector<Vector<U>> data_;
 };
+
+template<typename T>
+Matrix<double> operator/(double x, const Matrix<T> &m) {
+	auto shape = m.Shape();
+	Matrix<double> res(shape);
+	for (size_t i = 0; i != shape.first; ++i)
+		for (size_t j = 0; j != shape.second; ++j)
+			res[i][j] = x / m[i][j];
+	return std::move(res);
+}
+
+template<typename U, typename T>
+Matrix<T> operator+(U u, const Matrix<T> &m) {
+	return std::move(m + u);
+}
+
+template<typename U, typename T>
+Matrix<T> operator-(U u, const Matrix<T> &m) {
+	return std::move((-m) + u);
+}
 
 } // namespace Elephant
 
