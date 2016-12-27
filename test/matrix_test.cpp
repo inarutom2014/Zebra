@@ -127,13 +127,31 @@ TEST(MatrixMultiply4)
 
 TEST(MatrixDivide1)
 {
+	Matrix<double> m1(2, 2, 3);
+	Matrix<double> m2(2, 2, 1);
+	Vector<double> v1(2, 3);
+	auto m3 = m1 / v1;
+	ASSERT_TRUE(m2 == m3);
+}
+
+TEST(MatrixDivide2)
+{
+	Matrix<double> m1(2, 2, 3);
+	Matrix<double> m2(2, 2, 1);
+	Vector<double> v1(2, 3);
+	m1 /= v1;
+	ASSERT_TRUE(m1 == m2);
+}
+
+TEST(MatrixDivide3)
+{
 	Matrix<size_t> m1(3, 4, 5);
 	Matrix<size_t> m2(3, 4, 1);
 	auto m3 = m1 / 5;
 	ASSERT_TRUE(m2 == m3);
 }
 
-TEST(MatrixDivide2)
+TEST(MatrixDivide4)
 {
 	Matrix<size_t> m1(3, 4, 5);
 	Matrix<size_t> m2(3, 4, 1);
@@ -152,7 +170,6 @@ TEST(MatrixSum)
 {
 	Matrix<size_t> m1(3, 4, 5);
 	ASSERT_EQ(size_t(60), m1.Sum());
-
 	Matrix<double> m2(4, 4, 2.5);
 	Matrix<double> m3(4, 4, 2.5);
 	ASSERT_TRUE(m2.Sum(0) == m3.Sum(1));

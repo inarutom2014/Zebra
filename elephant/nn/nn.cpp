@@ -51,12 +51,12 @@ void NeuralNetwork::Train(double rate, size_t max_iter, size_t batch, double reg
 double NeuralNetwork::ComputeLoss(const Matrix<double> &x, const Vector<uint8_t> &y, double reg)
 {
 	std::vector<Matrix<double>> m(layers_.size());
-	std::vector<Matrix<double>> n(layers_.size());
+	std::vector<Matrix<double>> n(layers_.size() + 1);
 	n[0] = x;
 	for (size_t i = 0; i != layers_.size(); ++i) {
 		m[i] = n[i].Dot(w_[i]);
 		m[i] += b_[i];
-		n[i] = activation_.Forward(m[i]);
+		n[i+1] = activation_.Forward(m[i]);
 	}
 
 	auto exp = m[layers_.size()-1].Exp();
@@ -71,13 +71,23 @@ double NeuralNetwork::ComputeLoss(const Matrix<double> &x, const Vector<uint8_t>
 	for (size_t i = 0; i != layers_.size(); ++i)
 		loss += 0.5 * reg * (w_[i] * w_[i]).Sum();
 
-	auto dm = exp / sum;
+	auto delta = exp / sum;
 	for (size_t i = 0; i != shape.first; ++i)
-		dm[i][y[i]] -= 1;
-	dm /= shape.first;
+		delta[i][y[i]] -= 1;
+	delta /= shape.first;
 
-	for (int i = layers_.size() - 1; i >= 0; --i) {
-		dw_[i] = n[i]
+	size_t idx = layers_.size() - 1;
+	dw_[idx] = n[idx].T().Dot(delta);
+	dw_[idx] += dw_[idx] * reg;
+	db_[idx] = dw_[idx].Sum(1);
+
+	for (; idx;) {
+		auto tmp = delta.Dot(w_[idx].T());
+		delta = activation_.Backward(tmp);
+		--idx;
+		dw_[idx] = n[idx].T().Dot(delta);
+		dw_[idx] = dw_[idx] * reg;
+		db_[idx] = dw_[idx].Sum(1);
 	}
 
 	return loss;

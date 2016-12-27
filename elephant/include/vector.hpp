@@ -31,8 +31,6 @@ class Vector
 		auto size() const { return data_.size(); }
 		auto begin() const { return data_.begin(); }
 		auto end() const { return data_.end(); }
-		auto rbegin() const { return data_.rbegin(); }
-		auto rend() const { return data_.rend(); }
 
 		U& operator[](size_t i) {
 			// Validate(i);
@@ -68,13 +66,9 @@ class Vector
 				data_[i] = static_cast<U>(v.data_[index[i]]);
 		}
 
-		bool operator==(const Vector &that) const {
-			return data_ == that.data_;
-		}
+		bool operator==(const Vector &that) const { return data_ == that.data_; }
 
-		bool operator!=(const Vector &that) const {
-			return data_ != that.data_;
-		}
+		bool operator!=(const Vector &that) const { return data_ != that.data_; }
 
 		Vector operator-() const {
 			size_t end = size();

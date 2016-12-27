@@ -258,14 +258,13 @@ class Matrix
 			return std::move(res);
 		}
 		template<typename V>
-		Matrix operator/=(const Vector<V> &v) const {
+		Matrix& operator/=(const Vector<V> &v) {
 			auto shape = Shape();
 			assert(shape.first == v.size());
 			for (size_t i = 0; i != shape.first; ++i)
 				data_[i] /= v[i];
 			return *this;
 		}
-
 		template<typename V>
 		Matrix operator/(const V &val) const {
 			assert(val);
