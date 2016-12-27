@@ -21,10 +21,10 @@ class NeuralNetwork
 	public:
 		NeuralNetwork(const std::vector<size_t> &layers, const Activation &activation);
 
-		void Train(double rate, size_t max_iter, size_t batch, const Matrix<uint8_t> &x,
-			const Vector<uint8_t> &y);
+		void Train(double rate, size_t max_iter, size_t batch, double reg,
+			const Matrix<uint8_t> &x, const Vector<uint8_t> &y);
 
-		double ComputeLoss(const Matrix<double> &x);
+		double ComputeLoss(const Matrix<double> &x, const Vector<uint8_t> &y, double reg);
 
 		std::string ToString() const;
 

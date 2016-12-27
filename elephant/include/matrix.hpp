@@ -12,7 +12,6 @@
 #include <map>
 #include <cassert>
 #include <algorithm>
-#include <iostream>
 #include <sstream>
 #include <random>
 #include <ctime>
@@ -241,12 +240,29 @@ class Matrix
 				res.data_[i] = data_[i] * val;
 			return std::move(res);
 		}
-
 		template<typename V>
 		Matrix& operator*=(const V &val) {
 			size_t row = Row();
 			for (size_t i = 0; i != row; ++i)
 				data_[i] *= val;
+			return *this;
+		}
+
+		template<typename V>
+		Matrix operator/(const Vector<V> &v) const {
+			auto shape = Shape();
+			assert(shape.first == v.size());
+			Matrix<U> res(shape);
+			for (size_t i = 0; i != shape.first; ++i)
+				res.data_[i] = data_[i] / v[i];
+			return std::move(res);
+		}
+		template<typename V>
+		Matrix operator/=(const Vector<V> &v) const {
+			auto shape = Shape();
+			assert(shape.first == v.size());
+			for (size_t i = 0; i != shape.first; ++i)
+				data_[i] /= v[i];
 			return *this;
 		}
 
@@ -305,6 +321,22 @@ class Matrix
 			return sum;
 		}
 
+		Vector<U> Sum(int axis) const {
+			auto shape = Shape();
+			if (axis == 0) {
+				Vector<U> sum(shape.first);
+				for (size_t i = 0; i != shape.first; ++i)
+					sum[i] = data_[i].Sum();
+				return sum;
+			} else {
+				Vector<U> sum(shape.second);
+				for (size_t i = 0; i != shape.second; ++i)
+					for (size_t j = 0; j != shape.first; ++j)
+						sum[i] += data_[j][i];
+				return sum;
+			}
+		}
+
 		Matrix<double> Exp() const {
 			auto shape = Shape();
 			assert(shape.first && shape.second);
@@ -325,7 +357,7 @@ class Matrix
 
 		void Push(const Vector<U> &vec) { data_.push_back(vec); }
 
-		static Matrix Randomize(size_t x, size_t y, double scale) {
+		static Matrix Randomize(size_t x, size_t y, double scale = 1) {
 			static std::default_random_engine generator(time(0));
 			static std::normal_distribution<double> distribution(0, 1);
 			Matrix<U> res(x, y);
@@ -357,11 +389,6 @@ Matrix<double> operator/(double x, const Matrix<T> &m) {
 		for (size_t j = 0; j != shape.second; ++j)
 			res[i][j] = x / m[i][j];
 	return std::move(res);
-}
-
-template<typename U, typename T>
-Matrix<T> operator+(U u, const Matrix<T> &m) {
-	return std::move(m + u);
 }
 
 template<typename U, typename T>

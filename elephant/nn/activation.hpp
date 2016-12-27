@@ -8,15 +8,13 @@
 #ifndef _ACTIVATION_HPP_
 #define _ACTIVATION_HPP_
 
-#include <cmath>
-
 #include "../include/matrix.hpp"
 
 namespace Elephant {
 
 Matrix<double> Sigmoid_Forward(const Matrix<double> &m)
 {
-	return std::move(1.0 / (1.0 + (-m).Exp()));
+	return std::move(1.0 / ((-m).Exp() + 1.0));
 }
 
 Matrix<double> Sigmoid_Backward(const Matrix<double> &m)
@@ -42,17 +40,7 @@ Matrix<double> ReLU_Forward(const Matrix<double> &m)
 
 Matrix<double> ReLU_Backward(const Matrix<double> &m)
 {
-	auto shape = m.Shape();
-	Matrix<double> res(shape);
-	for (size_t i = 0; i != shape.first; ++i)
-		for (size_t j = 0; j != shape.second; ++j) {
-			auto tmp = m[i][j];
-			if (tmp < 0)
-				res[i][j] = 0;
-			else
-				res[i][j] = tmp;
-		}
-	return std::move(res);
+	return std::move(ReLU_Forward(m));
 }
 
 class Activation

@@ -7,7 +7,6 @@
 
 #include "unit.hpp"
 #include "../elephant/include/matrix.hpp"
-#include "../elephant/include/matrix_ptr.hpp"
 
 using namespace Elephant;
 
@@ -153,17 +152,10 @@ TEST(MatrixSum)
 {
 	Matrix<size_t> m1(3, 4, 5);
 	ASSERT_EQ(size_t(60), m1.Sum());
-}
 
-TEST(MatrixPtr)
-{
-	Matrix<size_t> m1(3, 4, 2);
-	Matrix<size_t> m2(4, 2, 3);
-	auto m3 = m1.Dot(m2);
-	Vector<size_t> v = Vector<size_t>::Arange(0, 3);
-	MatrixPtr<size_t> mp(m1, v);
-	auto m4 = mp.Dot(m2);
-	ASSERT_TRUE(m3 == m4);
+	Matrix<double> m2(4, 4, 2.5);
+	Matrix<double> m3(4, 4, 2.5);
+	ASSERT_TRUE(m2.Sum(0) == m3.Sum(1));
 }
 
 int main()

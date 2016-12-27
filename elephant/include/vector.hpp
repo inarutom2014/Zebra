@@ -14,7 +14,6 @@
 #include <random>
 #include <ctime>
 #include <cmath>
-#include <iostream>
 
 namespace Elephant {
 
@@ -59,6 +58,14 @@ class Vector
 			data_.resize(size);
 			for (size_t i = 0; i != size; ++i)
 				data_[i] = static_cast<U>(v.data_[i]);
+		}
+
+		template<typename V>
+		Vector(const Vector<V> &v, const Vector<size_t> &index) {
+			size_t end = index.size();
+			data_.resize(end);
+			for (size_t i = 0; i != end; ++i)
+				data_[i] = static_cast<U>(v.data_[index[i]]);
 		}
 
 		bool operator==(const Vector &that) const {
@@ -173,6 +180,23 @@ class Vector
 		}
 
 		template<typename V>
+		Vector operator/(const Vector<V> &that) const {
+			size_t end = size();
+			assert(end == that.size());
+			Vector<U> res(end);
+			for (size_t i = 0; i < end; ++i)
+				res.data_[i] = data_[i] / that.data_[i];
+			return std::move(res);
+		}
+		template<typename V>
+		Vector& operator/=(const Vector<V> &that) {
+			size_t end = size();
+			assert(end == that.size());
+			for (size_t i = 0; i < end; ++i)
+				data_[i] /= that.data_[i];
+			return *this;
+		}
+		template<typename V>
 		Vector operator/(const V &val) const {
 			size_t end = size();
 			Vector<U> res(end);
@@ -182,7 +206,6 @@ class Vector
 				res.data_[i] = data_[i] * v;
 			return std::move(res);
 		}
-
 		template<typename V>
 		Vector& operator/=(const V &val) {
 			assert(val);
