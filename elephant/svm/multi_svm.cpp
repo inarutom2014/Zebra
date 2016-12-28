@@ -50,9 +50,9 @@ void LoadModel(const char *dir_name, Matrix<uint8_t> &x, Vector<uint8_t> &y, siz
 			std::string str;
 			in >> str;
 			for (auto e : str)
-				tmp.Assign(i++, e - '0');
-			tmp.Assign(i, 1);
+				tmp[i++] = e - '0';
 		}
+		tmp[1024] = 1;
 		x.Push(tmp);
 		in.close();
 	}

@@ -45,6 +45,15 @@ class Matrix
 				data_[i] = static_cast<Vector<U>>(matrix[index[i]]);
 		}
 
+		template<typename V>
+		Matrix& operator=(const Matrix<V> &that) {
+			size_t end = that.Row();
+			data_.resize(end);
+			for (size_t i = 0; i != end; ++i)
+				data_[i] = that[i];
+			return *this;
+		}
+
 		Matrix T() const {
 			size_t row = Row();
 			size_t col = Col();
@@ -80,26 +89,11 @@ class Matrix
 
 		size_t Col() const { assert(Row()); return data_[0].size(); }
 
-		std::pair<size_t, size_t> Shape() const {
-			return { Row(), Col() };
-		}
+		std::pair<size_t, size_t> Shape() const { return { Row(), Col() }; }
 
 		size_t Shape(size_t i) const {
 			assert(i < 2);
 			return i ? Col() : Row();
-		}
-
-		void SetRow(size_t i, const Vector<U> &vector) {
-			assert(i < Row());
-			data_[i] = vector;
-		}
-
-		void SetCol(size_t i, const Vector<U> &vector) {
-			assert(i < Col());
-			size_t row = Row();
-			assert(row == vector.size());
-			for (size_t j = 0; j != row; ++j)
-				data_[j][i] = vector.data_[j];
 		}
 
 		template<typename V>

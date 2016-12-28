@@ -24,6 +24,8 @@ class NeuralNetwork
 		void Train(double rate, size_t max_iter, size_t batch, double reg,
 			const Matrix<uint8_t> &x, const Vector<uint8_t> &y);
 
+		void Predict(const Matrix<uint8_t> &x, const Vector<uint8_t> &y);
+
 		double ComputeLoss(const Matrix<double> &x, const Vector<uint8_t> &y, double reg);
 
 		std::string ToString() const;

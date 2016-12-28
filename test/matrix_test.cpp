@@ -10,26 +10,6 @@
 
 using namespace Elephant;
 
-TEST(MatrixSet)
-{
-	Vector<size_t> v1 = Vector<size_t>::Arange(0, 4);
-	Vector<size_t> v2(4);
-	Matrix<size_t> m1(4, 4);
-	Matrix<size_t> m2(4, 4);
-	m1.SetRow(0, v1);
-	m1.SetRow(1, v1);
-	m1.SetRow(2, v1);
-	m1.SetRow(3, v1);
-	m2.SetCol(0, v2);
-	v2 += 1;
-	m2.SetCol(1, v2);
-	v2 += 1;
-	m2.SetCol(2, v2);
-	v2 += 1;
-	m2.SetCol(3, v2);
-	ASSERT_TRUE(m1 == m2);
-}
-
 TEST(MatrixT)
 {
 	Matrix<size_t> m1(3, 4, 5);

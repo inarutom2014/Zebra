@@ -217,11 +217,7 @@ class Vector
 			return std::move(res);
 		}
 
-		void Assign(size_t i, U u) { data_[i] = u; }
-		void Resize(size_t size) { data_.resize(size); }
-		void Push(U u) { data_.push_back(u); }
-
-		static Vector RandomIndex(size_t x, size_t up) {
+		static Vector<size_t> RandomIndex(size_t x, size_t up) {
 			static std::default_random_engine generator(time(0));
 			std::uniform_int_distribution<size_t> distribution(0, up - 1);
 			Vector<size_t> res(x);
@@ -287,6 +283,8 @@ class Vector
 				res.data_[i] = std::log(data_[i]);
 			return std::move(res);
 		}
+
+		void Push(U u) { data_.push_back(u); }
 
 		void Validate(size_t i) const { assert(i < size()); }
 

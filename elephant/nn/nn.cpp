@@ -5,6 +5,7 @@
  *    > Created Time:  2016-12-25 20:22:04
 **/
 
+#include <iostream>
 #include <sstream>
 
 #include "nn.hpp"
@@ -38,7 +39,7 @@ void NeuralNetwork::Train(double rate, size_t max_iter, size_t batch, double reg
 	std::vector<double> loss(max_iter);
 	for (size_t i = 0; i != max_iter; ++i) {
 		auto index = Vector<size_t>::RandomIndex(batch, shape.first);
-		Matrix<double> m(x, index);
+		Matrix<double>  m(x, index);
 		Vector<uint8_t> n(y, index);
 		loss[i] = ComputeLoss(m, n, reg);
 		for (size_t j = 0; j != layers_.size(); ++j) {
@@ -60,8 +61,8 @@ double NeuralNetwork::ComputeLoss(const Matrix<double> &x, const Vector<uint8_t>
 	}
 
 	auto exp = m[layers_.size()-1].Exp();
-	auto shape = exp.Shape();
 	auto sum = exp.Sum(0);
+	auto shape = exp.Shape();
 	Vector<double> tmp(shape.first);
 	for (size_t i = 0; i != shape.first; ++i)
 		tmp[i] = exp[i][y[i]] / sum[i];
@@ -91,6 +92,25 @@ double NeuralNetwork::ComputeLoss(const Matrix<double> &x, const Vector<uint8_t>
 	}
 
 	return loss;
+}
+
+void NeuralNetwork::Predict(const Matrix<uint8_t> &x, const Vector<uint8_t> &y)
+{
+	std::vector<Matrix<double>> m(layers_.size());
+	std::vector<Matrix<double>> n(layers_.size() + 1);
+	n[0] = x;
+	for (size_t i = 0; i != layers_.size(); ++i) {
+		m[i] = n[i].Dot(w_[i]);
+		m[i] += b_[i];
+		n[i+1] = activation_.Forward(m[i]);
+	}
+	size_t idx = layers_.size() - 1;
+	size_t err = 0;
+	for (size_t i = 0; i != y.size(); ++i)
+		if (m[idx][i].ArgMax() != y[i])
+			++err;
+
+	std::cout << "error rate: " << ((double)err / y.size() * 100) << std::endl;
 }
 
 } // namespace Elephant
