@@ -33,13 +33,11 @@ class Vector
 		auto end() const { return data_.end(); }
 
 		U& operator[](size_t i) {
-			// Validate(i);
-			assert(i < size());
+			// assert(i < size());
 			return data_[i];
 		}
 		const U& operator[](size_t i) const {
-			// Validate(i);
-			assert(i < size());
+			// assert(i < size());
 			return data_[i];
 		}
 
@@ -48,13 +46,12 @@ class Vector
 			data_ = that.data_;
 			return *this;
 		}
-		Vector(const Vector &that):data_(that.data_) { }
 
 		template<typename V>
 		Vector(const Vector<V> &v) {
-			size_t size = v.size();
-			data_.resize(size);
-			for (size_t i = 0; i != size; ++i)
+			size_t end = v.size();
+			data_.resize(end);
+			for (size_t i = 0; i != end; ++i)
 				data_[i] = static_cast<U>(v.data_[i]);
 		}
 
@@ -214,7 +211,7 @@ class Vector
 			Vector<size_t> res(end - start);
 			for (size_t i = 0, j = start; j != end; ++i, ++j)
 				res.data_[i] = j;
-			return std::move(res);
+			return res;
 		}
 
 		static Vector<size_t> RandomIndex(size_t x, size_t up) {
@@ -223,7 +220,7 @@ class Vector
 			Vector<size_t> res(x);
 			for (size_t i = 0; i != x; ++i)
 				res.data_[i] = distribution(generator);
-			return std::move(res);
+			return res;
 		}
 
 		static Vector<U> Randomize(size_t x, double scale) {
@@ -272,7 +269,7 @@ class Vector
 			Vector<double> res(end);
 			for (size_t i = 0; i != end; ++i)
 				res.data_[i] = std::exp(data_[i]);
-			return std::move(res);
+			return res;
 		}
 
 		Vector<double> Log() const {
@@ -281,7 +278,7 @@ class Vector
 			Vector<double> res(end);
 			for (size_t i = 0; i != end; ++i)
 				res.data_[i] = std::log(data_[i]);
-			return std::move(res);
+			return res;
 		}
 
 		void Push(U u) { data_.push_back(u); }

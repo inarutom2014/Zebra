@@ -30,7 +30,7 @@ std::string MultiSVM::ToString() const
 	// os << "test label:   \033[32m" << y_test_.size() << std::endl << "\033[0m";
 	os << "error rate: \033[31m" <<  err_rate_ << "\033[0m %\n";
 
-	return std::move(os.str());
+	return os.str();
 }
 
 void LoadModel(const char *dir_name, Matrix<uint8_t> &x, Vector<uint8_t> &y, size_t total)

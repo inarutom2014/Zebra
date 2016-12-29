@@ -12,6 +12,7 @@
 
 #include "../include/vector.hpp"
 #include "../include/matrix.hpp"
+#include "../include/batch.hpp"
 #include "activation.hpp"
 
 namespace Elephant {
@@ -21,8 +22,7 @@ class NeuralNetwork
 	public:
 		NeuralNetwork(const std::vector<size_t> &layers, const Activation &activation);
 
-		void Train(double rate, size_t max_iter, size_t batch, double reg,
-			const Matrix<uint8_t> &x, const Vector<uint8_t> &y);
+		void Train(double rate, size_t max_iter, size_t batch, double reg, const Batch &data);
 
 		void Predict(const Matrix<uint8_t> &x, const Vector<uint8_t> &y);
 

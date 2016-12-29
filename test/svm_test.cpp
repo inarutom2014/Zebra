@@ -15,7 +15,7 @@ using namespace Elephant;
 float rate;
 float reg;
 size_t iter;
-size_t batch ;
+size_t batch;
 
 TEST(SVMTrainTest)
 {

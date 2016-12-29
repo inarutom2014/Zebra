@@ -7,10 +7,21 @@
 
 #include <iostream>
 #include <sstream>
+#include <cassert>
 
 #include "nn.hpp"
 
 namespace Elephant {
+
+std::string NeuralNetwork::ToString() const
+{
+	std::ostringstream os("layers: ");
+	for (auto e : layers_)
+		os << e << " ";
+	os << "\n";
+	os << activation_.ToString();
+	return os.str();
+}
 
 NeuralNetwork::NeuralNetwork(const std::vector<size_t> &layers, const Activation &activation)
 :layers_(layers), activation_(activation)
@@ -22,14 +33,16 @@ NeuralNetwork::NeuralNetwork(const std::vector<size_t> &layers, const Activation
 }
 
 void NeuralNetwork::Train(double rate, size_t max_iter, size_t batch, double reg,
-	const Matrix<uint8_t> &x, const Vector<uint8_t> &y)
+	const Batch &data)
 {
 	assert(layers_.size());
-	auto shape = x.Shape();
+	auto shape = data.X().Shape();
 	size_t a = shape.second, b = layers_[0];
 	for (size_t i = 0; ; ++i) {
-		w_[i] = Matrix<double>::Randomize(a, b, 0.1);
-		b_[i] = Vector<double>::Randomize(b, 0.1);
+		w_[i] = Matrix<double>::Randomize(a, b, 0.01);
+		dw_[i] = Matrix<double>(a, b);
+		b_[i] = Vector<double>::Randomize(b, 0.01);
+		db_[i] = Vector<double>(b);
 		if (i == (layers_.size() - 1))
 			break;
 		a = b;
@@ -39,9 +52,10 @@ void NeuralNetwork::Train(double rate, size_t max_iter, size_t batch, double reg
 	std::vector<double> loss(max_iter);
 	for (size_t i = 0; i != max_iter; ++i) {
 		auto index = Vector<size_t>::RandomIndex(batch, shape.first);
-		Matrix<double>  m(x, index);
-		Vector<uint8_t> n(y, index);
+		Matrix<double>  m(data.X(), index);
+		Vector<uint8_t> n(data.Y(), index);
 		loss[i] = ComputeLoss(m, n, reg);
+		std::cout << loss[i] << std::endl;
 		for (size_t j = 0; j != layers_.size(); ++j) {
 			w_[j] -= dw_[j] * rate;
 			b_[j] -= db_[j] * rate;
@@ -87,7 +101,7 @@ double NeuralNetwork::ComputeLoss(const Matrix<double> &x, const Vector<uint8_t>
 		delta = activation_.Backward(tmp);
 		--idx;
 		dw_[idx] = n[idx].T().Dot(delta);
-		dw_[idx] = dw_[idx] * reg;
+		dw_[idx] += dw_[idx] * reg;
 		db_[idx] = dw_[idx].Sum(1);
 	}
 
@@ -106,9 +120,12 @@ void NeuralNetwork::Predict(const Matrix<uint8_t> &x, const Vector<uint8_t> &y)
 	}
 	size_t idx = layers_.size() - 1;
 	size_t err = 0;
-	for (size_t i = 0; i != y.size(); ++i)
-		if (m[idx][i].ArgMax() != y[i])
+	for (size_t i = 0; i != y.size(); ++i) {
+		size_t res = m[idx][i].ArgMax();
+		if (res != y[i])
 			++err;
+		std::cout << res << " " << (int)y[i] << std::endl;
+	}
 
 	std::cout << "error rate: " << ((double)err / y.size() * 100) << std::endl;
 }

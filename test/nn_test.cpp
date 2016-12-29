@@ -7,14 +7,35 @@
 
 #include <iostream>
 
+#include "unit.hpp"
+#include "../elephant/include/batch.hpp"
 #include "../elephant/nn/nn.hpp"
 
-TEST()
-{
+using namespace Elephant;
 
+double rate;
+double reg;
+size_t iter;
+size_t batch;
+
+TEST(NeuralNetwork)
+{
+	std::vector<size_t> layers = {10};
+	NeuralNetwork nn(layers, Activation(Activation::ReLU));
+	Batch train_data("../data/test");
+	train_data.Load(100);
+	nn.Train(rate, iter, batch, reg, train_data);
+	Batch test_data("../data/training");
+	test_data.Load(10);
+	nn.Predict(test_data.X(), test_data.Y());
 }
 
-int main()
+int main(int argc, char **argv)
 {
+	if (argc < 5) return 0;
+	rate = atof(argv[1]);
+	iter = atoi(argv[2]);
+	batch = atoi(argv[3]);
+	reg = atof(argv[4]);
 	return RUN_ALL_TESTS();
 }

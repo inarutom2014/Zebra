@@ -166,7 +166,6 @@ class Matrix
 		Matrix& operator+=(const Vector<V> &v) {
 			auto shape = Shape();
 			assert(shape.second == v.size());
-			Matrix<U> res(shape);
 			for (size_t i = 0; i != shape.first; ++i)
 				data_[i] += v;
 			return *this;
@@ -183,7 +182,6 @@ class Matrix
 		template<typename V>
 		Matrix& operator+=(const V &val) {
 			auto shape = Shape();
-			Matrix<U> res(shape);
 			U v = static_cast<U>(val);
 			for (size_t i = 0; i != shape.first; ++i)
 				data_[i] += v;
@@ -219,7 +217,6 @@ class Matrix
 		template<typename V>
 		Matrix& operator-=(const V &val) {
 			auto shape = Shape();
-			Matrix<U> res(shape);
 			U v = static_cast<U>(val);
 			for (size_t i = 0; i != shape.first; ++i)
 				data_[i] -= v;
@@ -272,26 +269,12 @@ class Matrix
 		}
 
 		Vector<U>& operator[](size_t i) {
-			assert(i < Row());
+			// assert(i < Row());
 			return data_[i];
 		}
 		const Vector<U>& operator[](size_t i) const {
-			assert(i < Row());
+			// assert(i < Row());
 			return data_[i];
-		}
-
-		Vector<U> Row(size_t r) const {
-			assert(r < Row());
-			return std::move(data_[r]);
-		}
-
-		Vector<U> Col(size_t c) const {
-			assert(c < Col());
-			size_t row = Row();
-			Vector<U> res(row);
-			for (size_t i = 0; i != row; ++i)
-				res.data_[i] = data_[i][c];
-			return std::move(res);
 		}
 
 		U Max() const {
@@ -381,7 +364,7 @@ Matrix<double> operator/(double x, const Matrix<T> &m) {
 	for (size_t i = 0; i != shape.first; ++i)
 		for (size_t j = 0; j != shape.second; ++j)
 			res[i][j] = x / m[i][j];
-	return std::move(res);
+	return res;
 }
 
 template<typename U, typename T>

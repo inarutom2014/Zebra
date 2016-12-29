@@ -20,12 +20,13 @@ namespace Elephant {
 class Batch
 {
 	public:
+		Batch(const char *dir_name):dir_name_(std::string(dir_name)) { }
 
-		void Load(const char *dir_name, size_t total) {
-			DIR *dir = opendir(dir_name);
+		void Load(size_t total = 0xFFFFFFFF) {
+			DIR *dir = opendir(dir_name_.c_str());
 			assert(dir);
 			struct dirent *dirp = nullptr;
-			std::string file(dir_name);
+			std::string file(dir_name_);
 			file += '/';
 			for (size_t c = 0; (dirp = readdir(dir)) && c != total; ++c) {
 				if (dirp->d_name[0] == '.') { --c; continue; }
@@ -46,8 +47,11 @@ class Batch
 			assert(x_.Shape().first == y_.size());
 		}
 
-	private:
+		const Matrix<uint8_t>& X() const { return x_; }
+		const Vector<uint8_t>& Y() const { return y_; }
 
+	private:
+		std::string dir_name_;
 		Matrix<uint8_t> x_;
 		Vector<uint8_t> y_;
 };

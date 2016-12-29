@@ -8,40 +8,19 @@
 #ifndef _ACTIVATION_HPP_
 #define _ACTIVATION_HPP_
 
+#include <string>
+
 #include "../include/matrix.hpp"
 
 namespace Elephant {
 
-Matrix<double> Sigmoid_Forward(const Matrix<double> &m)
-{
-	return std::move(1.0 / ((-m).Exp() + 1.0));
-}
+Matrix<double> Sigmoid_Forward(const Matrix<double> &m);
 
-Matrix<double> Sigmoid_Backward(const Matrix<double> &m)
-{
-	auto tmp = m.Exp();
-	return std::move(tmp * (1.0 - tmp));
-}
+Matrix<double> Sigmoid_Backward(const Matrix<double> &m);
 
-Matrix<double> ReLU_Forward(const Matrix<double> &m)
-{
-	auto shape = m.Shape();
-	Matrix<double> res(shape);
-	for (size_t i = 0; i != shape.first; ++i)
-		for (size_t j = 0; j != shape.second; ++j) {
-			auto tmp = m[i][j];
-			if (tmp < 0)
-				res[i][j] = 0;
-			else
-				res[i][j] = tmp;
-		}
-	return std::move(res);
-}
+Matrix<double> ReLU_Forward(const Matrix<double> &m);
 
-Matrix<double> ReLU_Backward(const Matrix<double> &m)
-{
-	return std::move(ReLU_Forward(m));
-}
+Matrix<double> ReLU_Backward(const Matrix<double> &m);
 
 class Activation
 {
@@ -71,6 +50,13 @@ class Activation
 		Matrix<double> Backward(const Matrix<double> &m) const {
 			assert(backward_);
 			return backward_(m);
+		}
+
+		std::string ToString() const {
+			if (forward_ == Sigmoid_Forward)
+				return std::string("activation: \033[31m sigmoid\033[0m\n");
+			else // (forward_ == ReLU_Forward)
+				return std::string("activation: \033[31m ReLU\033[0m\n");
 		}
 
 	private:
