@@ -80,7 +80,18 @@ class AreaLight : public Light
 		}
 
 		Spectrum SampleLe(Ray &ray, const Point2 &u, double &pdf_pos, double &pdf_dir) const {
-			return Spectrum();
+			Vertex v = object_->Sample(u);
+			pdf_pos = object_->Pdf(v);
+			Vector w = CosineWeightedHemisphere(u);
+			pdf_dir = CosineHemispherePdf(CosTheta(w));
+
+			Vector x, y, z(v.normal_);
+			MakeCoordinateSystem(z, x, y);
+
+			w = x * w.x_ + y * w.y_ + z * w.z_;
+
+			ray = Ray(v.position_, w);
+			return L(v, w);
 		}
 
 		Spectrum L(const Vertex &v, const Vector &w) const {

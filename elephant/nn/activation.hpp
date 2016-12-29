@@ -43,12 +43,10 @@ class Activation
 		}
 
 		Matrix<double> Forward(const Matrix<double> &m) const {
-			assert(forward_);
 			return forward_(m);
 		}
 
 		Matrix<double> Backward(const Matrix<double> &m) const {
-			assert(backward_);
 			return backward_(m);
 		}
 

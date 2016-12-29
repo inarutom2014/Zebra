@@ -5,9 +5,9 @@
 
 ***
 
-###目标
+###Goal
 * Implement some of  [Giraffe](https://www.github.com/UncP/Giraffe)'s features in an accurate and elegant way
-* Try some advanced computer graphics techniques
+* Implement all kinds of algorithms that solve rendering equation 
 * Be adjusted properly to cooperate with [Elephant](https://www.github.com/UncP/Elephant) to carry out some experiments between Computer Graphics and Maching Learning.
 
 
@@ -17,6 +17,10 @@
 `./Zebra rainbow 4`  
 `./Zebra planet 16`  
 `Zebra has its own tracing language, so you can change scene paramater in file with suffix .Zebra without re-compile`
+
+###Implemented
+* Pure Path Tracing
+* Path Tracing with Direct Illumination
 
 ####Rainbow
 ![](./image/rainbow.png)

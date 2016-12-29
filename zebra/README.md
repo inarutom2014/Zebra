@@ -7,7 +7,7 @@
 
 ###目标
 * 以更准确优雅的方式实现 [Giraffe](https://www.github.com/UncP/Giraffe) 的部分功能
-* 对高级图形学内容进行尝试
+* 实现各种求解渲染方程的算法
 * 进行必要的调整来配合 [Elephant](https://www.github.com/UncP/Elephant) 进行图形学与机器学习相结合的实践
 
 ###如果你感兴趣
@@ -18,6 +18,9 @@
 `因为Zebra有自己的追踪语言，所以你可以在以.Zebra为后缀的文件中对场景参数进行修改而不用重新编译`  
 `如果你是Windows用户或者没有omp，把path_tracer.hpp里面第三十行#pragma omp parallel for schedule(dynamic, 1) private(L)去掉，然后g++ -std=c++11 -O3 zebra.cpp -o Zebra，这样就变成单线程的了，所以会慢一点`
 
+###已实现
+* 路径追踪
+* 路径追踪（直接光照）
 
 ####Rainbow
 ![](./image/rainbow.png)

@@ -17,6 +17,8 @@ namespace Zebra {
 class Ray
 {
 	public:
+		Ray() { }
+
 		Ray(const Point &origin, const Vector &direction, double max = kInfinity)
 		:max_(max), origin_(origin), direction_(direction) { }
 

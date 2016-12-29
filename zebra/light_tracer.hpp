@@ -12,7 +12,7 @@
 #include "point.hpp"
 #include "bsdf.hpp"
 #include "light.hpp"
-#include "isect.hpp"
+#include "intersection.hpp"
 #include "scene.hpp"
 #include "integrator.hpp"
 
@@ -32,7 +32,7 @@ class LightTracer : public Integrator
 			for (int i = 0; i < iterations_; ++i) {
 				fprintf(stderr, "\rrunning iteration %d/%d", i + 1, iterations_);
 				for (int j = 0; j < path_count_; ++j)
-					Walk(lights[0], 1.0);
+					Walk(lights[0]);
 			}
 			auto end = std::chrono::high_resolution_clock::now();
 			auto t = std::chrono::duration<double, std::ratio<1>>(end - beg).count();
@@ -40,57 +40,61 @@ class LightTracer : public Integrator
 			return WriteImage();
 		}
 
-		void Walk(const Light *light, double light_pdf) {
+		void Walk(const Light *light) {
 			double pdf_pos, pdf_dir;
-			Point2<double> u(distribution_(generator_), distribution_(generator_));
+			Point2 u(distribution_(generator_), distribution_(generator_));
 			Ray ray;
 			Spectrum l = light->SampleLe(ray, u, pdf_pos, pdf_dir);
-			l *= 1.0 / (light_pdf * pdf_pos * pdf_dir);
+			if (l.IsZero() || pdf_pos == 0 || pdf_dir == 0) return ;
+			l *= 1.0 / (pdf_pos * pdf_dir);
 			for (int bounce = 0; ; ++bounce) {
-				Isect isect;
+				Intersection isect;
 				if (bounce > 5 || !scene_.Intersect(ray, isect)) break;
 
-				Vector u, v, w(isect.Normal());
+				if (!isect.bsdf_) break;
+
+				Vector u, v, w(isect.normal_);
 				if (std::fabs(w.x_) > std::fabs(w.y_))
 					u = Normalize(Cross(Vector(0, 1, 0), w));
 				else
 					u = Normalize(Cross(Vector(1, 0, 0), w));
 				v = Cross(w, u);
 
-				const Vector tmp = -ray.Direction();
+				const Vector tmp = -ray.direction_;
 				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
 
-				if (!isect.Bsdf()->IsDelta()) {
-					Vector d = camera_.DirectionToCamera(isect.Position());
+				if (!isect.bsdf_->IsDelta()) {
+					Vector d = camera_.DirectionToCamera(isect.position_);
 					double distance = d.Length();
 					d /= distance;
 					auto raster = camera_.WorldToRaster(d);
 					if (!camera_.RasterIsValid(raster)) break;
 					double cosi = Dot(Vector(0, 0, -1), -d);
 					Vector wi = Vector(Dot(d, u), Dot(d, v), Dot(d, w));
-					Spectrum f = isect.Bsdf()->F(wo, wi);
-					double pdf = cosi * cosi * cosi * distance * distance;
+					Spectrum f = isect.bsdf_->F(wo, wi);
+					double pdf = cosi * cosi * cosi;
 					f *= l * CosTheta(wi) * (1.0 / pdf);
 
-					Ray ray(isect.Position() + d * 1e-4, d);
-					if (!scene_.IntersectP(ray, distance))
+					Ray ray(isect.position_ + d * kEpsilon, d, distance);
+					if (!scene_.IntersectP(ray))
 						pixels_[camera_.RasterToIndex(raster)] += f / iterations_;
 				}
 
 				double pdf;
 				Vector wi;
-				Spectrum f = isect.Bsdf()->SampleF(wo, wi, pdf);
+				Point2 uu(distribution_(generator_), distribution_(generator_));
+				Spectrum f = isect.bsdf_->SampleF(wo, uu, wi, pdf);
 				if (f.IsZero() || pdf == 0) break;
 				l *= f * (AbsCosTheta(wi) * (1.0 / pdf));
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
-					if (distribution(generator) > p) break;
+					if (distribution_(generator_) > p) break;
 					l *= 1.0 / p;
 				}
 
 				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
-				ray = Ray(isect.Position() + dir * 1e-4, dir);
+				ray = Ray(isect.position_ + dir * kEpsilon, dir);
 			}
 		}
 

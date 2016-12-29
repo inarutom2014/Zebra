@@ -39,9 +39,9 @@ void NeuralNetwork::Train(double rate, size_t max_iter, size_t batch, double reg
 	auto shape = data.X().Shape();
 	size_t a = shape.second, b = layers_[0];
 	for (size_t i = 0; ; ++i) {
-		w_[i] = Matrix<double>::Randomize(a, b, 0.01);
+		w_[i] = Matrix<double>::Randomize(a, b, 0.1);
 		dw_[i] = Matrix<double>(a, b);
-		b_[i] = Vector<double>::Randomize(b, 0.01);
+		b_[i] = Vector<double>::Randomize(b, 0.1);
 		db_[i] = Vector<double>(b);
 		if (i == (layers_.size() - 1))
 			break;
@@ -93,16 +93,16 @@ double NeuralNetwork::ComputeLoss(const Matrix<double> &x, const Vector<uint8_t>
 
 	size_t idx = layers_.size() - 1;
 	dw_[idx] = n[idx].T().Dot(delta);
-	dw_[idx] += dw_[idx] * reg;
-	db_[idx] = dw_[idx].Sum(1);
+	dw_[idx] += w_[idx] * reg;
+	db_[idx] = delta.Sum(1);
 
 	for (; idx;) {
 		auto tmp = delta.Dot(w_[idx].T());
 		delta = activation_.Backward(tmp);
 		--idx;
 		dw_[idx] = n[idx].T().Dot(delta);
-		dw_[idx] += dw_[idx] * reg;
-		db_[idx] = dw_[idx].Sum(1);
+		dw_[idx] += w_[idx] * reg;
+		db_[idx] = delta.Sum(1);
 	}
 
 	return loss;
@@ -124,10 +124,10 @@ void NeuralNetwork::Predict(const Matrix<uint8_t> &x, const Vector<uint8_t> &y)
 		size_t res = m[idx][i].ArgMax();
 		if (res != y[i])
 			++err;
-		std::cout << res << " " << (int)y[i] << std::endl;
+		// std::cout << res << " " << (int)y[i] << std::endl;
 	}
 
-	std::cout << "error rate: " << ((double)err / y.size() * 100) << std::endl;
+	std::cout << "error rate: " << ((double)err / y.size() * 100) << "%\n";
 }
 
 } // namespace Elephant

@@ -29,7 +29,7 @@ class Camera
 		Point2i WorldToRaster(const Vector &v) const {
 			if (v.z_ <= 0) return Point2i(-1, -1);
 			return Point2i((0.5 - v.x_) * resolution_.x_,
-                         (0.5 + v.y_) * resolution_.y_);
+                     (0.5 + v.y_) * resolution_.y_);
 		}
 
 		Vector DirectionToCamera(const Point &p) const {

@@ -39,7 +39,7 @@ TEST(SigmoidBackward)
 
 TEST(ReLUForward)
 {
-	Matrix<double> m = Matrix<double>::Randomize(5, 5);
+	Matrix<double> m(5, 5, -1);
 	Activation act(Activation::ReLU);
 	auto n = act.Forward(m);
 	auto s = n.Shape();
@@ -50,7 +50,7 @@ TEST(ReLUForward)
 
 TEST(ReLUBackward)
 {
-	Matrix<double> m = Matrix<double>::Randomize(5, 5);
+	Matrix<double> m(5, 5, 2);
 	Activation act(Activation::ReLU);
 	auto n = act.Backward(m);
 	auto s = n.Shape();

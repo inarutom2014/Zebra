@@ -8,8 +8,6 @@
 #ifndef _INTEGRATOR_HPP_
 #define _INTEGRATOR_HPP_
 
-#include <random>
-#include <ctime>
 #include <sstream>
 #include <fstream>
 #include <string>
@@ -18,6 +16,7 @@
 
 #include "vector.hpp"
 #include "camera.hpp"
+#include "rng.hpp"
 
 namespace Zebra {
 
@@ -26,8 +25,7 @@ class Integrator
 	public:
 		Integrator(const int iterations, const Scene &scene)
 		:iterations_(iterations), camera_(Camera()), scene_(scene),
-		 pixels_(new Vector[camera_.resolution_.x_ * camera_.resolution_.y_]),
-		 generator_(time(0)), distribution_(0, 1) { }
+		 pixels_(new Vector[camera_.resolution_.x_ * camera_.resolution_.y_]) { }
 
 		virtual std::string Render() = 0;
 
@@ -117,9 +115,7 @@ class Integrator
 		const Camera      camera_;
 		const Scene       scene_;
 		Vector           *pixels_;
-
-		std::default_random_engine generator_;
-		std::uniform_real_distribution<double> distribution_;
+		Rng               rng_;
 };
 
 } // namespace Zebra

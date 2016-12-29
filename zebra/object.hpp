@@ -77,7 +77,7 @@ class Sphere : public Object
 
 		Vertex Sample(const Point2 &u) const override {
 			Point p = position_ + UniformSampleSphere(u) * radius_;
-			return Vertex(p, p - position_);
+			return Vertex(p, Normalize(p - position_));
 		}
 
 		double Pdf(const Vertex &v) const override {

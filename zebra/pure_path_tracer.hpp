@@ -2,11 +2,11 @@
  *    > Author:            UncP
  *    > Mail:         770778010@qq.com
  *    > Github:    https://www.github.com/UncP/Elephant
- *    > Created Time:  2016-12-05 23:35:11
+ *    > Created Time:  2016-12-29 20:14:02
 **/
 
-#ifndef _PATH_TRACER_HPP_
-#define _PATH_TRACER_HPP_
+#ifndef _PURE_PATH_TRACER_HPP_
+#define _PURE_PATH_TRACER_HPP_
 
 #include "vector.hpp"
 #include "point.hpp"
@@ -17,10 +17,10 @@
 
 namespace Zebra {
 
-class PathTracer : public Integrator
+class PurePathTracer : public Integrator
 {
 	public:
-		PathTracer(int iterations, const Scene &scene)
+		PurePathTracer(int iterations, const Scene &scene)
 		:Integrator(iterations, scene) { }
 
 		std::string Render() override {
@@ -49,16 +49,13 @@ class PathTracer : public Integrator
 
 		Spectrum Li(Ray ray) {
 			Spectrum L(0), weight(1);
-			bool last_specular = false;
 			for (int bounce = 0; ; ++bounce) {
 				Intersection isect;
 				bool intersect;
-				if (bounce > 5 || !(intersect = scene_.Intersect(ray, isect))) break;
+				if (bounce > 7 || !(intersect = scene_.Intersect(ray, isect))) break;
 
-				if ((!bounce || last_specular) && intersect) {
-					auto light = isect.primitive_->GetAreaLight();
-					L += weight * (light ? light->L(isect, -ray.direction_) : Spectrum());
-				}
+				auto light = isect.primitive_->GetAreaLight();
+				L += weight * (light ? light->L(isect, -ray.direction_) : Spectrum());
 
 				if (!isect.bsdf_) break;
 
@@ -68,24 +65,6 @@ class PathTracer : public Integrator
 				const Vector wo = Vector(Dot(-ray.direction_, u),
                                  Dot(-ray.direction_, v),
                                  Dot(-ray.direction_, w));
-
-				if (!isect.bsdf_->IsDelta()) {
-					for (auto e : scene_.Lights()) {
-						Vector dir;
-						double distance, pdf;
-						Point2 uu = rng_.Get2D();
-						Spectrum l = e->SampleLi(isect.position_, uu, dir, distance, pdf);
-						Vector wi = Vector(Dot(dir, u), Dot(dir, v), Dot(dir, w));
-						Spectrum f = isect.bsdf_->F(wo, wi);
-
-						Ray shadow_ray(isect.position_ + dir * kEpsilon, dir, distance);
-						if (!scene_.IntersectP(shadow_ray))
-							L += weight * f * l * (CosTheta(wi) * (1.0 / pdf));
-					}
-					last_specular = false;
-				} else {
-					last_specular = true;
-				}
 
 				double pdf;
 				Vector wi;
@@ -109,4 +88,4 @@ class PathTracer : public Integrator
 
 } // namespace Zebra
 
-#endif /* _PATH_TRACER_HPP_ */
+#endif /* _PURE_PATH_TRACER_HPP_ */

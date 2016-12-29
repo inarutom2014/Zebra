@@ -1,5 +1,4 @@
 Light Area Sphere Position 0 5 -5 Radius 1 Intensity 1 1 1
-#Light Point Position 0 5 -5 Intensity 128 128 128
 
 Object Sphere Position -6 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.55 0.0 1.0
 Object Sphere Position -5 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.0 0.0 1.0

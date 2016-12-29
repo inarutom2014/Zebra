@@ -19,9 +19,6 @@
 
 namespace Zebra {
 
-static std::default_random_engine generator(time(0));
-static std::uniform_real_distribution<double> distribution(0, 1);
-
 static inline double CosTheta(const Vector &wi)
 {
 	return wi.z_;
@@ -63,7 +60,7 @@ class DiffuseBSDF : public BSDF
 
 		Spectrum SampleF(const Vector &wo, const Point2 &u, Vector &wi, double &pdf) const {
 			wi  = CosineWeightedHemisphere(u);
-			pdf = CosTheta(wi) * INV_PI;
+			pdf = CosineHemispherePdf(CosTheta(wi));
 			return F(wo, wi);
 		}
 

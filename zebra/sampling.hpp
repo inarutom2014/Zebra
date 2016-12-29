@@ -13,6 +13,15 @@
 
 namespace Zebra {
 
+inline void MakeCoordinateSystem(const Vector &n, Vector &n1, Vector &n2)
+{
+	if (std::fabs(n.x_) > std::fabs(n.y_))
+		n1 = Normalize(Cross(Vector(0, 1, 0), n));
+	else
+		n1 = Normalize(Cross(Vector(1, 0, 0), n));
+	n2 = Cross(n, n1);
+}
+
 inline Vector UniformSampleSphere(const Point2 &u)
 {
 	double z = 1 - 2 * u.x_;
@@ -36,9 +45,14 @@ inline Vector CosineWeightedHemisphere(const Point2 &u)
 	return Normalize(Vector(xs, ys, zs));
 }
 
+inline double CosineHemispherePdf(double theta) {
+	return theta * INV_PI;
+}
+
 inline double UniformConePdf(double cos_theta) {
     return 1.0 / (2 * PI * (1 - cos_theta));
 }
+
 } // namespace Zebra
 
 #endif /* _SAMPLING_HPP_ */
