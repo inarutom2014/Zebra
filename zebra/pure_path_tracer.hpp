@@ -52,7 +52,7 @@ class PurePathTracer : public Integrator
 			for (int bounce = 0; ; ++bounce) {
 				Intersection isect;
 				bool intersect;
-				if (bounce > 7 || !(intersect = scene_.Intersect(ray, isect))) break;
+				if (bounce > 5 || !(intersect = scene_.Intersect(ray, isect))) break;
 
 				auto light = isect.primitive_->GetAreaLight();
 				L += weight * (light ? light->L(isect, -ray.direction_) : Spectrum());

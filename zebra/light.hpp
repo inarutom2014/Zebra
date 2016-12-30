@@ -11,11 +11,11 @@
 #include "constant.hpp"
 #include "vector.hpp"
 #include "point.hpp"
-#include "vertex.hpp"
 #include "object.hpp"
 #include "sampling.hpp"
 #include "ray.hpp"
 #include "parameter.hpp"
+#include "intersection.hpp"
 
 namespace Zebra {
 
@@ -71,7 +71,7 @@ class AreaLight : public Light
 
 		Spectrum SampleLi(const Point &position, const Point2 &u, Vector &wi, double &dis,
 			double &pdf) const {
-			Vertex v = object_->Sample(u);
+			Isect v = object_->Sample(u);
 			Vector dir(v.position_ - position);
 			dis = dir.Length();
 			wi  = dir / dis;
@@ -80,7 +80,7 @@ class AreaLight : public Light
 		}
 
 		Spectrum SampleLe(Ray &ray, const Point2 &u, double &pdf_pos, double &pdf_dir) const {
-			Vertex v = object_->Sample(u);
+			Isect v = object_->Sample(u);
 			pdf_pos = object_->Pdf(v);
 			Vector w = CosineWeightedHemisphere(u);
 			pdf_dir = CosineHemispherePdf(CosTheta(w));
@@ -94,7 +94,7 @@ class AreaLight : public Light
 			return L(v, w);
 		}
 
-		Spectrum L(const Vertex &v, const Vector &w) const {
+		Spectrum L(const Isect &v, const Vector &w) const {
 			return Dot(v.normal_, w) > 0 ? intensity_ : Spectrum();
 		}
 

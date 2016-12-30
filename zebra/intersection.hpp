@@ -11,23 +11,44 @@
 #include "constant.hpp"
 #include "vector.hpp"
 #include "point.hpp"
-#include "vertex.hpp"
 
 namespace Zebra {
 
 class BSDF;
+class Light;
+class Camera;
 class Primitive;
 
-class Intersection : public Vertex
+class Isect
+{
+	public:
+		Isect() { }
+
+		Isect(const Point &position, const Vector &normal):position_(position), normal_(normal) { }
+
+		Point  position_;
+		Vector normal_;
+};
+
+class Intersection : public Isect
 {
 	public:
 		Intersection() { }
 
 		Intersection(const Point &position, const Vector &normal)
-		:Vertex(position, normal), primitive_(nullptr), bsdf_(nullptr) { }
+		:Isect(position, normal), primitive_(nullptr), bsdf_(nullptr) { }
 
 		const Primitive *primitive_;
 		const BSDF      *bsdf_;
+};
+
+class EndPointIntersection : public Isect
+{
+	public:
+		union {
+			const Camera *camera_;
+			const Light  *light_;
+		};
 };
 
 } // namespace Zebra

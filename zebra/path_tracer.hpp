@@ -47,6 +47,8 @@ class PathTracer : public Integrator
 			return WriteImage();
 		}
 
+	private:
+
 		Spectrum Li(Ray ray) {
 			Spectrum L(0), weight(1);
 			bool last_specular = false;

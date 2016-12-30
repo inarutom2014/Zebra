@@ -10,7 +10,6 @@
 
 #include "vector.hpp"
 #include "point.hpp"
-#include "vertex.hpp"
 #include "sampling.hpp"
 #include "ray.hpp"
 #include "intersection.hpp"
@@ -25,9 +24,9 @@ class Object
 
 		virtual bool IntersectP(const Ray &ray) const = 0;
 
-		virtual Vertex Sample(const Point2 &u) const = 0;
+		virtual Isect Sample(const Point2 &u) const = 0;
 
-		virtual double Pdf(const Vertex &v) const = 0;
+		virtual double Pdf(const Isect &v) const = 0;
 
 		virtual ~Object() { }
 };
@@ -75,12 +74,12 @@ class Sphere : public Object
 			return d < r.max_ ? true : false;
 		}
 
-		Vertex Sample(const Point2 &u) const override {
+		Isect Sample(const Point2 &u) const override {
 			Point p = position_ + UniformSampleSphere(u) * radius_;
-			return Vertex(p, Normalize(p - position_));
+			return Isect(p, Normalize(p - position_));
 		}
 
-		double Pdf(const Vertex &v) const override {
+		double Pdf(const Isect &v) const override {
 			double sini = radius_ * radius_ / (v.position_ - position_).Length2();
 			double cos_theta = std::sqrt(std::max(0.0, 1.0 - sini));
 			return UniformConePdf(cos_theta);
@@ -100,11 +99,8 @@ class Plane : public Object
 		bool Intersect(Ray &r, Intersection &i) const override {
 			double a = Dot(normal_, r.direction_);
 			if (a > 0) return false;
-
 			double b = -Dot(r.origin_ - position_, normal_);
-
 			double d = b / a;
-
 			if (d > 0 && d < r.max_) {
 				r.max_ = d;
 				i = Intersection(r.origin_ + r.direction_ * d, normal_);
@@ -117,19 +113,16 @@ class Plane : public Object
 		bool IntersectP(const Ray &r) const override {
 			double a = Dot(normal_, r.direction_);
 			if (a > 0) return false;
-
 			double b = -Dot(r.origin_ - position_, normal_);
-
 			double d = b / a;
-
 			return d < r.max_ ? true : false;
 		}
 
-		Vertex Sample(const Point2 &u) const override {
-			return Vertex();
+		Isect Sample(const Point2 &u) const override {
+			return Isect();
 		}
 
-		double Pdf(const Vertex &v) const override {
+		double Pdf(const Isect &v) const override {
 			return 0.0;
 		}
 
