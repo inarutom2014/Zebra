@@ -12,7 +12,7 @@
 #include "parser.hpp"
 #include "path_tracer.hpp"
 // #include "bi_directional_path_tracer.hpp"
-// #include "pure_path_tracer.hpp"
+#include "pure_path_tracer.hpp"
 
 int main(int argc, char **argv)
 {
@@ -27,8 +27,8 @@ int main(int argc, char **argv)
 	if (samples <= 0) samples = 1;
 
 	Parser parser(scene);
-	// Integrator *integrator = new PurePathTracer(samples, parser.GetScene());
-	Integrator *integrator = new PathTracer(samples, parser.GetScene());
+	Integrator *integrator = new PurePathTracer(samples, parser.GetScene());
+	// Integrator *integrator = new PathTracer(samples, parser.GetScene());
 	std::string image = integrator->Render();
 	execlp("display", "display", image.c_str(), nullptr);
 

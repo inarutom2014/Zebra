@@ -53,7 +53,7 @@ class Activation
 		std::string ToString() const {
 			if (forward_ == Sigmoid_Forward)
 				return std::string("activation: \033[31m sigmoid\033[0m\n");
-			else // (forward_ == ReLU_Forward)
+			else
 				return std::string("activation: \033[31m ReLU\033[0m\n");
 		}
 

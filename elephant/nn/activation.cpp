@@ -34,7 +34,7 @@ Matrix<double> ReLU_Forward(const Matrix<double> &m)
 
 Matrix<double> ReLU_Backward(const Matrix<double> &m)
 {
-	return std::move(ReLU_Forward(m));
+	return ReLU_Forward(m);
 }
 
 } // namespace Elephant
