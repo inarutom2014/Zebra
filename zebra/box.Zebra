@@ -7,4 +7,4 @@ Sphere Diffuse Position -100001 0 0 Radius 1e5 Spectrum 0 0 0 Spectrum 0.75 0.25
 Sphere Diffuse Position  100001 0 0 Radius 1e5 Spectrum 0 0 0 Spectrum 0.25 0.75 0.25
 Sphere Diffuse Position 0 -100001 0 Radius 1e5 Spectrum 0 0 0 Spectrum 0.75 0.75 0.75
 Sphere Diffuse Position 0  100001 0 Radius 1e5 Spectrum 0 0 0 Spectrum 0.75 0.75 0.75
-Sphere Diffuse Position 0  0 100004 Radius 1e5 Spectrum 0 0 0 Spectrum 0.75 0.75 0.75
+Sphere Diffuse Position 0  0 100004 Radius 1e5 Spectrum 0 0 0 Spectrum 0.75 0.75 0.25

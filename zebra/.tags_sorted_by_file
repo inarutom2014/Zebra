@@ -14,27 +14,29 @@ y_	camera.h	/^		const int y_;$/;"	m	class:Zebra::Camera
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 Integrator	integrator.h	/^		Integrator():pixels_(new Spectrum[camera_.x_ * camera_.y_]) { }$/;"	f	class:Zebra::Integrator
 Integrator	integrator.h	/^class Integrator$/;"	c	namespace:Zebra
-WritePPM	integrator.h	/^		void WritePPM() const {$/;"	f	class:Zebra::Integrator
+WritePPM	integrator.h	/^		std::string WritePPM() const {$/;"	f	class:Zebra::Integrator
 Zebra	integrator.h	/^namespace Zebra {$/;"	n
 _INTEGRATOR_H_	integrator.h	9;"	d
 camera_	integrator.h	/^		Camera  camera_;$/;"	m	class:Zebra::Integrator
 pixels_	integrator.h	/^		Vector *pixels_;$/;"	m	class:Zebra::Integrator
 rng_	integrator.h	/^		RNG     rng_;$/;"	m	class:Zebra::Integrator
-scene	integrator.h	/^		std::string Render(const std::vector<Object *> &scene) = 0;$/;"	m	class:Zebra::Integrator
+~Integrator	integrator.h	/^		virtual ~Integrator() { }$/;"	f	class:Zebra::Integrator
+Interaction	interaction.h	/^		Interaction() { }$/;"	f	class:Zebra::Interaction
 Interaction	interaction.h	/^		Interaction(const Point &p, const Vector &n, const Object *o):p_(p), n_(n), o_(o) { }$/;"	f	class:Zebra::Interaction
 Interaction	interaction.h	/^class Interaction$/;"	c	namespace:Zebra
 Zebra	interaction.h	/^namespace Zebra {$/;"	n
 _INTERACTION_H_	interaction.h	9;"	d
-n_	interaction.h	/^		const Vector  n_;$/;"	m	class:Zebra::Interaction
+n_	interaction.h	/^		Vector        n_;$/;"	m	class:Zebra::Interaction
 o_	interaction.h	/^		const Object *o_;$/;"	m	class:Zebra::Interaction
-p_	interaction.h	/^		const Point   p_;$/;"	m	class:Zebra::Interaction
+p_	interaction.h	/^		Point         p_;$/;"	m	class:Zebra::Interaction
 BSDF	object.h	/^enum BSDF { Diffuse, Reflect, Refract };$/;"	g	namespace:Zebra
 Diffuse	object.h	/^enum BSDF { Diffuse, Reflect, Refract };$/;"	e	enum:Zebra::BSDF
 Object	object.h	/^		Object(BSDF t, const Spectrum &e, const Spectrum &c):t_(t), e_(e), c_(c) { }$/;"	f	class:Zebra::Object
 Object	object.h	/^class Object$/;"	c	namespace:Zebra
+PI	object.h	/^const double PI = 3.141592653589793238;$/;"	v
 Reflect	object.h	/^enum BSDF { Diffuse, Reflect, Refract };$/;"	e	enum:Zebra::BSDF
 Refract	object.h	/^enum BSDF { Diffuse, Reflect, Refract };$/;"	e	enum:Zebra::BSDF
-SampleF	object.h	/^		Vector SampleF(const Vector &d, const Vector &n, const Vector2 &u) {$/;"	f	class:Zebra::Object
+SampleF	object.h	/^		Vector SampleF(const Vector &d, const Vector &n, const Vector2 &u) const {$/;"	f	class:Zebra::Object
 Sphere	object.h	/^		Sphere(BSDF t, const Point &p, double r, const Spectrum &e, const Spectrum &c)$/;"	f	class:Zebra::Sphere
 Sphere	object.h	/^class Sphere : public Object$/;"	c	namespace:Zebra
 Zebra	object.h	/^namespace Zebra {$/;"	n
@@ -52,7 +54,7 @@ Zebra	parser.h	/^namespace Zebra {$/;"	n
 _PARSER_H_	parser.h	9;"	d
 scene_	parser.h	/^		std::vector<Object *> scene_;$/;"	m	class:Zebra::Parser
 ~Parser	parser.h	/^		~Parser() {$/;"	f	class:Zebra::Parser
-Li	path_tracer.h	/^		Spectrum Li(Ray ray) {$/;"	f	class:Zebra::PathTracer
+Li	path_tracer.h	/^		Spectrum Li(const std::vector<Object *> &scene, Ray ray, int depth) {$/;"	f	class:Zebra::PathTracer
 PathTracer	path_tracer.h	/^		PathTracer(int samples):samples_(samples) { }$/;"	f	class:Zebra::PathTracer
 PathTracer	path_tracer.h	/^class PathTracer : public Integrator$/;"	c	namespace:Zebra
 Render	path_tracer.h	/^		std::string Render(const std::vector<Object *> &scene) {$/;"	f	class:Zebra::PathTracer
@@ -63,9 +65,9 @@ Ray	ray.h	/^		Ray(const Point &o, const Vector &d, double m = 1e10):o_(o), d_(d)
 Ray	ray.h	/^class Ray$/;"	c	namespace:Zebra
 Zebra	ray.h	/^namespace Zebra {$/;"	n
 _RAY_H_	ray.h	9;"	d
-d_	ray.h	/^		const Vector d_;$/;"	m	class:Zebra::Ray
-m_	ray.h	/^		double       m_;$/;"	m	class:Zebra::Ray
-o_	ray.h	/^		const Point  o_;$/;"	m	class:Zebra::Ray
+d_	ray.h	/^		Vector d_;$/;"	m	class:Zebra::Ray
+m_	ray.h	/^		double m_;$/;"	m	class:Zebra::Ray
+o_	ray.h	/^		Point  o_;$/;"	m	class:Zebra::Ray
 Get1	rng.h	/^		double Get1() {$/;"	f	class:Zebra::RNG
 Get2	rng.h	/^		Vector2 Get2() {$/;"	f	class:Zebra::RNG
 RNG	rng.h	/^		RNG():generator_(time(0)), distribution_(0, 1) { }$/;"	f	class:Zebra::RNG
@@ -90,21 +92,21 @@ Vector2	vector.h	/^class Vector2$/;"	c	namespace:Zebra
 Zebra	vector.h	/^namespace Zebra {$/;"	n
 _VECTOR_H_	vector.h	9;"	d
 operator !=	vector.h	/^		bool operator!=(const Vector &that) const {$/;"	f	class:Zebra::Vector
-operator *	vector.h	/^		operator*(const Vector &that) const {$/;"	f	class:Zebra::Vector
-operator *	vector.h	/^		operator*(double v) const {$/;"	f	class:Zebra::Vector
+operator *	vector.h	/^		Vector operator*(const Vector &that) const {$/;"	f	class:Zebra::Vector
+operator *	vector.h	/^		Vector operator*(double v) const {$/;"	f	class:Zebra::Vector
 operator *=	vector.h	/^		Vector& operator*=(const Vector &that) {$/;"	f	class:Zebra::Vector
 operator *=	vector.h	/^		Vector& operator*=(double v) {$/;"	f	class:Zebra::Vector
-operator +	vector.h	/^		operator+(const Vector &that) const {$/;"	f	class:Zebra::Vector
+operator +	vector.h	/^		Vector operator+(const Vector &that) const {$/;"	f	class:Zebra::Vector
 operator +=	vector.h	/^		Vector& operator+=(const Vector &that) {$/;"	f	class:Zebra::Vector
 operator -	vector.h	/^		Vector operator-() const { return Vector(-x_, -y_, -z_); }$/;"	f	class:Zebra::Vector
-operator -	vector.h	/^		operator-(const Vector &that) const {$/;"	f	class:Zebra::Vector
+operator -	vector.h	/^		Vector operator-(const Vector &that) const {$/;"	f	class:Zebra::Vector
 operator -=	vector.h	/^		Vector& operator-=(const Vector &that) {$/;"	f	class:Zebra::Vector
-operator /	vector.h	/^		operator\/(double v) const {$/;"	f	class:Zebra::Vector
-operator /=	vector.h	/^		operator\/=(double v) {$/;"	f	class:Zebra::Vector
+operator /	vector.h	/^		Vector operator\/(double v) const {$/;"	f	class:Zebra::Vector
+operator /=	vector.h	/^		Vector operator\/=(double v) {$/;"	f	class:Zebra::Vector
 operator ==	vector.h	/^		bool operator==(const Vector &that) const {$/;"	f	class:Zebra::Vector
-x	vector.h	/^		double x, y_;$/;"	m	class:Zebra::Vector2
 x_	vector.h	/^		double x_, y_, z_;$/;"	m	class:Zebra::Vector
-y_	vector.h	/^		double x, y_;$/;"	m	class:Zebra::Vector2
+x_	vector.h	/^		double x_, y_;$/;"	m	class:Zebra::Vector2
 y_	vector.h	/^		double x_, y_, z_;$/;"	m	class:Zebra::Vector
+y_	vector.h	/^		double x_, y_;$/;"	m	class:Zebra::Vector2
 z_	vector.h	/^		double x_, y_, z_;$/;"	m	class:Zebra::Vector
-main	zebra.cpp	/^int main()$/;"	f
+main	zebra.cpp	/^int main(int argc, char **argv)$/;"	f
