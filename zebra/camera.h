@@ -15,10 +15,14 @@ namespace Zebra {
 class Camera
 {
 	public:
-		Camera(int x = 512, int y = 512):x_(x), y_(y) { }
+		Camera(int x = 512, int y = 384):x_(x), y_(y) { }
 
 		Vector RasterToWorld(double x, double y) const {
-			return Normalize(Vector(((x / x_) - 0.5), (0.5 - (y / y_)), 1));
+			static const double cx = double(x_) * 0.5135 / y_;
+			static const double cy = 0.5135;
+			return Normalize(Vector(cx * ((x / x_) - 0.5),
+                              cy * (0.5 - (y / y_)),
+                              1));
 		}
 
 		int RasterToIndex(int x, int y) const { return y * x_ + x; }

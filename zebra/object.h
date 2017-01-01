@@ -23,7 +23,11 @@ class Object
 	public:
 		Object(BSDF t, const Spectrum &e, const Spectrum &c):t_(t), e_(e), c_(c) { }
 
+		bool IsLight() const { return e_.y_ > 0; }
+		bool IsDelta() const { return t_ != Diffuse; }
+
 		virtual bool Intersect(Ray &r, Interaction *i) const = 0;
+		virtual Vector SampleLi(const Vector &n, const Vector2 &u, double *pdf, double *dis)const=0;
 		virtual bool IntersectP(const Ray &r) const = 0;
 		virtual ~Object() { }
 
@@ -90,6 +94,25 @@ class Sphere : public Object
 	public:
 		Sphere(BSDF t, const Point &p, double r, const Spectrum &e, const Spectrum &c)
 		:Object(t, e, c), p_(p), r_(r) { }
+
+		Vector SampleLi(const Point &p, const Vector2 &u, double *pdf, double *dis) const {
+			Vector x, y, z(p_ - p);
+			if (std::fabs(z.x_) > std::fabs(z.y_))
+				x = Normalize(Cross(Vector(0, 1, 0), z));
+			else
+				x = Normalize(Cross(Vector(1, 0, 0), z));
+			y = Cross(z, x);
+
+			double tmp = z.Length2();
+			double cos_a_max = std::sqrt(1 - r_ * r_ / tmp);
+			double cos_a = 1 - u.x_ + u.x_ * cos_a_max;
+			double sin_a = std::sqrt(1 - cos_a * cos_a);
+			double phi = 2 * PI * u.y_;
+			Vector a(std::cos(phi) * sin_a, std::sin(phi) * sin_a, cos_a);
+			*pdf = 2 * (1 - cos_a_max);
+			*dis = std::sqrt(tmp) - r_;
+			return Normalize(x * a.x_ + y * a.y_ + z * a.z_);
+		}
 
 		bool Intersect(Ray &r, Interaction *i) const override {
 			Vector l = p_ - r.o_;

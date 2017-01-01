@@ -1,5 +1,5 @@
-zebra:zebra.cpp
-	g++ -std=c++14 -Wall -fopenmp -O3 zebra.cpp -o zebra
+Zebra:zebra.cpp
+	g++ -std=c++14 -Wall -O3 -fopenmp zebra.cpp -o Zebra
 
 clean:
-	rm zebra
+	rm Zebra

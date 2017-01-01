@@ -26,28 +26,76 @@ class Integrator
 
 		virtual ~Integrator() { }
 
-		std::string WritePPM() const {
+		std::string WriteBMP() const {
+      struct BmpHeader {
+        uint   mFileSize;        // Size of file in bytes
+        uint   mReserved01;      // 2x 2 reserved bytes
+        uint   mDataOffset;      // Offset in bytes where data can be found (54)
+
+        uint   mHeaderSize;      // 40B
+        int    mWidth;           // Width in pixels
+        int    mHeight;          // Height in pixels
+
+        short  mColorPlates;     // Must be 1
+        short  mBitsPerPixel;    // We use 24bpp
+        uint   mCompression;     // We use BI_RGB ~ 0, uncompressed
+        uint   mImageSize;       // mWidth x mHeight x 3B
+        uint   mHorizRes;        // Pixels per meter (75dpi ~ 2953ppm)
+        uint   mVertRes;         // Pixels per meter (75dpi ~ 2953ppm)
+        uint   mPaletteColors;   // Not using palette - 0
+        uint   mImportantColors; // 0 - all are important
+      };
+
 			time_t t;
 			struct tm *tt;
 			time(&t);
 			tt = localtime(&t);
 			std::ostringstream os;
 			os << tt->tm_hour << "-" << tt->tm_min << "-" << tt->tm_sec;
-			std::string file("../image/" + os.str());
-			file += ".ppm";
-			fprintf(stderr, "save to: %s.ppm\n", os.str().c_str());
+			std::string file("./1/" + os.str());
+			file += ".bmp";
+			fprintf(stderr, "save to: %s.bmp\n", os.str().c_str());
 
-			std::ofstream out(file, std::ios::out | std::ios::binary);
-			assert(out.is_open());
-			out << "P3\n" << camera_.x_ << " " << camera_.y_ << "\n255\n";
-			for (int i = 0; i < camera_.x_ * camera_.y_; ++i) {
-				int r = static_cast<int>(std::min(pixels_[i].x_, 1.0) * 255);
-				int g = static_cast<int>(std::min(pixels_[i].y_, 1.0) * 255);
-				int b = static_cast<int>(std::min(pixels_[i].z_, 1.0) * 255);
-				out << r << " " << g << " " << b << " ";
-			}
-			out.close();
-			return file;
+      std::ofstream bmp(file, std::ios::binary);
+      assert(bmp.is_open());
+      BmpHeader header;
+      bmp.write("BM", 2);
+      header.mFileSize   = uint(sizeof(BmpHeader) + 2) + camera_.x_ * camera_.y_ * 3;
+      header.mReserved01 = 0;
+      header.mDataOffset = uint(sizeof(BmpHeader) + 2);
+      header.mHeaderSize = 40;
+      header.mWidth      = camera_.x_;
+      header.mHeight     = camera_.y_;
+      header.mColorPlates     = 1;
+      header.mBitsPerPixel    = 24;
+      header.mCompression     = 0;
+      header.mImageSize       = camera_.x_ * camera_.y_ * 3;
+      header.mHorizRes        = 2953;
+      header.mVertRes         = 2953;
+      header.mPaletteColors   = 0;
+      header.mImportantColors = 0;
+
+      bmp.write((char *)&header, sizeof(header));
+
+      typedef unsigned char byte;
+
+      for (int y = 0; y < camera_.y_; ++y) {
+        for (int x = 0; x < camera_.x_; ++x) {
+          const Vector &rgb = pixels_[x + (camera_.y_ - y - 1) * camera_.x_];
+          double tmp[3];
+          tmp[0] = rgb.z_ * 255;
+          tmp[1] = rgb.y_ * 255;
+          tmp[2] = rgb.x_ * 255;
+
+          byte clr[3];
+          clr[0] = byte(std::min(255.0, std::max(0.0, tmp[0])));
+          clr[1] = byte(std::min(255.0, std::max(0.0, tmp[1])));
+          clr[2] = byte(std::min(255.0, std::max(0.0, tmp[2])));
+
+          bmp.write((char *)&clr, sizeof(clr));
+        }
+      }
+      return file;
 		}
 
 	protected:

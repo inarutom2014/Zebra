@@ -15,17 +15,17 @@
 int main(int argc, char **argv)
 {
 	using namespace Zebra;
-	int samples = 0;
 	char scene[32] = {0};
 	if (argc > 2)
 		strcpy(scene, argv[1]);
 	else
 		strcpy(scene, "box");
 	strcat(scene, ".Zebra");
+	int samples = 4;
 	if (argc > 2)
 		samples = atoi(argv[2]);
-	if (samples <= 0)
-		samples = 1;
+	if (samples < 4)
+		samples = 4;
 
 	Parser parser(scene);
 	Integrator *integrator = new PathTracer(samples);

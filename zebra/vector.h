@@ -74,19 +74,13 @@ class Vector
 
 		Vector operator-() const { return Vector(-x_, -y_, -z_); }
 
-		bool operator==(const Vector &that) const {
-			return x_ == that.x_ && y_ == that.y_ && z_ == that.z_;
-		}
-		bool operator!=(const Vector &that) const {
-			return !operator==(that);
-		}
-
 		double Length2() const {
 			return x_ * x_ + y_ * y_ + z_ * z_;
 		}
 		double Length() const {
 			return std::sqrt(x_ * x_ + y_ * y_ + z_ * z_);
 		}
+
 		double x_, y_, z_;
 };
 

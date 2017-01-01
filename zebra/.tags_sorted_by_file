@@ -3,6 +3,12 @@
 !_TAG_PROGRAM_VERSION	5.9~svn20110310	//
 !_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
+BiPathTracer	bi_path_tracer.h	/^		BiPathTracer(int samples):samples_(samples) { }$/;"	f	class:Zebra::BiPathTracer
+BiPathTracer	bi_path_tracer.h	/^class BiPathTracer$/;"	c	namespace:Zebra
+Render	bi_path_tracer.h	/^		std::string Render(const std::vector<Object *> &scene) {$/;"	f	class:Zebra::BiPathTracer
+Zebra	bi_path_tracer.h	/^namespace Zebra {$/;"	n
+_BI_PATH_TRACER	bi_path_tracer.h	9;"	d
+samples_	bi_path_tracer.h	/^		const int samples_;$/;"	m	class:Zebra::BiPathTracer
 Camera	camera.h	/^		Camera(int x = 512, int y = 512):x_(x), y_(y) { }$/;"	f	class:Zebra::Camera
 Camera	camera.h	/^class Camera$/;"	c	namespace:Zebra
 RasterToIndex	camera.h	/^		int RasterToIndex(int x, int y) const { return y * x_ + x; }$/;"	f	class:Zebra::Camera
@@ -31,12 +37,15 @@ o_	interaction.h	/^		const Object *o_;$/;"	m	class:Zebra::Interaction
 p_	interaction.h	/^		Point         p_;$/;"	m	class:Zebra::Interaction
 BSDF	object.h	/^enum BSDF { Diffuse, Reflect, Refract };$/;"	g	namespace:Zebra
 Diffuse	object.h	/^enum BSDF { Diffuse, Reflect, Refract };$/;"	e	enum:Zebra::BSDF
+IsDelta	object.h	/^		bool IsDelta() const { return t_ != Diffuse; }$/;"	f	class:Zebra::Object
+IsLight	object.h	/^		bool IsLight() const { return e_.y_ > 0; }$/;"	f	class:Zebra::Object
 Object	object.h	/^		Object(BSDF t, const Spectrum &e, const Spectrum &c):t_(t), e_(e), c_(c) { }$/;"	f	class:Zebra::Object
 Object	object.h	/^class Object$/;"	c	namespace:Zebra
 PI	object.h	/^const double PI = 3.141592653589793238;$/;"	v
 Reflect	object.h	/^enum BSDF { Diffuse, Reflect, Refract };$/;"	e	enum:Zebra::BSDF
 Refract	object.h	/^enum BSDF { Diffuse, Reflect, Refract };$/;"	e	enum:Zebra::BSDF
 SampleF	object.h	/^		Vector SampleF(const Vector &d, const Vector &n, const Vector2 &u) const {$/;"	f	class:Zebra::Object
+SampleLi	object.h	/^		Vector SampleLi(const Point &p, const Vector2 &u, double *pdf, double *dis) const {$/;"	f	class:Zebra::Sphere
 Sphere	object.h	/^		Sphere(BSDF t, const Point &p, double r, const Spectrum &e, const Spectrum &c)$/;"	f	class:Zebra::Sphere
 Sphere	object.h	/^class Sphere : public Object$/;"	c	namespace:Zebra
 Zebra	object.h	/^namespace Zebra {$/;"	n
@@ -54,8 +63,8 @@ Zebra	parser.h	/^namespace Zebra {$/;"	n
 _PARSER_H_	parser.h	9;"	d
 scene_	parser.h	/^		std::vector<Object *> scene_;$/;"	m	class:Zebra::Parser
 ~Parser	parser.h	/^		~Parser() {$/;"	f	class:Zebra::Parser
-Li	path_tracer.h	/^		Spectrum Li(const std::vector<Object *> &scene, Ray ray, int depth) {$/;"	f	class:Zebra::PathTracer
-PathTracer	path_tracer.h	/^		PathTracer(int samples):samples_(samples) { }$/;"	f	class:Zebra::PathTracer
+Li	path_tracer.h	/^		Spectrum Li(const std::vector<Object *> &scene, Ray ray) {$/;"	f	class:Zebra::PathTracer
+PathTracer	path_tracer.h	/^		PathTracer(int samples):samples_(samples \/ 4) { }$/;"	f	class:Zebra::PathTracer
 PathTracer	path_tracer.h	/^class PathTracer : public Integrator$/;"	c	namespace:Zebra
 Render	path_tracer.h	/^		std::string Render(const std::vector<Object *> &scene) {$/;"	f	class:Zebra::PathTracer
 Zebra	path_tracer.h	/^namespace Zebra {$/;"	n

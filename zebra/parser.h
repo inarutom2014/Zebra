@@ -35,9 +35,9 @@ class Parser
 				assert(tmp == "Sphere");
 				s >> tmp;
 				BSDF t = Diffuse;
-				if (tmp == "Diffuse") t = Diffuse;
-				if (tmp == "Reflect") t = Reflect;
-				if (tmp == "Refract") t = Refract;
+						 if (tmp == "Diffuse") t = Diffuse;
+				else if (tmp == "Reflect") t = Reflect;
+				else if (tmp == "Refract") t = Refract;
 				s >> tmp;
 				assert(tmp == "Position");
 				Vector p;
