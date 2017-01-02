@@ -20,7 +20,7 @@
 * 路径追踪
 
 ####Rainbow
-![](./image/rainbow.png)
+![](./image/rainbow.bmp)
 
 ####Cornell Box
 ![](./image/box.bmp)

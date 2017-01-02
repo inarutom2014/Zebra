@@ -21,7 +21,7 @@
 * Pure Path Tracing
 
 ####Rainbow
-![](./image/rainbow.png)
+![](./image/rainbow.bmp)
 
 
 ####Cornell Box

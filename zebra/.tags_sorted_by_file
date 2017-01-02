@@ -7,9 +7,9 @@ BiPathTracer	bi_path_tracer.h	/^		BiPathTracer(int samples):samples_(samples) { 
 BiPathTracer	bi_path_tracer.h	/^class BiPathTracer$/;"	c	namespace:Zebra
 Render	bi_path_tracer.h	/^		std::string Render(const std::vector<Object *> &scene) {$/;"	f	class:Zebra::BiPathTracer
 Zebra	bi_path_tracer.h	/^namespace Zebra {$/;"	n
-_BI_PATH_TRACER	bi_path_tracer.h	9;"	d
+_BI_PATH_TRACER_H_	bi_path_tracer.h	9;"	d
 samples_	bi_path_tracer.h	/^		const int samples_;$/;"	m	class:Zebra::BiPathTracer
-Camera	camera.h	/^		Camera(int x = 512, int y = 512):x_(x), y_(y) { }$/;"	f	class:Zebra::Camera
+Camera	camera.h	/^		Camera(int x = 512, int y = 384):x_(x), y_(y) { }$/;"	f	class:Zebra::Camera
 Camera	camera.h	/^class Camera$/;"	c	namespace:Zebra
 RasterToIndex	camera.h	/^		int RasterToIndex(int x, int y) const { return y * x_ + x; }$/;"	f	class:Zebra::Camera
 RasterToWorld	camera.h	/^		Vector RasterToWorld(double x, double y) const {$/;"	f	class:Zebra::Camera
@@ -20,7 +20,7 @@ y_	camera.h	/^		const int y_;$/;"	m	class:Zebra::Camera
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 Integrator	integrator.h	/^		Integrator():pixels_(new Spectrum[camera_.x_ * camera_.y_]) { }$/;"	f	class:Zebra::Integrator
 Integrator	integrator.h	/^class Integrator$/;"	c	namespace:Zebra
-WritePPM	integrator.h	/^		std::string WritePPM() const {$/;"	f	class:Zebra::Integrator
+WriteBMP	integrator.h	/^		std::string WriteBMP(int samples) const {$/;"	f	class:Zebra::Integrator
 Zebra	integrator.h	/^namespace Zebra {$/;"	n
 _INTEGRATOR_H_	integrator.h	9;"	d
 camera_	integrator.h	/^		Camera  camera_;$/;"	m	class:Zebra::Integrator
@@ -85,11 +85,12 @@ Zebra	rng.h	/^namespace Zebra {$/;"	n
 _RNG_H_	rng.h	9;"	d
 distribution_	rng.h	/^		std::uniform_real_distribution<double> distribution_;$/;"	m	class:Zebra::RNG
 generator_	rng.h	/^		std::default_random_engine generator_;$/;"	m	class:Zebra::RNG
+Clamp	vector.h	/^		void Clamp() {$/;"	f	class:Zebra::Vector
 Cross	vector.h	/^inline Vector Cross(const Vector &lhs, const Vector &rhs) {$/;"	f	namespace:Zebra
 Dot	vector.h	/^inline double Dot(const Vector &lhs, const Vector &rhs) {$/;"	f	namespace:Zebra
 Length	vector.h	/^		double Length() const {$/;"	f	class:Zebra::Vector
 Length2	vector.h	/^		double Length2() const {$/;"	f	class:Zebra::Vector
-Normalize	vector.h	/^inline Vector Normalize(const Vector &v) {$/;"	f	namespace:Zebra
+Normalize	vector.h	/^inline Vector Normalize(const Vector &v) { return v \/ v.Length(); }$/;"	f	namespace:Zebra
 Point	vector.h	/^typedef Vector Point;$/;"	t	namespace:Zebra
 Spectrum	vector.h	/^typedef Vector Spectrum;$/;"	t	namespace:Zebra
 Vector	vector.h	/^		Vector():x_(0), y_(0), z_(0) { }$/;"	f	class:Zebra::Vector
@@ -100,7 +101,6 @@ Vector2	vector.h	/^		Vector2(double x, double y):x_(x), y_(y) { }$/;"	f	class:Ze
 Vector2	vector.h	/^class Vector2$/;"	c	namespace:Zebra
 Zebra	vector.h	/^namespace Zebra {$/;"	n
 _VECTOR_H_	vector.h	9;"	d
-operator !=	vector.h	/^		bool operator!=(const Vector &that) const {$/;"	f	class:Zebra::Vector
 operator *	vector.h	/^		Vector operator*(const Vector &that) const {$/;"	f	class:Zebra::Vector
 operator *	vector.h	/^		Vector operator*(double v) const {$/;"	f	class:Zebra::Vector
 operator *=	vector.h	/^		Vector& operator*=(const Vector &that) {$/;"	f	class:Zebra::Vector
@@ -112,7 +112,6 @@ operator -	vector.h	/^		Vector operator-(const Vector &that) const {$/;"	f	class
 operator -=	vector.h	/^		Vector& operator-=(const Vector &that) {$/;"	f	class:Zebra::Vector
 operator /	vector.h	/^		Vector operator\/(double v) const {$/;"	f	class:Zebra::Vector
 operator /=	vector.h	/^		Vector operator\/=(double v) {$/;"	f	class:Zebra::Vector
-operator ==	vector.h	/^		bool operator==(const Vector &that) const {$/;"	f	class:Zebra::Vector
 x_	vector.h	/^		double x_, y_, z_;$/;"	m	class:Zebra::Vector
 x_	vector.h	/^		double x_, y_;$/;"	m	class:Zebra::Vector2
 y_	vector.h	/^		double x_, y_, z_;$/;"	m	class:Zebra::Vector
