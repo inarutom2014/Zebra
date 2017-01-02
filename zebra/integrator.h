@@ -26,7 +26,7 @@ class Integrator
 
 		virtual ~Integrator() { }
 
-		std::string WriteBMP() const {
+		std::string WriteBMP(int samples) const {
       struct BmpHeader {
         uint   mFileSize;        // Size of file in bytes
         uint   mReserved01;      // 2x 2 reserved bytes
@@ -52,6 +52,7 @@ class Integrator
 			tt = localtime(&t);
 			std::ostringstream os;
 			os << tt->tm_hour << "-" << tt->tm_min << "-" << tt->tm_sec;
+      os << "_" << (samples * 4);
 			std::string file("./1/" + os.str());
 			file += ".bmp";
 			fprintf(stderr, "save to: %s.bmp\n", os.str().c_str());
@@ -83,9 +84,9 @@ class Integrator
         for (int x = 0; x < camera_.x_; ++x) {
           const Vector &rgb = pixels_[x + (camera_.y_ - y - 1) * camera_.x_];
           double tmp[3];
-          tmp[0] = rgb.z_ * 255;
-          tmp[1] = rgb.y_ * 255;
-          tmp[2] = rgb.x_ * 255;
+          tmp[0] = rgb.z_ * 255 + 0.5;
+          tmp[1] = rgb.y_ * 255 + 0.5;
+          tmp[2] = rgb.x_ * 255 + 0.5;
 
           byte clr[3];
           clr[0] = byte(std::min(255.0, std::max(0.0, tmp[0])));

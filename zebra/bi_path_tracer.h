@@ -5,8 +5,8 @@
  *    > Created Time:  2017-01-01 13:52:07
 **/
 
-#ifndef _BI_PATH_TRACER
-#define _BI_PATH_TRACER
+#ifndef _BI_PATH_TRACER_H_
+#define _BI_PATH_TRACER_H_
 
 #include <chrono>
 
@@ -33,4 +33,4 @@ class BiPathTracer
 
 } // namespace Zebra
 
-#endif /* _BI_PATH_TRACER_ */
+#endif /* _BI_PATH_TRACER_H_ */

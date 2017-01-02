@@ -23,4 +23,4 @@
 ![](./image/rainbow.png)
 
 ####Cornell Box
-![](./image/box.png)
+![](./image/box.bmp)

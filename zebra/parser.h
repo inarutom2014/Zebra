@@ -27,7 +27,7 @@ class Parser
 			assert(in.is_open());
 			std::string str;
 			for (; !in.eof() || str.size(); std::getline(in, str)) {
-				if (!str.size() || str.find("#") != std::string::npos)
+				if (!str.size() || str[0] == '#')
 					continue;
 				std::istringstream s(str);
 				std::string tmp;

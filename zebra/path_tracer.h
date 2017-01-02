@@ -36,9 +36,10 @@ class PathTracer : public Integrator
 							for (int n = 0; n < samples_; ++n) {
 								double a = 2 * rng_.Get1(), dx = a < 1 ? std::sqrt(a)-1: 1-std::sqrt(2-a);
 								double b = 2 * rng_.Get1(), dy = b < 1 ? std::sqrt(b)-1: 1-std::sqrt(2-b);
-								Ray ray(Point(), camera_.RasterToWorld((dx+sx+0.5)/2+x, (dy+sy+0.5)/2+y));
+								Ray ray(Point(0), camera_.RasterToWorld((dx+sx+0.5)/2+x, (dy+sy+0.5)/2+y));
 								L += Li(scene, ray);
 							}
+							// L.Clamp();
 							pixels_[camera_.RasterToIndex(x, y)] += L / (samples_ * 4);
 						}
 					}
@@ -47,7 +48,7 @@ class PathTracer : public Integrator
 			auto end = std::chrono::high_resolution_clock::now();
 			auto t = std::chrono::duration<double, std::ratio<1>>(end - beg).count();
 			fprintf(stderr, "\ntime:  %.2f  s\n", t);
-			return WriteBMP();
+			return WriteBMP(samples_);
 		}
 
 		Spectrum Li(const std::vector<Object *> &scene, Ray ray) {
@@ -64,28 +65,32 @@ class PathTracer : public Integrator
 
 				L += weight * interaction.o_->e_ * specular;
 
+				if (Dot(ray.d_, interaction.n_) > 0) interaction.n_ = -interaction.n_;
+
 				const Spectrum &f = interaction.o_->c_;
 
-				// if (!interaction.o_->IsDelta()) {
-				// 	for (auto e : scene) {
-				// 		if (!e->IsLight()) continue;
-				// 		double pdf, dis;
-				// 		Vector nd = e->SampleLi(interaction.p_, rng_.Get2(), &pdf, &dis);
-				// 		Ray shadow_ray(interaction.p_ + nd * 1e-4, nd, dis);
-				// 		bool flag = false;
-				// 		for (auto ee : scene) {
-				// 			if (ee != e && ee->IntersectP(shadow_ray)) {
-				// 				flag = true;
-				// 				break;
-				// 			}
-				// 		}
-				// 		if (!flag)
-				// 			L += weight * f * e->e_ * (Dot(nd, interaction.n_) * pdf);
-				// 	}
-				// 	specular = 0;
-				// } else {
-				// 	specular = 1;
-				// }
+				#ifdef DI
+				if (!interaction.o_->IsDelta()) {
+					for (auto e : scene) {
+						if (!e->IsLight()) continue;
+						double pdf, dis;
+						Vector nd = e->SampleLi(interaction.p_, rng_.Get2(), &pdf, &dis);
+						Ray shadow_ray(interaction.p_ + nd * 1e-4, nd, dis);
+						bool flag = false;
+						for (auto ee : scene) {
+							if (ee != e && ee->IntersectP(shadow_ray)) {
+								flag = true;
+								break;
+							}
+						}
+						if (!flag)
+							L += weight * f * e->e_ * (Dot(nd, interaction.n_) * pdf);
+					}
+					specular = 0;
+				} else {
+					specular = 1;
+				}
+				#endif
 
 				if (bounce >= 5) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));

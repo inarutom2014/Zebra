@@ -80,6 +80,11 @@ class Vector
 		double Length() const {
 			return std::sqrt(x_ * x_ + y_ * y_ + z_ * z_);
 		}
+		void Clamp() {
+			x_ = (x_<0) ? 0 : ((x_>1) ? 1 : x_);
+			y_ = (y_<0) ? 0 : ((y_>1) ? 1 : y_);
+			z_ = (z_<0) ? 0 : ((z_>1) ? 1 : z_);
+		}
 
 		double x_, y_, z_;
 };
@@ -87,9 +92,7 @@ class Vector
 typedef Vector Point;
 typedef Vector Spectrum;
 
-inline Vector Normalize(const Vector &v) {
-	return v / v.Length();
-}
+inline Vector Normalize(const Vector &v) { return v / v.Length(); }
 
 inline Vector Cross(const Vector &lhs, const Vector &rhs) {
 	return Vector(

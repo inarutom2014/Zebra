@@ -25,5 +25,5 @@
 
 
 ####Cornell Box
-![](./image/box.png)
+![](./image/box.bmp)
 

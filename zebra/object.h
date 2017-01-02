@@ -41,11 +41,10 @@ class Object
 						x = Normalize(Cross(Vector(1, 0, 0), z));
 					y = Cross(z, x);
 
-					double m = std::sqrt(u.x_);
+					double m   = std::sqrt(u.x_);
 					double phi = 2 * PI * u.y_;
-					Vector a(m * std::cos(phi), m * std::sin(phi), std::sqrt(1 - m));
 
-					return x * a.x_ + y * a.y_ + z * a.z_;
+					return Normalize(x*(m*std::cos(phi)) + y*(m*std::sin(phi)) + z*std::sqrt(1 - m));
 				}
 				case Reflect: {
 					return Normalize(d - n * (2 * Dot(n, d)));
@@ -108,10 +107,9 @@ class Sphere : public Object
 			double cos_a = 1 - u.x_ + u.x_ * cos_a_max;
 			double sin_a = std::sqrt(1 - cos_a * cos_a);
 			double phi = 2 * PI * u.y_;
-			Vector a(std::cos(phi) * sin_a, std::sin(phi) * sin_a, cos_a);
 			*pdf = 2 * (1 - cos_a_max);
 			*dis = std::sqrt(tmp) - r_;
-			return Normalize(x * a.x_ + y * a.y_ + z * a.z_);
+			return Normalize(x*(sin_a*std::cos(phi)) + y*(sin_a*std::sin(phi)) + z*cos_a);
 		}
 
 		bool Intersect(Ray &r, Interaction *i) const override {

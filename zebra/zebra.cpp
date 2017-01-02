@@ -30,7 +30,7 @@ int main(int argc, char **argv)
 	Parser parser(scene);
 	Integrator *integrator = new PathTracer(samples);
 	std::string image = integrator->Render(parser.Scene());
-	execlp("display", "display", image.c_str(), nullptr);
+	execlp("subl", "subl", image.c_str(), nullptr);
 
 	delete integrator;
 	return 0;
