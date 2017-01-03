@@ -2,31 +2,28 @@
  *    > Author:            UncP
  *    > Mail:         770778010@qq.com
  *    > Github:    https://www.github.com/UncP/Elephant
- *    > Created Time:  2017-01-01 09:05:26
+ *    > Created Time:  2016-12-25 16:01:48
 **/
 
-#ifndef _RNG_H_
-#define _RNG_H_
+#ifndef _RNG_HPP_
+#define _RNG_HPP_
 
 #include <random>
 #include <ctime>
-#include <map>
-
-#include "vector.h"
 
 namespace Zebra {
 
-class RNG
+class Rng
 {
 	public:
-		RNG():generator_(time(0)), distribution_(0, 1) { }
+		Rng():generator_(time(0)), distribution_(0, 1) { }
 
-		double Get1() {
+		double Get1D() {
 			return distribution_(generator_);
 		}
 
-		Vector2 Get2() {
-			return Vector2(distribution_(generator_), distribution_(generator_));
+		Point2 Get2D() {
+			return Point2(distribution_(generator_), distribution_(generator_));
 		}
 
 	private:
@@ -36,4 +33,4 @@ class RNG
 
 } // namespace Zebra
 
-#endif /* _RNG_H_ */
+#endif /* _RNG_HPP_ */

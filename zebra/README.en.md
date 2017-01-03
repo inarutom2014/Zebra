@@ -15,10 +15,11 @@
 `g++ -std=c++11 -O3 -fopenmp zebra.cpp -o Zebra`  
 `./Zebra box 1 (1 means sample number, could be any positive number)`  
 `./Zebra rainbow 4`  
-`Zebra has its own tracing language, so you can change scene paramater in file with suffix .Zebra without re-compile`
 
 ###Implemented
 * Pure Path Tracing
+* Path Tracing with Direct Illumination
+* Light Tracer
 
 ####Rainbow
 ![](./image/rainbow.bmp)

@@ -18,6 +18,8 @@
 
 ###已实现
 * 路径追踪
+* 路径追踪（直接光照）
+* Light Tracer
 
 ####Rainbow
 ![](./image/rainbow.bmp)
