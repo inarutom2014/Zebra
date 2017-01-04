@@ -24,6 +24,9 @@ class Light
 	public:
 		Light(const Spectrum &intensity):intensity_(intensity) { }
 
+		virtual bool IsFinite() const = 0;
+		virtual bool IsDelta() const = 0;
+
 		virtual Spectrum SampleLi(const Point &position, const Point2 &u,
 			Vector &wi, double &dis, double &pdf) const = 0;
 
@@ -41,6 +44,9 @@ class PointLight : public Light
 	public:
 		PointLight(const Point &position, const Spectrum &intensity)
 		:Light(intensity), position_(position) { }
+
+		bool IsFinite() const { return true; }
+		bool IsDelta() const { return true; }
 
 		Spectrum SampleLi(const Point &position, const Point2 &u, Vector &wi, double &dis,
 			double &pdf) const {
@@ -68,6 +74,9 @@ class AreaLight : public Light
 	public:
 		AreaLight(const Object *object, const Spectrum &intensity)
 		:Light(intensity), object_(object) { }
+
+		bool IsFinite() const { return true; }
+		bool IsDelta() const { return false; }
 
 		Spectrum SampleLi(const Point &position, const Point2 &u, Vector &wi, double &dis,
 			double &pdf) const {

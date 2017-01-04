@@ -5,8 +5,8 @@
  *    > Created Time:  2016-12-29 21:09:33
 **/
 
-#ifndef _BI_DIRECTIONAL_PATH_TRACER_HPP_
-#define _BI_DIRECTIONAL_PATH_TRACER_HPP_
+#ifndef _BI_PATH_TRACER_HPP_
+#define _BI_PATH_TRACER_HPP_
 
 #include "vector.hpp"
 #include "point.hpp"
@@ -20,28 +20,35 @@ namespace Zebra {
 class Vertex : public Isect
 {
 	public:
-		static enum { Camera, Light, Surface } Type;
 
 	private:
-		Type     type_;
-		union {
-			Intersection         si_;
-			EndPointIntersection ei_;
-		};
-		Spectrum weight_;
-		bool     delta_;
-		double   pdf_forward_;
-		double   pdf_backward_;
+		const BSDF *bsdf_;
+		Spectrum    weight_;
+		double      pdf_;
 };
 
-class BiDirectionalPathTracer : public Integrator
+class BiPathTracer : public Integrator
 {
 	public:
-		BiDirectionalPathTracer(int iterations, const Scene &scene)
+		BiPathTracer(int iterations, const Scene &scene)
 		:Integrator(iterations, scene) { }
 
 		std::string Render() {
+			int path_count = camera_.resolution_.x_ * camera_.resolution_.y_;
+			auto lights = scene_.Lights();
+			for (int i = 0; i != iterations_; ++i) {
+				for (int j = 0; j != path_count; ++j) {
+					double pdf_pos, pdf_dir;
+					Ray light_ray;
+					Spectrum l = lights[0]->SampleLe(light_ray, rng_.Get2D(), pdf_pos, pdf_dir);
+					l *= 1.0 / (pdf_pos * pdf_dir);
 
+					Intersection isect;
+					if (!scene_.Intersect(light_ray, isect)) break;
+
+
+				}
+			}
 		}
 
 	private:
@@ -50,4 +57,4 @@ class BiDirectionalPathTracer : public Integrator
 
 } // namespace Zebra
 
-#endif /* _BI_DIRECTIONAL_PATH_TRACER_HPP_ */
+#endif /* _BI_PATH_TRACER_HPP_ */

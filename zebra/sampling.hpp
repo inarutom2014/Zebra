@@ -28,6 +28,8 @@ inline Vector UniformSampleSphere(const Point2 &u)
 	double r = std::sqrt(std::max(0.0, 1.0 - z * z));
 	double phi = 2 * PI * u.y_;
 	return Vector(r * std::cos(phi), r * std::sin(phi), z);
+	// double r = 2 * std::sqrt(u.x_ - u.x_ * u.x_);
+	// return Vector(std::cos(phi) * r, std::sin(phi) * r, 1.0 - 2 * u.x_);
 }
 
 inline Vector CosineWeightedHemisphere(const Point2 &u)

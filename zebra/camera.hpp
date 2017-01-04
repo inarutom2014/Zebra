@@ -29,6 +29,7 @@ class Camera
 
 			raster_to_world_ = Inverse(perspective) * raster_to_screen;
 			world_to_raster_ = Inverse(raster_to_world_);
+			image_distance_ = x / (2 * f);
 		}
 
 		Vector RasterToWorld(const Point2 &p) const {
@@ -53,6 +54,7 @@ class Camera
 		}
 
 		const Point2i resolution_;
+		double image_distance_;
 
 	private:
 		Matrix world_to_raster_;

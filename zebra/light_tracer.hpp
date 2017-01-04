@@ -70,8 +70,9 @@ class LightTracer : public Integrator
 					double cosi = Dot(Vector(0, 0, -1), -d);
 					Vector wi = Vector(Dot(d, u), Dot(d, v), Dot(d, w));
 					Spectrum f = isect.bsdf_->F(wo, wi);
-					double pdf = (distance * distance) / (cosi * cosi * cosi);
-					f *= l * CosTheta(wi) * (1.0 / pdf);
+					double pdf = (distance * distance * cosi * cosi * cosi) /
+						(camera_.image_distance_ * camera_.image_distance_);
+					f *= l * CosTheta(wi) * (1.0 / (pdf * path_count_));
 
 					Ray ray(isect.position_ + d * kEpsilon, d, distance);
 					if (!scene_.IntersectP(ray))

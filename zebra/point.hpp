@@ -27,7 +27,7 @@ class point2
 };
 
 typedef point2<double> Point2;
-typedef point2<int> Point2i;
+typedef point2<int>    Point2i;
 
 template <typename T>
 class Point3

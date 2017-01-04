@@ -42,15 +42,6 @@ class Intersection : public Isect
 		const BSDF      *bsdf_;
 };
 
-class EndPointIntersection : public Isect
-{
-	public:
-		union {
-			const Camera *camera_;
-			const Light  *light_;
-		};
-};
-
 } // namespace Zebra
 
 #endif /* _INTERSECTION_HPP_ */
