@@ -12,7 +12,7 @@
 #include <fstream>
 #include <string>
 #include <chrono>
-#include <png.h>
+// #include <png.h>
 
 #include "vector.hpp"
 #include "camera.hpp"
@@ -38,11 +38,9 @@ class Integrator
         uint   mFileSize;
         uint   mReserved01;
         uint   mDataOffset;
-
         uint   mHeaderSize;
         int    mWidth;
         int    mHeight;
-
         short  mColorPlates;
         short  mBitsPerPixel;
         uint   mCompression;
@@ -107,7 +105,7 @@ class Integrator
       }
       return file;
 		}
-
+/*
     std::string WritePNG() {
       time_t t;
       struct tm *tt;
@@ -125,7 +123,6 @@ class Integrator
 
       png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
       png_infop info_ptr = png_create_info_struct(png_ptr);
-
       png_init_io(png_ptr, fp);
 
       int width = camera_.resolution_.x_, height = camera_.resolution_.y_;
@@ -158,7 +155,7 @@ class Integrator
 
       return file;
     }
-
+*/
 		const int         iterations_;
 		const Camera      camera_;
 		const Scene       scene_;

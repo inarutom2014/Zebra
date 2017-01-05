@@ -37,7 +37,7 @@ class LightTracer : public Integrator
 			auto end = std::chrono::high_resolution_clock::now();
 			auto t = std::chrono::duration<double, std::ratio<1>>(end - beg).count();
 			fprintf(stderr, "\ntime:  %.2f  s\n", t);
-			return WritePNG();
+			return WriteBMP();
 		}
 
 		void Walk(const Light *light) {
@@ -62,19 +62,16 @@ class LightTracer : public Integrator
 				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
 
 				if (!isect.bsdf_->IsDelta()) {
-					Vector d = camera_.DirectionToCamera(isect.position_);
-					double distance = d.Length();
-					d /= distance;
-					auto raster = camera_.WorldToRaster(d);
+					double pdf, distance;
+					Vector dir;
+					Point2i raster;
+					Spectrum Wi = camera_.SampleWi(isect.position_, dir, raster, pdf, distance);
 					if (!camera_.RasterIsValid(raster)) break;
-					double cosi = Dot(Vector(0, 0, -1), -d);
-					Vector wi = Vector(Dot(d, u), Dot(d, v), Dot(d, w));
+					Vector wi = Vector(Dot(dir, u), Dot(dir, v), Dot(dir, w));
 					Spectrum f = isect.bsdf_->F(wo, wi);
-					double pdf = (distance * distance * cosi * cosi * cosi) /
-						(camera_.image_distance_ * camera_.image_distance_);
-					f *= l * CosTheta(wi) * (1.0 / (pdf * path_count_));
+					f *= l * Wi * CosTheta(wi) * (1.0 / pdf);
 
-					Ray ray(isect.position_ + d * kEpsilon, d, distance);
+					Ray ray(isect.position_ + dir * kEpsilon, dir, distance);
 					if (!scene_.IntersectP(ray))
 						pixels_[camera_.RasterToIndex(raster)] += f / iterations_;
 				}

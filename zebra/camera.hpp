@@ -29,7 +29,6 @@ class Camera
 
 			raster_to_world_ = Inverse(perspective) * raster_to_screen;
 			world_to_raster_ = Inverse(raster_to_world_);
-			image_distance_ = x / (2 * f);
 		}
 
 		Vector RasterToWorld(const Point2 &p) const {
@@ -41,8 +40,16 @@ class Camera
 			return Point2i(p.x_, p.y_);
 		}
 
-		Vector DirectionToCamera(const Point &p) const {
-			return Point(0) - p;
+		Spectrum SampleWi(const Point &p, Vector &wi, Point2i &raster, double &pdf,
+			double &distance) const {
+			Vector dir = Point(0) - p;
+			distance = dir.Length();
+			wi = dir / distance;
+			double cosi = Dot(Vector(0, 0, -1), wi);
+			pdf = distance * distance / std::abs(cosi);
+			raster = WorldToRaster(wi);
+			double tmp = cosi * cosi;
+			return Spectrum(1.0 / (tmp * tmp));
 		}
 
 		int RasterToIndex(const Point2i &raster) const {
@@ -54,7 +61,6 @@ class Camera
 		}
 
 		const Point2i resolution_;
-		double image_distance_;
 
 	private:
 		Matrix world_to_raster_;
