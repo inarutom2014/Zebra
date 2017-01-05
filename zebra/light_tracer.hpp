@@ -37,7 +37,7 @@ class LightTracer : public Integrator
 			auto end = std::chrono::high_resolution_clock::now();
 			auto t = std::chrono::duration<double, std::ratio<1>>(end - beg).count();
 			fprintf(stderr, "\ntime:  %.2f  s\n", t);
-			return WriteBMP();
+			return WritePNG();
 		}
 
 		void Walk(const Light *light) {

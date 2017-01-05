@@ -1,7 +1,7 @@
-##Zebra: light-weight Monte Carlo Path Tracer
+##Zebra: light-weight Computer Graphics Library
 [English Version of README](./README.en.md)
 
-###Zebra是一个轻量级的蒙特卡洛路径追踪器，它来源于 [Giraffe](https://www.github.com/UncP/Giraffe)
+###Zebra是一个轻量级的计算机图形学离线渲染库，它来源于 [Giraffe](https://www.github.com/UncP/Giraffe)
 
 ***
 

@@ -1,7 +1,7 @@
-##Zebra: light-weight Monte Carlo Path Tracer
+##Zebra: light-weight Computer Graphics Library 
 [中文版README](./README.md)
 
-###Zebra is a light-weight Monte Carlo Path Tracer, it originates from [Giraffe](https://www.github.com/UncP/Giraffe)
+###Zebra is a light-weight CG Library, it originates from [Giraffe](https://www.github.com/UncP/Giraffe)
 
 ***
 
