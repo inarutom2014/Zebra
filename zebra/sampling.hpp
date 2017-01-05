@@ -28,8 +28,6 @@ inline Vector UniformSampleSphere(const Point2 &u)
 	double r = std::sqrt(std::max(0.0, 1.0 - z * z));
 	double phi = 2 * PI * u.y_;
 	return Vector(r * std::cos(phi), r * std::sin(phi), z);
-	// double r = 2 * std::sqrt(u.x_ - u.x_ * u.x_);
-	// return Vector(std::cos(phi) * r, std::sin(phi) * r, 1.0 - 2 * u.x_);
 }
 
 inline Vector CosineWeightedHemisphere(const Point2 &u)
@@ -38,17 +36,16 @@ inline Vector CosineWeightedHemisphere(const Point2 &u)
 	double phi = 2 * PI * u.y_;
 
 	double sini = std::sin(theta);
-	double cosi = std::cos(theta);
 
 	double xs = sini * std::cos(phi);
 	double ys = sini * std::sin(phi);
-	double zs = cosi;
+	double zs = std::cos(theta);
 
 	return Normalize(Vector(xs, ys, zs));
 }
 
-inline double CosineHemispherePdf(double theta) {
-	return theta * INV_PI;
+inline double CosineHemispherePdf(double cos_theta) {
+	return cos_theta * INV_PI;
 }
 
 inline double UniformConePdf(double cos_theta) {

@@ -20,13 +20,13 @@ size_t batch;
 
 TEST(NeuralNetwork)
 {
-	std::vector<size_t> layers = {20, 10};
+	std::vector<size_t> layers = {100, 10};
 	NeuralNetwork nn(layers, Activation(Activation::ReLU));
-	Batch train_data("../data/test");
-	train_data.Load(200);
+	Batch train_data("../data/training");
+	train_data.Load();
 	nn.Train(rate, iter, batch, reg, train_data);
-	Batch test_data("../data/training");
-	test_data.Load(10);
+	Batch test_data("../data/test");
+	test_data.Load();
 	nn.Predict(test_data.X(), test_data.Y());
 }
 

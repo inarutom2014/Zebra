@@ -46,7 +46,6 @@ class BiPathTracer : public Integrator
 					Intersection isect;
 					if (!scene_.Intersect(light_ray, isect)) break;
 
-
 				}
 			}
 		}

@@ -52,11 +52,7 @@ class LightTracer : public Integrator
 				if (!isect.bsdf_) break;
 
 				Vector u, v, w(isect.normal_);
-				if (std::fabs(w.x_) > std::fabs(w.y_))
-					u = Normalize(Cross(Vector(0, 1, 0), w));
-				else
-					u = Normalize(Cross(Vector(1, 0, 0), w));
-				v = Cross(w, u);
+				MakeCoordinateSystem(w, u, v);
 
 				const Vector tmp = -ray.direction_;
 				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
