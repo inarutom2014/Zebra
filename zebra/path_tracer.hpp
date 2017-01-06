@@ -32,8 +32,8 @@ class PathTracer : public Integrator
 				fprintf(stderr, "\rprogress: %.1f %%", (double)x / (X - 1) * 100);
 				for (int y = 0; y < Y; ++y, L = Spectrum()) {
 					for (int n = 0; n < iterations_; ++n) {
-						double dx = rng_.Get1D() - 0.5;
-						double dy = rng_.Get1D() - 0.5;
+						double dx = rng_.Get1() - 0.5;
+						double dy = rng_.Get1() - 0.5;
 						Ray ray(Point(), camera_.RasterToWorld(Point2(dx + x, dy + y)));
 						L += Li(ray);
 					}
@@ -58,7 +58,7 @@ class PathTracer : public Integrator
 
 				if ((!bounce || last_specular) && intersect) {
 					auto light = isect.primitive_->GetAreaLight();
-					L += weight * (light ? light->L(isect, -ray.direction_) : Spectrum());
+					L += weight * (light ? light->L() : Spectrum());
 				}
 
 				if (!isect.bsdf_) break;
@@ -74,8 +74,7 @@ class PathTracer : public Integrator
 					for (auto e : scene_.Lights()) {
 						Vector dir;
 						double distance, pdf;
-						Point2 uu = rng_.Get2D();
-						Spectrum l = e->SampleLi(isect.position_, uu, dir, distance, pdf);
+						Spectrum l = e->SampleLi(isect.position_, rng_.Get2(), dir, distance, pdf);
 						Vector wi = Vector(Dot(dir, u), Dot(dir, v), Dot(dir, w));
 						Spectrum f = isect.bsdf_->F(wo, wi);
 
@@ -90,14 +89,13 @@ class PathTracer : public Integrator
 
 				double pdf;
 				Vector wi;
-				Point2 uu = rng_.Get2D();
-				Spectrum f = isect.bsdf_->SampleF(wo, uu, wi, pdf);
+				Spectrum f = isect.bsdf_->SampleF(wo, rng_.Get2(), wi, pdf);
 				if (f.IsZero() || pdf == 0) break;
 				weight *= f * (AbsCosTheta(wi) * (1.0 / pdf));
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
-					if (rng_.Get1D() > p) break;
+					if (rng_.Get1() > p) break;
 					weight *= 1.0 / p;
 				}
 

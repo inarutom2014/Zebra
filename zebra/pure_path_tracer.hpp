@@ -32,8 +32,8 @@ class PurePathTracer : public Integrator
 				fprintf(stderr, "\rprogress: %.1f %%", (double)x / (X - 1) * 100);
 				for (int y = 0; y < Y; ++y, L = Spectrum()) {
 					for (int n = 0; n < iterations_; ++n) {
-						double dx = rng_.Get1D() - 0.5;
-						double dy = rng_.Get1D() - 0.5;
+						double dx = rng_.Get1() - 0.5;
+						double dy = rng_.Get1() - 0.5;
 						Ray ray(Point(), camera_.RasterToWorld(Point2(dx + x, dy + y)));
 						L += Li(ray);
 					}
@@ -55,7 +55,7 @@ class PurePathTracer : public Integrator
 
 				auto light = isect.primitive_->GetAreaLight();
 				if (light) {
-					L += weight * light->L(isect, -ray.direction_);
+					L += weight * light->L();
 					break;
 				}
 
@@ -68,14 +68,13 @@ class PurePathTracer : public Integrator
 
 				double pdf;
 				Vector wi;
-				Point2 uu = rng_.Get2D();
-				Spectrum f = isect.bsdf_->SampleF(wo, uu, wi, pdf);
+				Spectrum f = isect.bsdf_->SampleF(wo, rng_.Get2(), wi, pdf);
 				if (f.IsZero() || pdf == 0) break;
 				weight *= f * (AbsCosTheta(wi) * (1.0 / pdf));
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
-					if (rng_.Get1D() > p) break;
+					if (rng_.Get1() > p) break;
 					weight *= 1.0 / p;
 				}
 

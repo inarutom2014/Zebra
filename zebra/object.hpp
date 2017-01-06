@@ -24,9 +24,10 @@ class Object
 
 		virtual bool IntersectP(const Ray &ray) const = 0;
 
-		virtual Isect Sample(const Point2 &u) const = 0;
+		virtual void SampleD(const Point &p, const Point2 &u, Vector &wi, double &pdf, double &dis)
+			const = 0;
 
-		virtual double Pdf(const Isect &v) const = 0;
+		virtual void SampleL(const Point2 &u, Point &p, Vector &normal, double &pdf) const = 0;
 
 		virtual ~Object() { }
 };
@@ -74,15 +75,24 @@ class Sphere : public Object
 			return d < r.max_ ? true : false;
 		}
 
-		Isect Sample(const Point2 &u) const override {
-			Point p = position_ + UniformSampleSphere(u) * radius_;
-			return Isect(p, Normalize(p - position_));
+		void SampleD(const Point &p, const Point2 &u, Vector &wi, double &pdf, double &dis) const {
+			Vector x, y, z(position_ - p);
+			dis = z.Length();
+			MakeCoordinateSystem(z, x, y);
+			double cos_theta = std::sqrt(std::max(0.0, 1.0 - radius_ * radius_ / z.Length2()));
+			double cosa = 1 - u.x_ + u.x_ * cos_theta;
+			double sina = std::sqrt(1 - cosa * cosa);
+			double phi = 2 * PI * u.y_;
+			wi = Normalize(x * (std::cos(phi) * sina) + y * (std::sin(phi) * sina) + z * cosa);
+			pdf = UniformConePdf(cos_theta);
 		}
 
-		double Pdf(const Isect &v) const override {
-			double sini = radius_ * radius_ / (v.position_ - position_).Length2();
-			double cos_theta = std::sqrt(std::max(0.0, 1.0 - sini));
-			return UniformConePdf(cos_theta);
+		void SampleL(const Point2 &u, Point &p, Vector &n, double &pdf) const override {
+			p = position_ + UniformSampleSphere(u) * radius_;
+			Vector tmp = p - position_;
+			n = Normalize(tmp);
+			double cos_theta = std::sqrt(std::max(0.0, 1.0 - radius_ * radius_ / tmp.Length2()));
+			pdf = UniformConePdf(cos_theta);
 		}
 
 	private:
@@ -118,12 +128,12 @@ class Plane : public Object
 			return d < r.max_ ? true : false;
 		}
 
-		Isect Sample(const Point2 &u) const override {
-			return Isect();
+		void SampleD(const Point &p, const Point2 &u, Vector &wi, double &pdf, double &dis) const {
+
 		}
 
-		double Pdf(const Isect &v) const override {
-			return 0.0;
+		void SampleL(const Point2 &u, Point &p, Vector &n, double &pdf) const {
+
 		}
 
 	private:

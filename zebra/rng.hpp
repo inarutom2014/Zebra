@@ -18,11 +18,11 @@ class Rng
 	public:
 		Rng():generator_(time(0)), distribution_(0, 1) { }
 
-		double Get1D() {
+		double Get1() {
 			return distribution_(generator_);
 		}
 
-		Point2 Get2D() {
+		Point2 Get2() {
 			return Point2(distribution_(generator_), distribution_(generator_));
 		}
 

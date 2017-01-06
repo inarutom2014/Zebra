@@ -80,32 +80,27 @@ class AreaLight : public Light
 
 		Spectrum SampleLi(const Point &position, const Point2 &u, Vector &wi, double &dis,
 			double &pdf) const {
-			Isect v = object_->Sample(u);
-			Vector dir(v.position_ - position);
-			dis = dir.Length();
-			wi  = dir / dis;
-			pdf = object_->Pdf(v);
-			return L(v, -wi);
+			object_->SampleD(position, u, wi, pdf, dis);
+			return intensity_;
 		}
 
 		Spectrum SampleLe(Ray &ray, const Point2 &u, double &pdf_pos, double &pdf_dir) const {
-			Isect v = object_->Sample(u);
-			pdf_pos = object_->Pdf(v);
-			Vector w = CosineWeightedHemisphere(u);
-			pdf_dir = CosineHemispherePdf(CosTheta(w));
+			Point pos;
+			Vector normal;
+			object_->SampleL(u, pos, normal, pdf_pos);
+			Vector tmp = CosineWeightedHemisphere(u);
+			pdf_dir = CosineHemispherePdf(CosTheta(tmp));
 
-			Vector x, y, z(v.normal_);
+			Vector x, y, z(normal);
 			MakeCoordinateSystem(z, x, y);
 
-			w = x * w.x_ + y * w.y_ + z * w.z_;
+			Vector dir = x * tmp.x_ + y * tmp.y_ + z * tmp.z_;
 
-			ray = Ray(v.position_, w);
-			return L(v, w);
+			ray = Ray(pos, dir);
+			return intensity_;
 		}
 
-		Spectrum L(const Isect &v, const Vector &w) const {
-			return Dot(v.normal_, w) > 0 ? intensity_ : Spectrum();
-		}
+		Spectrum L() const { return intensity_; }
 
 		~AreaLight() { delete object_; }
 

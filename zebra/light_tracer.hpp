@@ -43,8 +43,8 @@ class LightTracer : public Integrator
 		void Walk(const Light *light) {
 			double pdf_pos, pdf_dir;
 			Ray ray;
-			Spectrum l = light->SampleLe(ray, rng_.Get2D(), pdf_pos, pdf_dir);
-			l *= 1.0 / (pdf_pos * pdf_dir);
+			Spectrum Le = light->SampleLe(ray, rng_.Get2(), pdf_pos, pdf_dir);
+			Le /= pdf_pos * pdf_dir;
 			for (int bounce = 0; ; ++bounce) {
 				Intersection isect;
 				if (bounce > 5 || !scene_.Intersect(ray, isect)) break;
@@ -65,7 +65,7 @@ class LightTracer : public Integrator
 					if (!camera_.RasterIsValid(raster)) break;
 					Vector wi = Vector(Dot(dir, u), Dot(dir, v), Dot(dir, w));
 					Spectrum f = isect.bsdf_->F(wo, wi);
-					f *= l * Wi * CosTheta(wi) * (1.0 / pdf);
+					f *= Le * Wi * CosTheta(wi) * (1.0 / pdf);
 
 					Ray ray(isect.position_ + dir * kEpsilon, dir, distance);
 					if (!scene_.IntersectP(ray))
@@ -74,13 +74,13 @@ class LightTracer : public Integrator
 
 				double pdf;
 				Vector wi;
-				Spectrum f = isect.bsdf_->SampleF(wo, rng_.Get2D(), wi, pdf);
-				l *= f * (AbsCosTheta(wi) * (1.0 / pdf));
+				Spectrum f = isect.bsdf_->SampleF(wo, rng_.Get2(), wi, pdf);
+				Le *= f * (AbsCosTheta(wi) * (1.0 / pdf));
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
-					if (rng_.Get1D() > p) break;
-					l *= 1.0 / p;
+					if (rng_.Get1() > p) break;
+					Le *= 1.0 / p;
 				}
 
 				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
