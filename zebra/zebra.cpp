@@ -12,7 +12,7 @@
 #include "parser.hpp"
 #include "path_tracer.hpp"
 #include "light_tracer.hpp"
-// #include "bi_path_tracer.hpp"
+#include "bi_path_tracer.hpp"
 #include "pure_path_tracer.hpp"
 
 int main(int argc, char **argv)
