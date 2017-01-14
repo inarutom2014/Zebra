@@ -43,7 +43,8 @@ class LightTracer : public Integrator
 		void Walk(const Light *light) {
 			double pdf_pos, pdf_dir;
 			Ray ray;
-			Spectrum Le = light->SampleLe(ray, rng_.Get2(), pdf_pos, pdf_dir);
+			Vector normal;
+			Spectrum Le = light->SampleLe(ray, normal, rng_.Get2(), pdf_pos, pdf_dir);
 			Le /= pdf_pos * pdf_dir;
 			for (int bounce = 0; ; ++bounce) {
 				Intersection isect;
@@ -51,31 +52,24 @@ class LightTracer : public Integrator
 
 				if (!isect.bsdf_) break;
 
-				Vector u, v, w(isect.normal_);
-				MakeCoordinateSystem(w, u, v);
-
-				const Vector tmp = -ray.direction_;
-				const Vector wo = Vector(Dot(tmp, u), Dot(tmp, v), Dot(tmp, w));
-
 				if (!isect.bsdf_->IsDelta()) {
 					double pdf, distance;
-					Vector dir;
+					Vector wi;
 					Point2i raster;
-					Spectrum Wi = camera_.SampleWi(isect.position_, dir, raster, pdf, distance);
+					Spectrum Wi = camera_.SampleWi(isect.position_, wi, raster, pdf, distance);
 					if (!camera_.RasterIsValid(raster)) break;
-					Vector wi = Vector(Dot(dir, u), Dot(dir, v), Dot(dir, w));
-					Spectrum f = isect.bsdf_->F(wo, wi);
-					f *= Le * Wi * CosTheta(wi) * (1.0 / pdf);
+					Spectrum f = isect.bsdf_->F(ray.direction_, wi);
+					f *= Le * Wi * Dot(isect.normal_, wi) * (1.0 / pdf);
 
-					Ray ray(isect.position_ + dir * kEpsilon, dir, distance);
+					Ray ray(isect.position_ + wi * kEpsilon, wi, distance);
 					if (!scene_.IntersectP(ray))
 						pixels_[camera_.RasterToIndex(raster)] += f / iterations_;
 				}
 
 				double pdf;
 				Vector wi;
-				Spectrum f = isect.bsdf_->SampleF(wo, rng_.Get2(), wi, pdf);
-				Le *= f * (AbsCosTheta(wi) * (1.0 / pdf));
+				Spectrum f = isect.bsdf_->SampleF(ray.direction_, isect.normal_, rng_.Get2(), wi, pdf);
+				Le *= f * (std::abs(Dot(isect.normal_, wi)) * (1.0 / pdf));
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
@@ -83,8 +77,7 @@ class LightTracer : public Integrator
 					Le *= 1.0 / p;
 				}
 
-				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
-				ray = Ray(isect.position_ + dir * kEpsilon, dir);
+				ray = Ray(isect.position_ + wi * kEpsilon, wi);
 			}
 		}
 

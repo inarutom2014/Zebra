@@ -40,6 +40,11 @@ class Camera
 			return Point2i(p.x_, p.y_);
 		}
 
+		void PdfWe(const Ray &ray, double &pdf_dir) const {
+			double cosi = Dot(Vector(0, 0, -1), ray.direction_);
+			pdf_dir = 1.0 / (cosi * cosi * cosi);
+		}
+
 		Spectrum SampleWi(const Point &p, Vector &wi, Point2i &raster, double &pdf,
 			double &distance) const {
 			Vector dir = Point(0) - p;

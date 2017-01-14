@@ -42,7 +42,7 @@ class Primitive
 			delete bsdf_;
 		}
 
-	private:
+	// private:
 		const Object    *object_;
 		const BSDF      *bsdf_;
 		const AreaLight *light_;

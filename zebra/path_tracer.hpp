@@ -63,24 +63,16 @@ class PathTracer : public Integrator
 
 				if (!isect.bsdf_) break;
 
-				Vector u, v, w(isect.normal_);
-				MakeCoordinateSystem(w, u, v);
-
-				const Vector wo = Vector(Dot(-ray.direction_, u),
-                                 Dot(-ray.direction_, v),
-                                 Dot(-ray.direction_, w));
-
 				if (!isect.bsdf_->IsDelta()) {
 					for (auto e : scene_.Lights()) {
-						Vector dir;
+						Vector wi;
 						double distance, pdf;
-						Spectrum l = e->SampleLi(isect.position_, rng_.Get2(), dir, distance, pdf);
-						Vector wi = Vector(Dot(dir, u), Dot(dir, v), Dot(dir, w));
-						Spectrum f = isect.bsdf_->F(wo, wi);
+						Spectrum l = e->SampleLi(isect.position_, rng_.Get2(), wi, distance, pdf);
+						Spectrum f = isect.bsdf_->F(ray.direction_, wi);
 
-						Ray shadow_ray(isect.position_ + dir * kEpsilon, dir, distance);
+						Ray shadow_ray(isect.position_ + wi * kEpsilon, wi, distance);
 						if (!scene_.IntersectP(shadow_ray))
-							L += weight * f * l * (CosTheta(wi) * (1.0 / pdf));
+							L += weight * f * l * (Dot(isect.normal_, wi) * (1.0 / pdf));
 					}
 					last_specular = false;
 				} else {
@@ -89,9 +81,9 @@ class PathTracer : public Integrator
 
 				double pdf;
 				Vector wi;
-				Spectrum f = isect.bsdf_->SampleF(wo, rng_.Get2(), wi, pdf);
+				Spectrum f = isect.bsdf_->SampleF(ray.direction_, isect.normal_, rng_.Get2(), wi, pdf);
 				if (f.IsZero() || pdf == 0) break;
-				weight *= f * (AbsCosTheta(wi) * (1.0 / pdf));
+				weight *= f * (std::abs(Dot(isect.normal_, wi)) * (1.0 / pdf));
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
@@ -99,8 +91,7 @@ class PathTracer : public Integrator
 					weight *= 1.0 / p;
 				}
 
-				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
-				ray = Ray(isect.position_ + dir * kEpsilon, dir);
+				ray = Ray(isect.position_ + wi * kEpsilon, wi);
 			}
 			return L;
 		}

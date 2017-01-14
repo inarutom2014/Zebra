@@ -59,18 +59,11 @@ class PurePathTracer : public Integrator
 					break;
 				}
 
-				Vector u, v, w(isect.normal_);
-				MakeCoordinateSystem(w, u, v);
-
-				const Vector wo = Vector(Dot(-ray.direction_, u),
-                                 Dot(-ray.direction_, v),
-                                 Dot(-ray.direction_, w));
-
 				double pdf;
 				Vector wi;
-				Spectrum f = isect.bsdf_->SampleF(wo, rng_.Get2(), wi, pdf);
+				Spectrum f = isect.bsdf_->SampleF(ray.direction_, isect.normal_, rng_.Get2(), wi, pdf);
 				if (f.IsZero() || pdf == 0) break;
-				weight *= f * (AbsCosTheta(wi) * (1.0 / pdf));
+				weight *= f * (std::abs(Dot(isect.normal_, wi)) * (1.0 / pdf));
 
 				if (bounce > 3) {
 					double p = std::max(f.x_, std::max(f.y_, f.z_));
@@ -78,8 +71,7 @@ class PurePathTracer : public Integrator
 					weight *= 1.0 / p;
 				}
 
-				Vector dir = u * wi.x_ + v * wi.y_ + w * wi.z_;
-				ray = Ray(isect.position_ + dir * kEpsilon, dir);
+				ray = Ray(isect.position_ + wi * kEpsilon, wi);
 			}
 			return L;
 		}

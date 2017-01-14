@@ -29,6 +29,8 @@ class Object
 
 		virtual void SampleL(const Point2 &u, Point &p, Vector &normal, double &pdf) const = 0;
 
+		virtual double Pdf(const Point &p) const = 0;
+
 		virtual ~Object() { }
 };
 
@@ -95,6 +97,12 @@ class Sphere : public Object
 			pdf = UniformConePdf(cos_theta);
 		}
 
+		double Pdf(const Point &p) const {
+			double cos_theta = std::sqrt(std::max(0.0, 1.0 - radius_ * radius_ /
+				(p - position_).Length2()));
+			return UniformConePdf(cos_theta);
+		}
+
 	private:
 		const double radius_;
 		const Point  position_;
@@ -133,6 +141,11 @@ class Plane : public Object
 		}
 
 		void SampleL(const Point2 &u, Point &p, Vector &n, double &pdf) const {
+
+		}
+
+		double Pdf(const Point &p) const {
+			return 0.0;
 
 		}
 

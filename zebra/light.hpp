@@ -30,8 +30,11 @@ class Light
 		virtual Spectrum SampleLi(const Point &position, const Point2 &u,
 			Vector &wi, double &dis, double &pdf) const = 0;
 
-		virtual Spectrum SampleLe(Ray &ray, const Point2 &u,
+		virtual Spectrum SampleLe(Ray &ray, Vector &normal, const Point2 &u,
 			double &pdf_pos, double &pdf_dir) const = 0;
+
+		virtual void PdfLe(const Ray &ray, const Vector &normal, double &pdf_pos, double &pdf_dir)
+			const = 0;
 
 		virtual ~Light() { }
 
@@ -58,11 +61,18 @@ class PointLight : public Light
 			return intensity_ / tmp;
 		}
 
-		Spectrum SampleLe(Ray &ray, const Point2 &u, double &pdf_pos, double &pdf_dir) const {
+		Spectrum SampleLe(Ray &ray, Vector &normal, const Point2 &u,
+			double &pdf_pos, double &pdf_dir) const {
 			ray = Ray(position_, UniformSampleSphere(u));
+			normal = ray.direction_;
 			pdf_pos = 1.0;
 			pdf_dir = INV_PI * 0.25;
 			return intensity_;
+		}
+
+		void PdfLe(const Ray &ray, const Vector &normal, double &pdf_pos, double &pdf_dir) const {
+			pdf_pos = 0;
+			pdf_dir = 1.0 / (PI * 4);
 		}
 
 	private:
@@ -84,9 +94,9 @@ class AreaLight : public Light
 			return intensity_;
 		}
 
-		Spectrum SampleLe(Ray &ray, const Point2 &u, double &pdf_pos, double &pdf_dir) const {
+		Spectrum SampleLe(Ray &ray, Vector &normal, const Point2 &u,
+			double &pdf_pos, double &pdf_dir) const {
 			Point pos;
-			Vector normal;
 			object_->SampleL(u, pos, normal, pdf_pos);
 			Vector tmp = CosineWeightedHemisphere(u);
 			pdf_dir = CosineHemispherePdf(CosTheta(tmp));
@@ -98,6 +108,11 @@ class AreaLight : public Light
 
 			ray = Ray(pos, dir);
 			return intensity_;
+		}
+
+		void PdfLe(const Ray &ray, const Vector &normal, double &pdf_pos, double &pdf_dir) const {
+			pdf_pos = object_->Pdf(ray.origin_);
+			pdf_dir = CosineHemispherePdf(Dot(normal, ray.direction_));
 		}
 
 		Spectrum L() const { return intensity_; }
