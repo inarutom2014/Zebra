@@ -72,7 +72,8 @@ double NeuralNetwork::ComputeLoss(const Matrix<double> &x, const Vector<uint8_t>
 		n[i+1] = activation_.Forward(m[i]);
 	}
 
-	auto exp = m[layers_.size()-1].Exp();
+	size_t idx = layers_.size() - 1;
+	auto exp = m[idx].Exp();
 	auto sum = exp.Sum(0);
 	auto shape = exp.Shape();
 	Vector<double> tmp(shape.first);
@@ -89,7 +90,6 @@ double NeuralNetwork::ComputeLoss(const Matrix<double> &x, const Vector<uint8_t>
 		delta[i][y[i]] -= 1;
 	delta /= shape.first;
 
-	size_t idx = layers_.size() - 1;
 	dw_[idx] = n[idx].T().Dot(delta);
 	dw_[idx] += w_[idx] * reg;
 	db_[idx] = delta.Sum(1);
