@@ -1,0 +1,19 @@
+Light Area Sphere Position 0 5 -5 Radius 1 Intensity 12 12 12
+
+Object Sphere Position -6 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.55 0.0 1.0
+Object Sphere Position -5 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.0 0.0 1.0
+Object Sphere Position -4 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.0 0.5 1.0
+Object Sphere Position -3 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.0 1.0 0.0
+Object Sphere Position -2 -0.5 -5 Radius 0.5 Diffuse Spectrum 1.0 1.0 0.0
+Object Sphere Position -1 -0.5 -5 Radius 0.5 Diffuse Spectrum 1.0 0.65 0.0
+Object Sphere Position 0 -0.5 -5 Radius 0.5 Diffuse Spectrum 1.0 0.0 0.0
+Object Sphere Position 1 -0.5 -5 Radius 0.5 Diffuse Spectrum 1.0 0.65 0.0
+Object Sphere Position 2 -0.5 -5 Radius 0.5 Diffuse Spectrum 1.0 1.0 0.0
+Object Sphere Position 3 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.0 1.0 0.0
+Object Sphere Position 4 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.0 0.5 1.0
+Object Sphere Position 5 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.0 0.0 1.0
+Object Sphere Position 6 -0.5 -5 Radius 0.5 Diffuse Spectrum 0.55 0.0 1.0
+
+Object Sphere Position 0 5 -17 Radius 10 Reflect Spectrum 1.0 1.0 1.0
+
+Object Plane Position 0 -1 0 Normal 0 1 0 Diffuse Spectrum 0.9 0.9 0.9
