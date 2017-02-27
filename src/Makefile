@@ -1,13 +1,10 @@
 D =
 
-Zebra:zebra.cpp
-	g++ -std=c++14 -Wall -fopenmp -O3 zebra.cpp -o Zebra $(D)
-
-tag:
-	ctags -R --sort=yes -f .tags -h .hpp
+all:zebra.cpp
+	g++ -std=c++14 -Wall -O3 -fopenmp zebra.cpp -o Zebra
 
 pic:
 	rm 1/*.bmp
 
 clean:
-	rm Zebra
+	rm Zebra .tags*

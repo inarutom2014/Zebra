@@ -1,11 +1,4 @@
 *.o
-vector_test
-matrix_test
-kernal_test
-svm_test
-activation_test
-nn_test
 Zebra
-.tags
-.tags_sorted_by_file
+.tags*
 1

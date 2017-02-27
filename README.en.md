@@ -20,9 +20,4 @@
 * Path Tracing with Direct Illumination
 * Light Tracer
 
-####Rainbow
-![](./image/rainbow.bmp)
-
-####Cornell Box
-![](./image/box.bmp)
 

@@ -20,8 +20,3 @@
 * 路径追踪（直接光照）
 * Light Tracer
 
-####Rainbow
-![](./image/rainbow.bmp)
-
-####Cornell Box
-![](./image/box.bmp)
