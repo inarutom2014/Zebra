@@ -1,0 +1,19 @@
+Sphere Diffuse Position 0 15 8 Radius 10 Spectrum 3 3 3 Spectrum 0 0 0
+
+Sphere Diffuse Position -6 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 0.55 0.0 1.0
+Sphere Diffuse Position -5 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 0.0 0.0 1.0
+Sphere Diffuse Position -4 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 0.0 0.5 1.0
+Sphere Diffuse Position -3 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 0.0 1.0 0.0
+Sphere Diffuse Position -2 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 1.0 1.0 0.0
+Sphere Diffuse Position -1 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 1.0 0.65 0.0
+Sphere Diffuse Position 0 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 1.0 0.0 0.0
+Sphere Diffuse Position 1 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 1.0 0.65 0.0
+Sphere Diffuse Position 2 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 1.0 1.0 0.0
+Sphere Diffuse Position 3 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 0.0 1.0 0.0
+Sphere Diffuse Position 4 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 0.0 0.5 1.0
+Sphere Diffuse Position 5 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 0.0 0.0 1.0
+Sphere Diffuse Position 6 -1 8 Radius 0.5 Spectrum 0 0 0 Spectrum 0.55 0.0 1.0
+
+Sphere Reflect Position 0 5 25 Radius 15 Spectrum 0 0 0 Spectrum 1 1 1
+
+Sphere Diffuse Position 0 -100001.5 0 Radius 1e5 Spectrum 0 0 0 Spectrum 1 1 1
