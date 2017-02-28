@@ -1,5 +1,4 @@
 Sphere Diffuse Position 0 7 5.25 Radius 6.115 Spectrum 24 24 24 Spectrum 0 0 0
-#Sphere Diffuse Position 0 0.8 5.25 Radius 0.08 Spectrum 128 128 128 Spectrum 0 0 0
 
 Sphere Reflect Position -0.55 -0.75 5.5 Radius 0.35 Spectrum 0 0 0 Spectrum 1 1 1        #mirror
 Sphere Refract Position 0.57 -0.77 5 Radius 0.33 Spectrum 0 0 0 Spectrum 1 1 1           #glass
@@ -8,5 +7,5 @@ Sphere Diffuse Position  99998.75 0 5.25 Radius 1e5 Spectrum 0 0 0 Spectrum 0.25
 Sphere Diffuse Position -99998.75 0 5.25 Radius 1e5 Spectrum 0 0 0 Spectrum 0.75 0.25 0.25 #right
 Sphere Diffuse Position 0  99998.9 5.25 Radius 1e5 Spectrum 0 0 0 Spectrum 0.75 0.75 0.75  #bottom
 Sphere Diffuse Position 0 -99999.1 5.25 Radius 1e5 Spectrum 0 0 0 Spectrum 0.75 0.75 0.75  #top
-Sphere Diffuse Position 0  0 -99993 Radius 1e5 Spectrum 0 0 0 Spectrum 0.75 0.75 0.25      #back
+Sphere Diffuse Position 0  0 -99993 Radius 1e5 Spectrum 0 0 0 Spectrum 0.6 0.5 0.1      #back
 Sphere Diffuse Position 0  0 1e5 Radius 1e5 Spectrum 0 0 0 Spectrum 0 0 0                  #front

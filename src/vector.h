@@ -81,9 +81,9 @@ class Vector
 			return std::sqrt(x_ * x_ + y_ * y_ + z_ * z_);
 		}
 		void Clamp() {
-			x_ = (x_<0) ? 0 : ((x_>1) ? 1 : x_);
-			y_ = (y_<0) ? 0 : ((y_>1) ? 1 : y_);
-			z_ = (z_<0) ? 0 : ((z_>1) ? 1 : z_);
+			x_ = std::min(1.0, std::max(0.0, x_));
+			y_ = std::min(1.0, std::max(0.0, y_));
+			z_ = std::min(1.0, std::max(0.0, z_));
 		}
 
 		double x_, y_, z_;

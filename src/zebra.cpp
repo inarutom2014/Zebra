@@ -21,11 +21,11 @@ int main(int argc, char **argv)
 	else
 		strcpy(scene, "box");
 	strcat(scene, ".Zebra");
-	int samples = 4;
+	int samples = 1;
 	if (argc > 2)
 		samples = atoi(argv[2]);
-	if (samples < 4)
-		samples = 4;
+	if (samples < 1)
+		samples = 1;
 
 	Parser parser(scene);
 	Integrator *integrator = new PathTracer(samples);

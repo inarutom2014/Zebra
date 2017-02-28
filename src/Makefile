@@ -1,10 +1,10 @@
 D =
 
 all:zebra.cpp
-	g++ -std=c++14 -Wall -O3 -fopenmp zebra.cpp -o Zebra
+	g++ -std=c++14 -Wall -O3 -fopenmp zebra.cpp -o Zebra $(D)
 
 pic:
-	rm 1/*.bmp
+	rm test/*
 
 clean:
 	rm Zebra .tags*

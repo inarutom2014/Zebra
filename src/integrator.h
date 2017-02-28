@@ -53,7 +53,7 @@ class Integrator
 			std::ostringstream os;
 			os << tt->tm_hour << "-" << tt->tm_min << "-" << tt->tm_sec;
       os << "_" << (samples * 4);
-			std::string file("./1/" + os.str());
+			std::string file("./test/" + os.str());
 			file += ".bmp";
 			fprintf(stderr, "save to: %s.bmp\n", os.str().c_str());
 
@@ -82,8 +82,11 @@ class Integrator
 
       for (int y = 0; y < camera_.y_; ++y) {
         for (int x = 0; x < camera_.x_; ++x) {
-          const Vector &rgb = pixels_[x + (camera_.y_ - y - 1) * camera_.x_];
+          Vector &rgb = pixels_[x + (camera_.y_ - y - 1) * camera_.x_];
           double tmp[3];
+          // tmp[0] = std::pow(rgb.z_, 1.0/2.2) * 255 + 0.5;
+          // tmp[1] = std::pow(rgb.y_, 1.0/2.2) * 255 + 0.5;
+          // tmp[2] = std::pow(rgb.x_, 1.0/2.2) * 255 + 0.5;
           tmp[0] = rgb.z_ * 255 + 0.5;
           tmp[1] = rgb.y_ * 255 + 0.5;
           tmp[2] = rgb.x_ * 255 + 0.5;

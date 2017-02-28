@@ -21,7 +21,7 @@ namespace Zebra {
 class PathTracer : public Integrator
 {
 	public:
-		PathTracer(int samples):samples_(samples / 4) { }
+		PathTracer(int samples):samples_(samples) { }
 
 		std::string Render(const std::vector<Object *> &scene) {
 			auto beg = std::chrono::high_resolution_clock::now();
@@ -51,7 +51,6 @@ class PathTracer : public Integrator
 		}
 
 		Spectrum Li(const std::vector<Object *> &scene, Ray ray) {
-			double specular = 1;
 			Spectrum L(0), weight(1);
 			for (int bounce = 0; bounce <= 5; ++bounce) {
 				bool intersect = false;
@@ -62,7 +61,7 @@ class PathTracer : public Integrator
 
 				if (!intersect) break;
 
-				L += weight * interaction.o_->e_ * specular;
+				L += weight * interaction.o_->e_;
 
 				if (Dot(ray.d_, interaction.n_) > 0) interaction.n_ = -interaction.n_;
 
@@ -85,9 +84,6 @@ class PathTracer : public Integrator
 						if (!flag)
 							L += weight * f * e->e_ * (Dot(nd, interaction.n_) * pdf);
 					}
-					specular = 0;
-				} else {
-					specular = 1;
 				}
 				#endif
 
